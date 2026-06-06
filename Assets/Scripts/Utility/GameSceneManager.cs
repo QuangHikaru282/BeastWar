@@ -10,6 +10,8 @@ public class GameSceneManager : MonoBehaviour
     public const string SCENE_MAP        = "MapScene";
     public const string SCENE_FORMATION  = "FormationScene";
     public const string SCENE_BATTLE     = "BattleScene";
+    public const string SCENE_HUNTING    = "HuntingScene";
+    public const string SCENE_WORLDMAP   = "WorldMapScene";
 
     private void Awake()
     {
@@ -27,4 +29,6 @@ public class GameSceneManager : MonoBehaviour
     public static void GoToMap()        => SceneManager.LoadScene(SCENE_MAP);
     public static void GoToFormation()  => SceneManager.LoadScene(SCENE_FORMATION);
     public static void GoToBattle()     => SceneManager.LoadScene(SCENE_BATTLE);
+    public static void GoToHunting()    => SceneManager.LoadScene(SCENE_HUNTING);
+    public static void GoToWorldMap()   => SceneManager.LoadScene(SCENE_WORLDMAP);
 }

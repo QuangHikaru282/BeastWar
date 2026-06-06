@@ -45,6 +45,7 @@ public class BattleManager : MonoBehaviour
     private bool waitingForPlayerAction;
     private BeastUnit chosenAttacker;
     private BeastUnit chosenTarget;
+    private MoveData chosenMove;
 
     // ─── Unity Lifecycle ─────────────────────────────────────────────
 
@@ -72,11 +73,17 @@ public class BattleManager : MonoBehaviour
             // Lượt Player
             state = BattleState.PlayerTurn;
             yield return StartCoroutine(PlayerTurn());
+            
+            // Nếu quái địch chết, spawn con tiếp theo thế chỗ trước khi check kết thúc
+            yield return StartCoroutine(CheckAndSpawnNextEnemy());
             if (CheckBattleEnd()) break;
 
             // Lượt Enemy
             state = BattleState.EnemyTurn;
             yield return StartCoroutine(EnemyTurn());
+
+            // Nếu thú của Player chết, spawn con tiếp theo thế chỗ trước khi check kết thúc
+            yield return StartCoroutine(CheckAndSpawnNextPlayer());
             if (CheckBattleEnd()) break;
 
             yield return new WaitForSeconds(0.3f);
@@ -89,11 +96,16 @@ public class BattleManager : MonoBehaviour
 
     // ─── INIT ────────────────────────────────────────────────────────
 
+    // Hàng chờ quái địch dự phòng (đối với trận đấu ải WorldMap)
+    private Queue<BeastData> pendingEnemyQueue = new Queue<BeastData>();
+    // Hàng chờ thú của người chơi dự phòng
+    private Queue<BeastData> pendingPlayerQueue = new Queue<BeastData>();
+
     private IEnumerator InitBattle()
     {
         Debug.Log("[BattleManager] Trận chiến bắt đầu!");
 
-        // Spawn đội Player
+        // Lấy đội hình Player
         var pFormation = playerData.currentFormation.Where(b => b != null).ToList();
 
         // Tự động lấy Beast trong túi nếu đội hình trống
@@ -104,18 +116,51 @@ public class BattleManager : MonoBehaviour
             Debug.Log($"[BattleManager] Đội hình trống! Tự động gán {pFormation.Count} Beast.");
         }
 
-        for (int i = 0; i < pFormation.Count && i < playerSpawnPoints.Count; i++)
+        // Đưa đội hình Player vào hàng chờ
+        pendingPlayerQueue.Clear();
+        
+        // Nếu là trận 1v1 khi săn bắt (HuntingScene), chỉ dùng 1 Beast đầu tiên, không xếp hàng chờ các con sau
+        if (battleTransferData != null && battleTransferData.isSingleBattle)
         {
-            var unit = SpawnBeastUnit(pFormation[i], playerSpawnPoints[i], true);
-            playerTeam.Add(unit);
+            if (pFormation.Count > 0)
+            {
+                var unit = SpawnBeastUnit(pFormation[0], playerSpawnPoints[0], true);
+                playerTeam.Add(unit);
+            }
+        }
+        else
+        {
+            // Trận đấu ải WorldMap: Cho ra sân lần lượt
+            foreach (var playerBeast in pFormation)
+            {
+                pendingPlayerQueue.Enqueue(playerBeast);
+            }
+
+            if (pendingPlayerQueue.Count > 0 && playerSpawnPoints.Count > 0)
+            {
+                var firstPlayer = pendingPlayerQueue.Dequeue();
+                var unit = SpawnBeastUnit(firstPlayer, playerSpawnPoints[0], true);
+                playerTeam.Add(unit);
+                Debug.Log($"[BattleManager] Đã spawn thú Player đầu tiên: {firstPlayer.beastName}");
+            }
         }
 
-        // Spawn đội Enemy
+        // Spawn đội Enemy (Chế độ lần lượt thế chỗ)
         var eFormation = battleTransferData.wildEnemyTeam.Where(b => b != null).ToList();
-        for (int i = 0; i < eFormation.Count && i < enemySpawnPoints.Count; i++)
+        
+        pendingEnemyQueue.Clear();
+        foreach (var enemyBeast in eFormation)
         {
-            var unit = SpawnBeastUnit(eFormation[i], enemySpawnPoints[i], false);
+            pendingEnemyQueue.Enqueue(enemyBeast);
+        }
+
+        // Chỉ spawn con enemy đầu tiên lên sân
+        if (pendingEnemyQueue.Count > 0 && enemySpawnPoints.Count > 0)
+        {
+            var firstEnemy = pendingEnemyQueue.Dequeue();
+            var unit = SpawnBeastUnit(firstEnemy, enemySpawnPoints[0], false);
             enemyTeam.Add(unit);
+            Debug.Log($"[BattleManager] Đã spawn quái enemy đầu tiên: {firstEnemy.beastName}");
         }
 
         // Khởi tạo ActionPanel
@@ -133,7 +178,7 @@ public class BattleManager : MonoBehaviour
         go.transform.position = spawnPoint.position;
 
         var unit = go.GetComponent<BeastUnit>() ?? go.AddComponent<BeastUnit>();
-        unit.Initialize(data, isPlayer, null);
+        unit.Initialize(data, isPlayer);
         return unit;
     }
 
@@ -152,13 +197,14 @@ public class BattleManager : MonoBehaviour
             yield return null;
 
         // Thực hiện tấn công
-        yield return StartCoroutine(ExecuteAttack(chosenAttacker, chosenTarget));
+        yield return StartCoroutine(ExecuteAttack(chosenAttacker, chosenTarget, chosenMove));
     }
 
     private void OnPlayerActionChosen(BeastUnit attacker, BeastUnit target, MoveData move, bool isCatch)
     {
         chosenAttacker = attacker;
         chosenTarget   = target;
+        chosenMove     = move;
         waitingForPlayerAction = false;
     }
 
@@ -175,27 +221,75 @@ public class BattleManager : MonoBehaviour
 
         if (!valid) yield break;
 
-        yield return StartCoroutine(ExecuteAttack(attacker, target));
+        yield return StartCoroutine(ExecuteAttack(attacker, target, move));
     }
 
     // ─── EXECUTE ATTACK ──────────────────────────────────────────────
 
-    private IEnumerator ExecuteAttack(BeastUnit attacker, BeastUnit target)
+    private IEnumerator ExecuteAttack(BeastUnit attacker, BeastUnit target, MoveData move)
     {
         if (attacker == null || !attacker.IsAlive) yield break;
         if (target == null   || !target.IsAlive)   yield break;
 
-        Debug.Log($"[Battle] {attacker.Data.beastName} tấn công {target.Data.beastName}!");
+        string moveName = move != null ? move.moveName : "Tấn công thường";
+        MoveType type = move != null ? move.moveType : MoveType.Melee;
+        
+        Debug.Log($"[Battle] {attacker.Data.beastName} dùng {moveName} ({type}) tấn công {target.Data.beastName}!");
 
-        // Lao lên
         Vector3 originalPos = attacker.transform.position;
-        Vector3 dir = (target.transform.position - originalPos).normalized;
-        Vector3 dashPos = target.transform.position - dir * 0.8f;
 
-        yield return attacker.transform.DOMove(dashPos, 0.2f).SetEase(Ease.OutQuad).WaitForCompletion();
+        // Nếu có Animator xịn xò, ra lệnh chạy hoạt hình Attack
+        Animator anim = attacker.GetComponent<Animator>();
+        if (anim != null && anim.enabled)
+        {
+            anim.SetTrigger("Attack");
+        }
 
-        // Tính sát thương (tấn công thường)
-        int damage = attacker.CalculateBaseDamage(target);
+        if (type == MoveType.Melee)
+        {
+            // ĐÁNH GẦN: Lao lên tiếp cận mục tiêu
+            Vector3 dir = (target.transform.position - originalPos).normalized;
+            Vector3 dashPos = target.transform.position - dir * 0.8f;
+            yield return attacker.transform.DOMove(dashPos, 0.2f).SetEase(Ease.OutQuad).WaitForCompletion();
+        }
+        else if (type == MoveType.Ranged)
+        {
+            // ĐÁNH XA: Đứng tại chỗ nhảy nhẹ lên lấy đà (niệm phép)
+            yield return attacker.transform.DOJump(originalPos, 0.5f, 1, 0.3f).WaitForCompletion();
+        }
+
+        // Gọi hiệu ứng VFX nếu chiêu này có cài đặt hiệu ứng
+        if (move != null && move.vfxPrefab != null)
+        {
+            if (move.vfxSpawnType == VfxSpawnType.SpawnAtTarget)
+            {
+                // SÉT ĐÁNH: Hiện ngay tại chỗ địch
+                GameObject vfx = Instantiate(move.vfxPrefab, target.transform.position, Quaternion.identity);
+                // Tự động xóa hiệu ứng đi sau 1.5 giây để tránh đầy bộ nhớ
+                Destroy(vfx, 1.5f); 
+            }
+            else if (move.vfxSpawnType == VfxSpawnType.ShootFromAttacker)
+            {
+                // PHUN LỬA / ĐẠN BAY: Hiện ở người đánh, xoay hướng về phía địch, rồi bay tới
+                GameObject projectile = Instantiate(move.vfxPrefab, attacker.transform.position, Quaternion.identity);
+                
+                // Tính góc xoay để viên đạn hướng thẳng về địch
+                Vector3 dirToTarget = (target.transform.position - attacker.transform.position).normalized;
+                float angle = Mathf.Atan2(dirToTarget.y, dirToTarget.x) * Mathf.Rad2Deg;
+                projectile.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+
+                // Bay tới đích trong 0.3s rồi tự hủy
+                projectile.transform.DOMove(target.transform.position, 0.3f).SetEase(Ease.Linear).OnComplete(() => {
+                    Destroy(projectile, 0.5f); // Xóa cục VFX sau khi trúng đích 0.5s để đuôi lửa kịp biến mất
+                });
+
+                // Chờ đạn bay tới nơi (0.3s) rồi mới trừ máu
+                yield return new WaitForSeconds(0.3f);
+            }
+        }
+
+        // Tính sát thương dựa trên chiêu thức
+        int damage = move != null ? attacker.CalculateDamage(target, move) : attacker.CalculateBaseDamage(target);
 
         // Gây sát thương
         bool died = target.TakeDamage(damage);
@@ -204,8 +298,11 @@ public class BattleManager : MonoBehaviour
 
         yield return new WaitForSeconds(0.2f);
 
-        // Lùi về vị trí cũ
-        yield return attacker.transform.DOMove(originalPos, 0.25f).SetEase(Ease.InQuad).WaitForCompletion();
+        // Nếu là đánh gần, phải lùi về vị trí cũ
+        if (type == MoveType.Melee)
+        {
+            yield return attacker.transform.DOMove(originalPos, 0.25f).SetEase(Ease.InQuad).WaitForCompletion();
+        }
 
         if (died)
         {
@@ -219,32 +316,167 @@ public class BattleManager : MonoBehaviour
     private bool CheckBattleEnd()
     {
         bool playerAllDead = playerTeam.All(b => b == null || !b.IsAlive);
-        bool enemyAllDead  = enemyTeam.All(b => b == null || !b.IsAlive);
+        // Trận đấu chỉ thực sự kết thúc đối với phe địch nếu tất cả quái trên sân chết VÀ hàng chờ rỗng
+        bool enemyAllDead  = enemyTeam.All(b => b == null || !b.IsAlive) && pendingEnemyQueue.Count == 0;
         return playerAllDead || enemyAllDead;
     }
+
+    /// <summary>
+    /// Kiểm tra xem quái địch trên sân có bị tiêu diệt không. 
+    /// Nếu có và vẫn còn quái dự phòng trong hàng chờ, tiến hành spawn con mới thế chỗ.
+    /// </summary>
+    private IEnumerator CheckAndSpawnNextEnemy()
+    {
+        var deadEnemy = enemyTeam.FirstOrDefault(b => b != null && !b.IsAlive);
+        if (deadEnemy != null && pendingEnemyQueue.Count > 0)
+        {
+            Debug.Log("[BattleManager] Địch đã gục! Chuẩn bị ra con tiếp theo thế chỗ...");
+            yield return new WaitForSeconds(1.0f);
+
+            // Xóa con chết khỏi danh sách trên sân và hủy object của nó
+            enemyTeam.Remove(deadEnemy);
+            Destroy(deadEnemy.gameObject);
+
+            // Lấy con quái tiếp theo ra
+            BeastData nextEnemyData = pendingEnemyQueue.Dequeue();
+            
+            // Spawn ở cùng vị trí điểm xuất hiện đầu tiên của Enemy (enemySpawnPoints[0])
+            var newUnit = SpawnBeastUnit(nextEnemyData, enemySpawnPoints[0], false);
+            enemyTeam.Add(newUnit);
+
+            Debug.Log($"[BattleManager] {nextEnemyData.beastName} đã xuất kích thế chỗ!");
+
+            // Cập nhật lại UI ActionPanel để người chơi có thể chọn mục tiêu mới
+            actionPanel?.Initialize(playerTeam, enemyTeam, OnPlayerActionChosen);
+
+            yield return new WaitForSeconds(0.5f);
+        }
+    }
+
+
+    /// <summary>
+    /// Kiểm tra xem thú của Player trên sân có bị tiêu diệt không. 
+    /// Nếu có và vẫn còn thú dự phòng trong hàng chờ, tiến hành spawn con mới thế chỗ.
+    /// </summary>
+    private IEnumerator CheckAndSpawnNextPlayer()
+    {
+        var deadPlayer = playerTeam.FirstOrDefault(b => b != null && !b.IsAlive);
+        if (deadPlayer != null && pendingPlayerQueue.Count > 0)
+        {
+            Debug.Log("[BattleManager] Thú của Player đã gục! Chuẩn bị ra con tiếp theo thế chỗ...");
+            yield return new WaitForSeconds(1.0f);
+
+            // Xóa con chết khỏi danh sách trên sân và hủy object của nó
+            playerTeam.Remove(deadPlayer);
+            Destroy(deadPlayer.gameObject);
+
+            // Lấy con thú tiếp theo ra
+            BeastData nextPlayerData = pendingPlayerQueue.Dequeue();
+            
+            // Spawn ở cùng vị trí điểm xuất hiện đầu tiên của Player (playerSpawnPoints[0])
+            var newUnit = SpawnBeastUnit(nextPlayerData, playerSpawnPoints[0], true);
+            playerTeam.Add(newUnit);
+
+            Debug.Log($"[BattleManager] Thú {nextPlayerData.beastName} của Player đã xuất kích thế chỗ!");
+
+            // Cập nhật lại UI ActionPanel để người chơi có thể điều khiển con mới
+            actionPanel?.Initialize(playerTeam, enemyTeam, OnPlayerActionChosen);
+
+            yield return new WaitForSeconds(0.5f);
+        }
+    }
+
 
     // ─── BATTLE END ──────────────────────────────────────────────────
 
     private IEnumerator EndBattle()
     {
-        bool playerWon = enemyTeam.All(b => b == null || !b.IsAlive);
+        // Player thắng khi tất cả enemy trên sân gục VÀ hàng chờ địch không còn con nào
+        bool playerWon = enemyTeam.All(b => b == null || !b.IsAlive) && pendingEnemyQueue.Count == 0;
 
-        // Lưu quái bị choáng nếu thắng
-        if (playerWon && battleTransferData != null 
-            && !string.IsNullOrEmpty(battleTransferData.lastEncounteredBeastId))
+        // ── Xử lý theo nguồn gốc trận đấu ────────────────────────────
+
+        if (battleTransferData != null && battleTransferData.originScene == BattleTransferData.OriginScene.WorldMap)
         {
-            if (!battleTransferData.stunnedBeastIds.Contains(battleTransferData.lastEncounteredBeastId))
+            // ── KẾT QUẢ ẢI ──────────────────────────────────────────
+            if (playerWon)
             {
-                battleTransferData.stunnedBeastIds.Add(battleTransferData.lastEncounteredBeastId);
+                int stars = CalculateStars();
+
+                int stageId = battleTransferData.currentStageId;
+
+                // Tìm phần thưởng vàng từ StageData (nếu có WorldMapData injected)
+                // PlayerData.SetStageResult sẽ tự mở ải tiếp theo
+                playerData.SetStageResult(stageId, stars);
+
+                Debug.Log($"[Battle] THẮNG ẢI {stageId}! Số sao: {stars} ⭐");
             }
+            else
+            {
+                Debug.Log("[Battle] THUA ẢI. Thử lại!");
+            }
+
+            yield return new WaitForSeconds(1.5f);
+
+            battleTransferData.currentStageId = -1;
+            GameSceneManager.GoToWorldMap();
         }
+        else if (battleTransferData != null && battleTransferData.originScene == BattleTransferData.OriginScene.Hunting)
+        {
+            // ── KẾT QUẢ HUNT ─────────────────────────────────────────
+            if (playerWon && !string.IsNullOrEmpty(battleTransferData.lastEncounteredBeastId))
+            {
+                if (!battleTransferData.stunnedBeastIds.Contains(battleTransferData.lastEncounteredBeastId))
+                    battleTransferData.stunnedBeastIds.Add(battleTransferData.lastEncounteredBeastId);
 
-        Debug.Log(playerWon ? "[Battle] THẮNG!" : "[Battle] THUA!");
-        yield return new WaitForSeconds(1.5f);
+                Debug.Log($"[Battle] THẮNG! Quái {battleTransferData.lastEncounteredBeastId} bị choáng.");
+            }
+            else if (!playerWon)
+            {
+                Debug.Log("[Battle] THUA! Quái sẽ di chuyển lại khi Player quay về.");
+            }
 
-        // Quay về MapScene
-        GameSceneManager.GoToMap();
+            yield return new WaitForSeconds(1.5f);
+
+            battleTransferData.isSingleBattle = false;
+            GameSceneManager.GoToHunting();
+        }
+        else
+        {
+            // ── KẾT QUẢ CHIẾN ĐẤU THƯỜNG (MapScene) ─────────────────
+            if (playerWon && battleTransferData != null
+                && !string.IsNullOrEmpty(battleTransferData.lastEncounteredBeastId))
+            {
+                if (!battleTransferData.stunnedBeastIds.Contains(battleTransferData.lastEncounteredBeastId))
+                    battleTransferData.stunnedBeastIds.Add(battleTransferData.lastEncounteredBeastId);
+
+                Debug.Log($"[Battle] THẮNG! Quái {battleTransferData.lastEncounteredBeastId} bị choáng.");
+            }
+
+            yield return new WaitForSeconds(1.5f);
+            GameSceneManager.GoToMap();
+        }
     }
+
+    // ─── TÍNH SAO SAU KHI THẮNG ───────────────────────────────────────
+
+    /// <summary>
+    /// Tính số sao dựa trên % HP còn lại của đội player.
+    /// ≥ 70% HP → 3 sao | ≥ 40% HP → 2 sao | thắng → 1 sao
+    /// </summary>
+    private int CalculateStars()
+    {
+        float totalMax     = playerTeam.Where(b => b != null).Sum(b => (float)b.Data.maxHP);
+        float totalCurrent = playerTeam.Where(b => b != null && b.IsAlive).Sum(b => (float)b.CurrentHP);
+
+        if (totalMax <= 0) return 1;
+
+        float ratio = totalCurrent / totalMax;
+        if (ratio >= 0.70f) return 3;
+        if (ratio >= 0.40f) return 2;
+        return 1;
+    }
+
 
     // ─── CLICK HANDLER ───────────────────────────────────────────────
 

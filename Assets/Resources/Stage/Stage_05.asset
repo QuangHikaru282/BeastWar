@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f1c3d8ebac188d418b659c2a0592443, type: 3}
+  m_Name: Stage_05
+  m_EditorClassIdentifier: Assembly-CSharp::StageData
+  stageId: 5
+  stageName: 5
+  enemyTeam:
+  - {fileID: 11400000, guid: 91e5a22ec5f2e6944a2df86d89a10c7c, type: 2}
+  rewardGold: 50

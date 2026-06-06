@@ -27,6 +27,7 @@ public class WildBeastEncounter : MonoBehaviour
 
     private PlayerMapController playerController;
     private MonoBehaviour cainosController;
+    private Kinnly.PlayerInventory playerInventory;   // ← thêm
     private bool hasTriggered = false;
     private bool isStunned = false;
 
@@ -68,6 +69,11 @@ public class WildBeastEncounter : MonoBehaviour
 
         // Khóa di chuyển của Player
         playerController = other.GetComponent<PlayerMapController>();
+        playerInventory   = other.GetComponent<Kinnly.PlayerInventory>();  // ← thêm
+
+        // Đóng inventory nếu đang mở
+        if (playerInventory != null) playerInventory.ForceCloseInventory();
+
         if (playerController != null)
         {
             playerController.SetCanMove(false);
@@ -177,6 +183,7 @@ public class WildBeastEncounter : MonoBehaviour
         if (enemyTeam != null && enemyTeam.Count > 0 && enemyTeam[0] != null)
         {
             playerData.AddBeast(enemyTeam[0]);
+            Debug.Log("đã thu phục");
         }
 
         // Lưu trạng thái đã bị bắt

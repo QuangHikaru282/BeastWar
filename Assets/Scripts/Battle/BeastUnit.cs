@@ -17,8 +17,6 @@ public class BeastUnit : MonoBehaviour
     [SerializeField] private HPBarUI hpBar;
     [SerializeField] private TextMeshProUGUI nameText;
 
-    [Header("Damage Popup Parent")]
-    [SerializeField] private Transform popupParent; // Thường là Canvas gốc của Battle Scene
 
     // Runtime stats
     public int CurrentHP { get; private set; }
@@ -27,13 +25,12 @@ public class BeastUnit : MonoBehaviour
 
     private SpriteRenderer sr;
 
-    public void Initialize(BeastData data, bool isPlayerTeam, Transform dmgPopupParent = null)
+    public void Initialize(BeastData data, bool isPlayerTeam)
     {
         Data = data;
         IsPlayerTeam = isPlayerTeam;
         CurrentHP = data.maxHP;
 
-        if (dmgPopupParent != null) popupParent = dmgPopupParent;
 
         // Hiển thị sprite: Player dùng backSprite (nhìn về phía địch), Enemy dùng frontSprite
         sr = GetComponent<SpriteRenderer>();
@@ -83,8 +80,7 @@ public class BeastUnit : MonoBehaviour
         hpBar?.UpdateHP(CurrentHP);
 
         // Spawn damage popup
-        if (popupParent != null)
-            DamagePopup.Create(transform.position + Vector3.up * 0.5f, damage, popupParent, isCritical);
+        DamagePopup.Create(transform.position + Vector3.up * 0.5f, damage, isCritical);
 
         // Hit animation (rung lắc)
         transform.DOShakePosition(0.3f, strength: new Vector3(0.15f, 0f, 0f), vibrato: 8)
