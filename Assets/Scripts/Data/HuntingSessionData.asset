@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19a4b1bd97fe4db4a9677c67c56ca45e, type: 3}
+  m_Name: HuntingSessionData
+  m_EditorClassIdentifier: Assembly-CSharp::HuntingSessionData
+  wildBeastPool:
+  - {fileID: 11400000, guid: e55dc0f53a3a571469a658d6fc50634b, type: 2}
+  - {fileID: 11400000, guid: 91e5a22ec5f2e6944a2df86d89a10c7c, type: 2}
+  - {fileID: 11400000, guid: 3664efd77d5a45246a83ff415482ab87, type: 2}
+  - {fileID: 11400000, guid: ab81c744891a0f34f803067972ca5597, type: 2}
+  - {fileID: 11400000, guid: 91e5a22ec5f2e6944a2df86d89a10c7c, type: 2}
+  - {fileID: 11400000, guid: 91e5a22ec5f2e6944a2df86d89a10c7c, type: 2}
+  - {fileID: 11400000, guid: 91e5a22ec5f2e6944a2df86d89a10c7c, type: 2}
+  - {fileID: 11400000, guid: 91e5a22ec5f2e6944a2df86d89a10c7c, type: 2}
+  - {fileID: 11400000, guid: 91e5a22ec5f2e6944a2df86d89a10c7c, type: 2}
+  - {fileID: 11400000, guid: 91e5a22ec5f2e6944a2df86d89a10c7c, type: 2}
+  totalBeastsInSession: 10
+  maxActiveBeasts: 5
