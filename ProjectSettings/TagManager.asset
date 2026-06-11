@@ -2,9 +2,10 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!78 &1
 TagManager:
-  serializedVersion: 2
+  serializedVersion: 3
   tags:
   - ItemDrop
+  - ItemPickup
   layers:
   - Default
   - TransparentFX
@@ -42,3 +43,23 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Ground
+    uniqueID: 3559578269
+    locked: 0
+  - name: WalkInFront
+    uniqueID: 409935077
+    locked: 0
+  - name: Collision
+    uniqueID: 2036246451
+    locked: 0
+  - name: Player
+    uniqueID: 522532309
+    locked: 0
+  - name: WalkBehind
+    uniqueID: 3221298973
+    locked: 0
+  - name: Decor
+    uniqueID: 3416384189
+    locked: 0
+  m_RenderingLayers:
+  - Default
