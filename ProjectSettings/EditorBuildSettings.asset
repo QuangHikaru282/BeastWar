@@ -6,19 +6,37 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
+    path: Assets/_Project/Scenes/SampleScene.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
   - enabled: 1
-    path: Assets/Scenes/MapScene.unity
+    path: Assets/_Project/Scenes/MapScene.unity
     guid: f61aa595221a8524380a1db716614dd4
   - enabled: 1
-    path: Assets/Scenes/HuntingScene.unity
+    path: Assets/_Project/Scenes/HuntingScene.unity
     guid: 3f96d3c35a4000e43b04277d04a7184d
   - enabled: 1
-    path: Assets/Scenes/BattleScene.unity
+    path: Assets/_Project/Scenes/BattleScene.unity
     guid: d8d7dcf7c875d3d42b0abf2696a47678
   - enabled: 1
-    path: Assets/Scenes/WorldMapScene.unity
+    path: Assets/_Project/Scenes/WorldMapScene.unity
     guid: 85ce775e209907a48b1f58eff900b4f5
+  - enabled: 1
+    path: Assets/NewHubTown/Scenes/MainRoom.unity
+    guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/NewHubTown/Scenes/KitchenLiving.unity
+    guid: 8e1e1f2c17beec147a7e4c167ca3cb16
+  - enabled: 1
+    path: Assets/NewHubTown/Scenes/Entryway.unity
+    guid: 6a9d89680cadece45a73a01114fd4131
+  - enabled: 1
+    path: Assets/NewHubTown/Scenes/City.unity
+    guid: d7fdc8e0d2bdc2844a1d1eb153a6740f
+  - enabled: 1
+    path: Assets/NewHubTown/Scenes/Bathroom.unity
+    guid: e3c1b0216be86f341b15f7c26f49a217
+  - enabled: 1
+    path: Assets/NewHubTown/Scenes/Balcony.unity
+    guid: e99f368b266a56546877c16540535b14
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
