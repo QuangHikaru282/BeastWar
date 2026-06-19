@@ -2,15 +2,20 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!78 &1
 TagManager:
+<<<<<<< Updated upstream
+  serializedVersion: 2
+  tags: []
+=======
   serializedVersion: 3
   tags:
   - ItemDrop
   - ItemPickup
+>>>>>>> Stashed changes
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Player
+  - 
   - Water
   - UI
   - 
@@ -43,29 +48,23 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: BehindGround
-    uniqueID: 4210558671
-    locked: 0
   - name: Ground
-    uniqueID: 3559578269
-    locked: 0
-  - name: WalkInFront
-    uniqueID: 409935077
-    locked: 0
-  - name: Collision
-    uniqueID: 2036246451
-    locked: 0
-  - name: Player
-    uniqueID: 522532309
-    locked: 0
-  - name: House
-    uniqueID: 910374633
+    uniqueID: 901172549
     locked: 0
   - name: WalkBehind
-    uniqueID: 3221298973
+    uniqueID: 1970376437
+    locked: 0
+  - name: Player
+    uniqueID: 2155229465
+    locked: 0
+  - name: Collision
+    uniqueID: 204932909
+    locked: 0
+  - name: WalkInFront
+    uniqueID: 2958301409
     locked: 0
   - name: Decor
-    uniqueID: 3416384189
+    uniqueID: 3055247799
     locked: 0
   m_RenderingLayers:
   - Default
