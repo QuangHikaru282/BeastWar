@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61f00172e1ff44545b00c79568f66ac2, type: 3}
+  m_Name: Basic_Hoe
+  m_EditorClassIdentifier: Assembly-CSharp::BeastBall.Farming.Hoe
+  UniqueID: hoe_basic
+  DisplayName: "Cu\u1ED1c \u0110\u1EA5t"
+  ItemSprite: {fileID: -3190335049457495340, guid: c768c1f4bd3757948b553c1990a880b0, type: 3}
+  MaxStackSize: 1
+  Consumable: 0
+  BuyPrice: -1
+  VisualPrefab: {fileID: 0}
+  PlayerAnimatorTriggerUse: GenericToolSwing
+  UseSound: []

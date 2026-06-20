@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 467dfeb6cd0316347a1b6e4eda40df15, type: 3}
   m_Name: Tomato_Seed
   m_EditorClassIdentifier: Assembly-CSharp::BeastBall.Farming.SeedBag
-  UniqueID: DefaultID
-  DisplayName: 
-  ItemSprite: {fileID: 0}
-  MaxStackSize: 10
+  UniqueID: seed_tomato
+  DisplayName: "H\u1EA1t gi\u1ED1ng C\xE0 chua"
+  ItemSprite: {fileID: -6915279104839378345, guid: ff1165a28b7c299459089d97a2184443, type: 3}
+  MaxStackSize: 99
   Consumable: 1
   BuyPrice: -1
   VisualPrefab: {fileID: 0}

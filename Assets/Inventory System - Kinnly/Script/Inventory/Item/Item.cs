@@ -32,5 +32,8 @@ namespace Kinnly
         public bool isTools;
         public bool isAxe;
         public bool isPickaxe;
+
+        [Header("Farming Integration")]
+        public BeastBall.Farming.Item farmingItemDelegate;
     }
 }
