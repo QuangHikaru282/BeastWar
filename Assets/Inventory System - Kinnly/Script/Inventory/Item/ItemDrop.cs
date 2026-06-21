@@ -78,6 +78,7 @@ namespace Kinnly
 
         private void CheckDistance()
         {
+            if (player == null) return;
             if (Vector2.Distance(this.transform.position, player.transform.position) <= 5f)
             {
                 isNear = true;
@@ -86,6 +87,7 @@ namespace Kinnly
 
         private void CheckSlotAvailability()
         {
+            if (player == null) return;
             PlayerInventory playerInventory = player.GetComponent<PlayerInventory>();
             if (playerInventory.IsSlotAvailable(item, amount))
             {
@@ -101,6 +103,7 @@ namespace Kinnly
 
         private void MovingtoTarget()
         {
+            if (player == null) return;
             Vector3 direction = player.transform.position - transform.position;
             direction.Normalize();
             transform.Translate(direction * speed * Time.deltaTime);
@@ -109,6 +112,7 @@ namespace Kinnly
 
         private void AddingItem()
         {
+            if (player == null) return;
             if (Vector2.Distance(this.transform.position, player.transform.position) <= 0.5f)
             {
                 PlayerInventory playerInventory = player.GetComponent<PlayerInventory>();

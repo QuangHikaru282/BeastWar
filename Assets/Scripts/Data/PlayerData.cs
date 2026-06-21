@@ -16,6 +16,12 @@ public class PlayerData : ScriptableObject
 
     public const int MaxFormationSize = 3;
 
+    [Header("Nhiệm vụ Tân Thủ")]
+    // 0: Chưa nhận Pet
+    // 1: Đã nhận Pet, cần đi thu phục
+    // 2: Đã thu phục thành công (Hoàn thành)
+    public int tutorialQuestStage = 0; 
+
     // ─── TIẾN TRÌNH ẢI ───────────────────────────────────────────────
 
     [Header("Tiến trình ải")]
@@ -38,6 +44,13 @@ public class PlayerData : ScriptableObject
         if (!ownedBeasts.Contains(beast))
             ownedBeasts.Add(beast);
         Debug.Log($"[PlayerData] Đã thêm {beast.beastName} vào bộ sưu tập. Tổng: {ownedBeasts.Count}");
+        
+        // Nếu đang ở giai đoạn 1 (yêu cầu đi bắt Pet) mà bắt được con mới, thì đánh dấu hoàn thành!
+        if (tutorialQuestStage == 1)
+        {
+            tutorialQuestStage = 2;
+            Debug.Log("[PlayerData] Nhiệm vụ tân thủ đã hoàn thành!");
+        }
     }
 
     /// <summary>Lưu đội hình hiện tại.</summary>

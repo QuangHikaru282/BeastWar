@@ -16,9 +16,10 @@ namespace Kinnly
             {
                 Instance = this;
             }
-            else
+            else if (Instance != this)
             {
-                Destroy(gameObject);
+                Debug.LogWarning("Có 2 Player trong Scene! Đã vô hiệu hóa script của Player bị trùng để an toàn.");
+                Destroy(this); // Chỉ hủy Script Player, KHÔNG hủy nguyên cả GameObject để bảo toàn Camera/Canvas
             }
         }
 

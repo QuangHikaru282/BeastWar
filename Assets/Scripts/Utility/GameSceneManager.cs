@@ -9,7 +9,7 @@ public class GameSceneManager : MonoBehaviour
     // Tên các scene — phải khớp với tên scene trong Build Settings
     public const string SCENE_MAP        = "MapScene";
     public const string SCENE_FORMATION  = "FormationScene";
-    public const string SCENE_BATTLE     = "BattleScene";
+    public const string SCENE_BATTLE     = "BattleSceneF";
     public const string SCENE_HUNTING    = "HuntingScene";
     public const string SCENE_WORLDMAP   = "WorldMapScene";
 
