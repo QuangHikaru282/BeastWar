@@ -12,13 +12,15 @@ public class SceneTransitionTrigger : MonoBehaviour
     [Tooltip("Tên của Scene muốn chuyển đến (phải khớp chính xác và đã thêm vào Build Settings)")]
     [SerializeField] private string targetSceneName;
 
+    [Tooltip("Thông điệp hiển thị khi chuyển cảnh")]
+    [SerializeField] private string loadingMessage = "Đang di chuyển...";
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         // Kiểm tra xem đối tượng va chạm có phải là Player không
         if (other.CompareTag("Player"))
         {
-            // Sử dụng GameSceneManager có sẵn trong dự án của bạn để chuyển scene
-            UnityEngine.SceneManagement.SceneManager.LoadScene(targetSceneName);
+            TriggerTransition();
         }
     }
 
@@ -26,6 +28,18 @@ public class SceneTransitionTrigger : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
+        {
+            TriggerTransition();
+        }
+    }
+
+    private void TriggerTransition()
+    {
+        if (SceneTransitionManager.Instance != null)
+        {
+            SceneTransitionManager.Instance.TransitionToScene(targetSceneName, loadingMessage);
+        }
+        else
         {
             UnityEngine.SceneManagement.SceneManager.LoadScene(targetSceneName);
         }
