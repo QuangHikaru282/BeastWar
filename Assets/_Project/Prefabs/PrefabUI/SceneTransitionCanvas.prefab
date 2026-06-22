@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7809472861300149748}
   - component: {fileID: 4034949731133054964}
   - component: {fileID: 7504682261128522460}
+  - component: {fileID: 2266492712210572717}
   m_Layer: 5
   m_Name: LoadingText
   m_TagString: Untagged
@@ -34,8 +35,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 771, y: -491}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 630.5, y: -436.5}
+  m_SizeDelta: {x: 565, y: 67}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4034949731133054964
 CanvasRenderer:
@@ -137,6 +138,21 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &2266492712210572717
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1493200190766975044}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c5997f543233714ca0c2288ee6b45eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LoadingTextAnimator
+  bounceHeight: 8
+  bounceSpeed: 6
+  characterWaveDelay: 0.25
 --- !u!1 &2984573225143990430
 GameObject:
   m_ObjectHideFlags: 0
@@ -200,7 +216,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 100
   m_TargetDisplay: 0
 --- !u!114 &6778829408792602898
 MonoBehaviour:
@@ -269,6 +285,7 @@ MonoBehaviour:
   transitionCanvasGroup: {fileID: 1920684243004263195}
   loadingText: {fileID: 7504682261128522460}
   fadeDuration: 0.5
+  minShowTime: 3
 --- !u!1 &3641090918146849022
 GameObject:
   m_ObjectHideFlags: 0

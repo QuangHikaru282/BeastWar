@@ -18,6 +18,8 @@ public class SceneTransitionManager : MonoBehaviour
 
     [Header("Transition Settings")]
     [SerializeField] private float fadeDuration = 0.5f;
+    [Tooltip("Thời gian tối thiểu màn hình Loading sẽ hiển thị (giúp người chơi kịp đọc chữ và ngắm ảnh nền)")]
+    [SerializeField] private float minShowTime = 3.0f;
 
     private bool isTransitioning = false;
 
@@ -55,11 +57,20 @@ public class SceneTransitionManager : MonoBehaviour
     private IEnumerator TransitionRoutine(string sceneName, string message)
     {
         isTransitioning = true;
+        float startTime = Time.time;
 
-        // Cập nhật text loading
+        // Cập nhật text loading và hiệu ứng animator nếu có
         if (loadingText != null)
         {
-            loadingText.text = message;
+            var animator = loadingText.GetComponent<LoadingTextAnimator>();
+            if (animator != null)
+            {
+                animator.SetBaseText(message);
+            }
+            else
+            {
+                loadingText.text = message;
+            }
         }
 
         // Bật chặn raycast để người chơi không click được gì trong lúc chuyển cảnh
@@ -82,6 +93,14 @@ public class SceneTransitionManager : MonoBehaviour
         while (asyncLoad.progress < 0.9f)
         {
             yield return null;
+        }
+
+        // Tính toán xem đã hiển thị màn hình loading đủ thời gian tối thiểu chưa
+        float elapsed = Time.time - startTime;
+        float remainingTime = minShowTime - elapsed;
+        if (remainingTime > 0)
+        {
+            yield return new WaitForSeconds(remainingTime);
         }
 
         // Kích hoạt scene mới
