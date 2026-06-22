@@ -47,7 +47,7 @@
 *.lighting              unity-yaml
 *.mask                  unity-yaml
 *.mat                   unity-yaml
-*.meta                  unity-yaml
+*.meta                  merge=ours eol=lf
 *.mixer                 unity-yaml
 *.overrideController    unity-yaml
 *.playable              unity-yaml

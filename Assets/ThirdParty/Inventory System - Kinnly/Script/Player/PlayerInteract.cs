@@ -65,7 +65,7 @@ namespace Kinnly
 
         void Direction()
         {
-            if (isMouse)
+            if (isMouse || playerMovement == null)
             {
                 return;
             }
@@ -119,12 +119,55 @@ namespace Kinnly
 
         private void Interact()
         {
-            if (insideTrigger == null)
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             {
                 return;
             }
 
-            if (EventSystem.current.IsPointerOverGameObject())
+            // --- FARMING HARVEST BRIDGE ---
+            var terrainManager = BeastBall.Farming.FarmingTerrainManager.Instance;
+            if (terrainManager != null)
+            {
+                Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                mouseWorldPos.z = 0;
+                Vector3Int cellPos = terrainManager.Grid.WorldToCell(mouseWorldPos);
+                var cropData = terrainManager.GetCropDataAt(cellPos);
+                
+                // Nếu có cây trồng và đã chín (GrowthRatio = 1)
+                if (cropData != null && Mathf.Approximately(cropData.GrowthRatio, 1.0f))
+                {
+                    var crop = terrainManager.HarvestAt(cellPos);
+                    if (crop != null && crop.Produce != null)
+                    {
+                        // Tìm file Vỏ bọc Kinnly tương ứng trong thư mục Resources
+                        Kinnly.Item droppedKinnlyItem = null;
+                        var allKinnlyItems = Resources.LoadAll<Kinnly.Item>("");
+                        foreach (var ki in allKinnlyItems)
+                        {
+                            if (ki.farmingItemDelegate == crop.Produce)
+                            {
+                                droppedKinnlyItem = ki;
+                                break;
+                            }
+                        }
+
+                        if (droppedKinnlyItem != null)
+                        {
+                            playerInventory.SpawnItemDrop(droppedKinnlyItem, crop.ProductPerHarvest);
+                        }
+                        else
+                        {
+                            Debug.LogWarning("Farming: Không tìm thấy file Kinnly_... nào bọc lấy " + crop.Produce.name + " trong thư mục Resources!");
+                        }
+                        
+                        if (playerMovement != null) playerMovement.SetDirection(this.transform.localPosition);
+                        return; // Đã thu hoạch xong, dừng hàm lại
+                    }
+                }
+            }
+            // ------------------------------
+
+            if (insideTrigger == null)
             {
                 return;
             }
@@ -136,7 +179,7 @@ namespace Kinnly
                     if (insideTrigger.GetComponent<IInteractable>() != null)
                     {
                         insideTrigger.GetComponent<IInteractable>().Interact(playerInventory);
-                        playerMovement.SetDirection(this.transform.localPosition);
+                        if (playerMovement != null) playerMovement.SetDirection(this.transform.localPosition);
                     }
                 }
             }
@@ -164,6 +207,8 @@ namespace Kinnly
 
         private void OnDrawOutline()
         {
+            if (outline == null) return;
+
             if (insideTrigger != null)
             {
                 outline.SetActive(true);

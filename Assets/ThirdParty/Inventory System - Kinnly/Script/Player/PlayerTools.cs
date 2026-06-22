@@ -49,6 +49,11 @@ namespace Kinnly
         // Update is called once per frame
         void Update()
         {
+            if (Input.GetMouseButtonDown(0))
+            {
+                Debug.Log("Farming Debug: BẠN VỪA BẤM CHUỘT TRÁI! Script PlayerTools ĐANG CHẠY.");
+            }
+
             Direction();
             MouseControl();
             GetCurrentlySelectedItem();
@@ -56,13 +61,17 @@ namespace Kinnly
 
             if (Input.GetMouseButton(0))
             {
-                if (playerMovement.isUsingTools == false)
+                if (playerMovement == null || playerMovement.isUsingTools == false)
                 {
                     UseTools();
                 }
+                else
+                {
+                    if (Input.GetMouseButtonDown(0)) Debug.Log("Lỗi: isUsingTools đang bị kẹt ở trạng thái TRUE nên không thể vung cuốc!");
+                }
             }
 
-            if (playerMovement.isUsingTools == false)
+            if (playerMovement != null && playerMovement.isUsingTools == false)
             {
                 isUsingTools = false;
             }
@@ -70,7 +79,7 @@ namespace Kinnly
 
         void Direction()
         {
-            if (isMouse)
+            if (isMouse || playerMovement == null)
             {
                 return;
             }
@@ -138,18 +147,72 @@ namespace Kinnly
         {
             if (currentlySelectedItem == null)
             {
+                Debug.Log("Lỗi 1: Không có Item nào đang được chọn trên tay.");
                 return;
             }
 
             if (EventSystem.current.IsPointerOverGameObject())
             {
+                Debug.Log("Lỗi 2: Chuột đang đè lên giao diện UI (Túi đồ, Nút bấm...), nên bị chặn click.");
                 return;
             }
 
+            // --- FARMING BRIDGE ---
+            if (currentlySelectedItem.farmingItemDelegate != null)
+            {
+                var terrainManager = BeastBall.Farming.FarmingTerrainManager.Instance;
+                if (terrainManager != null)
+                {
+                    Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                    mouseWorldPos.z = 0;
+                    Vector3Int cellPos = terrainManager.Grid.WorldToCell(mouseWorldPos);
+                    Debug.Log($"Farming Debug: Đang click chuột tại {mouseWorldPos}, đổi thành ô Lưới (Grid): {cellPos}");
+                    
+                    if (currentlySelectedItem.farmingItemDelegate.CanUse(cellPos))
+                    {
+                        Debug.Log("Farming Debug: Hàm CanUse trả về TRUE. Đang tiến hành thực hiện hành động Farming!");
+                        // Play swing animation if it's considered a tool
+                        if (currentlySelectedItem.isTools)
+                        {
+                            if (playerAnimator != null) playerAnimator.SetTrigger("Attack");
+                            if (playerMovement != null) playerMovement.SetDirection(transform.localPosition);
+                        }
+                        
+                        // Execute Farming action (Till, Water, Plant)
+                        currentlySelectedItem.farmingItemDelegate.Use(cellPos);
+                        
+                        // Consume logic for Seeds/Consumables
+                        if (currentlySelectedItem.farmingItemDelegate.Consumable)
+                        {
+                            playerInventory.RemoveItem(playerInventory.CurrentlySelectedInventoryItem, 1);
+                        }
+                        
+                        if (playerMovement != null) playerMovement.isUsingTools = true;
+                        return; // Stop default Kinnly tool logic to prevent conflicts
+                    }
+                    else 
+                    {
+                        var tile = terrainManager.GroundTilemap.GetTile(cellPos);
+                        string tileName = tile != null ? tile.name : "NULL (Đất trống)";
+                        string requiredTileName = terrainManager.TilleableTile != null ? terrainManager.TilleableTile.name : "CHƯA GÁN";
+                        Debug.Log($"Farming Debug: Hàm CanUse = FALSE tại {cellPos}.\\nTile hiện tại ở ô này là: [{tileName}].\\nTile bắt buộc phải có là: [{requiredTileName}].");
+                    }
+                }
+                else 
+                {
+                    Debug.Log("Lỗi 3: Không tìm thấy FarmingTerrainManager.Instance trong Scene. Bạn đã tạo nó chưa?");
+                }
+            }
+            else 
+            {
+                Debug.Log($"Lỗi 4: Item tên '{currentlySelectedItem.name}' không có Farming Item Delegate (bị bỏ trống).");
+            }
+            // ----------------------
+
             if (currentlySelectedItem.isTools)
             {
-                playerAnimator.SetTrigger("Attack");
-                playerMovement.SetDirection(transform.localPosition);
+                if (playerAnimator != null) playerAnimator.SetTrigger("Attack");
+                if (playerMovement != null) playerMovement.SetDirection(transform.localPosition);
             }
         }
 
@@ -188,6 +251,8 @@ namespace Kinnly
 
         private void OnDrawOutline()
         {
+            if (outline == null) return;
+
             if (insideTrigger != null)
             {
                 outline.SetActive(true);

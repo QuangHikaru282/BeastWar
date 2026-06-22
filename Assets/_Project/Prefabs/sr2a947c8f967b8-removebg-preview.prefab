@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2624551309012190261}
   - component: {fileID: 4314611076637932572}
+  - component: {fileID: -3994473136934606433}
   m_Layer: 0
   m_Name: sr2a947c8f967b8-removebg-preview
   m_TagString: Untagged
@@ -91,3 +92,20 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &-3994473136934606433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1389236990844413207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 475d8d7ed9646504888a5702b5d7ed33, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Unit
+  unitName: Ball
+  unitLevel: 1
+  damage: 26
+  maxHP: 50
+  currentHP: 50

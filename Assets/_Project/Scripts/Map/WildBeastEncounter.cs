@@ -242,6 +242,7 @@ public class WildBeastEncounter : MonoBehaviour
         // Truyền đội địch và ID quái sang BattleScene
         battleTransferData.lastEncounteredBeastId = uniqueId;
         battleTransferData.SetEnemyTeam(enemyTeam);
+        battleTransferData.originScene = BattleTransferData.OriginScene.Map; // Lưu lại nguồn gốc để quay về
         GameSceneManager.GoToBattle();
     }
 }

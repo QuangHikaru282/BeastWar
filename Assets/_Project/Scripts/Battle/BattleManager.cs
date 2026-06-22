@@ -13,7 +13,7 @@ using DG.Tweening;
 /// </summary>
 public class BattleManager : MonoBehaviour
 {
-    private enum BattleState { Init, PlayerTurn, EnemyTurn, BattleEnd }
+    private enum BattleState { PreBattle, Init, PlayerTurn, EnemyTurn, BattleEnd }
 
     // ─── Inspector ───────────────────────────────────────────────────
 
@@ -31,8 +31,10 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private GameObject beastUnitPrefab;
 
     [Header("Components")]
-    [SerializeField] private ActionPanel actionPanel;
-    [SerializeField] private EnemyAI enemyAI;
+    [SerializeField] private ActionPanel     actionPanel;
+    [SerializeField] private EnemyAI         enemyAI;
+    [SerializeField] private FruitBuffManager fruitBuffManager;  // Panel chọn Quả đầu trận
+    [SerializeField] private StageData        currentStageData;   // Gán từ WorldMapData lúc load scene
 
     // ─── Runtime ─────────────────────────────────────────────────────
 
@@ -41,29 +43,22 @@ public class BattleManager : MonoBehaviour
     private List<BeastUnit> playerTeam = new List<BeastUnit>();
     private List<BeastUnit> enemyTeam  = new List<BeastUnit>();
 
-    private BattleState state = BattleState.Init;
-    private bool waitingForPlayerAction;
-    private BeastUnit chosenAttacker;
-    private BeastUnit chosenTarget;
-    private MoveData chosenMove;
+    private BattleState state = BattleState.PreBattle;
+    private bool        waitingForPlayerAction;
+    private bool        fruitSelected = false;  // Cờ chờ người chơi chọn Quả
+    private BeastUnit   chosenAttacker;
+    private BeastUnit   chosenTarget;
+    private MoveData    chosenMove;
 
-    // ─── Unity Lifecycle ─────────────────────────────────────────────
-
-    private void Awake()
+       private IEnumerator RunBattle()
     {
-        Instance = this;
-    }
+        // --- PRE-BATTLE: Hiện Panel chọn Quả, đợi Player chọn xong ---
+        state = BattleState.PreBattle;
+        fruitSelected = false;
+        fruitBuffManager?.Show();
+        yield return new WaitUntil(() => fruitSelected);
 
-    private void Start()
-    {
-        StartCoroutine(RunBattle());
-    }
-
-    // ─── State Machine ───────────────────────────────────────────────
-
-    private IEnumerator RunBattle()
-    {
-        // --- INIT ---
+        // --- INIT: Spawn thú lên sân ---
         state = BattleState.Init;
         yield return StartCoroutine(InitBattle());
 
@@ -81,6 +76,9 @@ public class BattleManager : MonoBehaviour
             // Lượt Enemy
             state = BattleState.EnemyTurn;
             yield return StartCoroutine(EnemyTurn());
+
+            // Hồi máu cho các thú Player đang nghỉ (2% MaxHP/lượt)
+            TickRestingPlayerUnits();
 
             // Nếu thú của Player chết, spawn con tiếp theo thế chỗ trước khi check kết thúc
             yield return StartCoroutine(CheckAndSpawnNextPlayer());
@@ -166,6 +164,23 @@ public class BattleManager : MonoBehaviour
         // Khởi tạo ActionPanel
         actionPanel?.Initialize(playerTeam, enemyTeam, OnPlayerActionChosen);
 
+        // Inject danh sách thú bench cho FruitBuffManager biết để TeamHeal
+        RefreshFruitBuffBench();
+
+        // Nếu đã chọn Quả TeamHeal → hồi luôn cho thú đang trên sân
+        if (fruitBuffManager != null && fruitBuffManager.ActiveFruit == FruitBuffManager.FruitType.TeamHeal)
+        {
+            foreach (var unit in playerTeam)
+                unit?.TeamHeal();
+        }
+
+        // Subscribe event Crit nếu đã chọn Quả CritRage
+        if (fruitBuffManager != null && fruitBuffManager.ActiveFruit == FruitBuffManager.FruitType.CritRage)
+        {
+            foreach (var unit in playerTeam)
+                fruitBuffManager.SubscribeToUnit(unit);
+        }
+
         yield return new WaitForSeconds(0.5f);
     }
 
@@ -198,6 +213,9 @@ public class BattleManager : MonoBehaviour
 
         // Thực hiện tấn công
         yield return StartCoroutine(ExecuteAttack(chosenAttacker, chosenTarget, chosenMove));
+
+        // Sau khi tấn công xong, báo FruitBuffManager (dùng cho Baton Pass)
+        fruitBuffManager?.OnPlayerAttackFinished();
     }
 
     private void OnPlayerActionChosen(BeastUnit attacker, BeastUnit target, MoveData move, bool isCatch)
@@ -289,12 +307,22 @@ public class BattleManager : MonoBehaviour
         }
 
         // Tính sát thương dựa trên chiêu thức
-        int damage = move != null ? attacker.CalculateDamage(target, move) : attacker.CalculateBaseDamage(target);
+        int baseDamage = move != null ? attacker.CalculateDamage(target, move) : attacker.CalculateBaseDamage(target);
 
-        // Gây sát thương
-        bool died = target.TakeDamage(damage);
+        // Roll Crit nếu là đòn của Player (IsPlayerTeam)
+        bool isCrit    = false;
+        int  finalDamage = baseDamage;
+        if (attacker.IsPlayerTeam)
+        {
+            isCrit = UnityEngine.Random.value < attacker.CritChance;
+            if (isCrit)
+                finalDamage = Mathf.RoundToInt(baseDamage * attacker.CritMultiplier);
+        }
 
-        Debug.Log($"[Battle] {attacker.Data.beastName} gây {damage} sát thương! {target.Data.beastName} HP: {target.CurrentHP}");
+        // Gây sát thương (dùng TakeDamageWithResult để event OnCritLanded được bắn)
+        bool died = target.TakeDamageWithResult(finalDamage, isCrit);
+
+        Debug.Log($"[Battle] {attacker.Data.beastName} gây {finalDamage} sát thương{(isCrit ? " (CRIT!" + ")": "")}! {target.Data.beastName} HP: {target.CurrentHP}");
 
         yield return new WaitForSeconds(0.2f);
 
@@ -401,15 +429,15 @@ public class BattleManager : MonoBehaviour
             // ── KẾT QUẢ ẢI ──────────────────────────────────────────
             if (playerWon)
             {
-                int stars = CalculateStars();
-
+                int stars   = CalculateStars();
                 int stageId = battleTransferData.currentStageId;
 
-                // Tìm phần thưởng vàng từ StageData (nếu có WorldMapData injected)
-                // PlayerData.SetStageResult sẽ tự mở ải tiếp theo
-                playerData.SetStageResult(stageId, stars);
+                // Cộng vàng từ StageData (nếu được gán)
+                int rewardGold = currentStageData != null ? currentStageData.rewardGold : 0;
+                playerData.SetStageResult(stageId, stars, rewardGold);
 
-                Debug.Log($"[Battle] THẮNG ẢI {stageId}! Số sao: {stars} ⭐");
+                string goldMsg = rewardGold > 0 ? $" | +{rewardGold} vàng" : "";
+                Debug.Log($"[Battle] THẮNG ẢI {stageId}! Số sao: {stars} ⭐{goldMsg}");
             }
             else
             {
@@ -486,5 +514,90 @@ public class BattleManager : MonoBehaviour
         {
             actionPanel.OnBeastClicked(clickedBeast);
         }
+    }
+
+    // ─── FRUIT BUFF API ──────────────────────────────────────────────
+
+    /// <summary>
+    /// FruitBuffManager gọi hàm này sau khi người chơi đã chọn Quả xong.
+    /// Cho phép RunBattle() thoát khỏi WaitUntil và tiếp tục spawn thú.
+    /// </summary>
+    public void OnFruitChosen()
+    {
+        fruitSelected = true;
+        Debug.Log($"[BattleManager] Quả đã chọn: {fruitBuffManager?.ActiveFruit}. Bắt đầu trận!");
+    }
+
+    /// <summary>
+    /// Buộc đổi thú Player đang trên sân sang con tiếp theo trong hàng chờ.
+    /// Dùng cho Quả 1 (Baton Pass): đổi không qua lượt chết.
+    /// </summary>
+    public void ForceSwapPlayer()
+    {
+        if (pendingPlayerQueue.Count == 0)
+        {
+            Debug.Log("[BattleManager] ForceSwap: Không còn thú dự bị.");
+            return;
+        }
+
+        // Tìm thú đang sống trên sân để đổi ra
+        var current = playerTeam.FirstOrDefault(b => b != null && b.IsAlive);
+        if (current == null) return;
+
+        // Xóa thú cũ khỏi danh sách (KHÔNG destroy — chỉ deactivate tạm thời)
+        playerTeam.Remove(current);
+        current.gameObject.SetActive(false);
+        // Đẩy thú cũ vào lại queue để có thể quay ra sau
+        // (Nếu muốn đơn giản: giữ nguyên danh sách để track HP)
+
+        // Spawn thú mới
+        BeastData nextData = pendingPlayerQueue.Dequeue();
+        var newUnit = SpawnBeastUnit(nextData, playerSpawnPoints[0], true);
+        playerTeam.Add(newUnit);
+
+        // Subscribe event Crit cho thú mới nếu đang chơi Quả CritRage
+        if (fruitBuffManager?.ActiveFruit == FruitBuffManager.FruitType.CritRage)
+            fruitBuffManager.SubscribeToUnit(newUnit);
+
+        // Cập nhật bench list
+        RefreshFruitBuffBench();
+
+        actionPanel?.Initialize(playerTeam, enemyTeam, OnPlayerActionChosen);
+        Debug.Log($"[BattleManager] Baton Pass! {nextData.beastName} xuất kích.");
+    }
+
+    /// <summary>Trả về BeastUnit đang sống trên sân của Player.</summary>
+    public BeastUnit GetActivePlayerUnit()
+        => playerTeam.FirstOrDefault(b => b != null && b.IsAlive);
+
+    // ─── HELPER ──────────────────────────────────────────────────────
+
+    /// <summary>Gọi RestTick() lên tất cả thú Player đang ở ngoài sân (còn sống).</summary>
+    private void TickRestingPlayerUnits()
+    {
+        // Thú "đang nghỉ" = thú trong pendingPlayerQueue (chưa được spawn lên sân)
+        // Queue không cho foreach trực tiếp → chuyển sang List tạm để duyệt
+        var resting = new List<BeastData>(pendingPlayerQueue);
+        foreach (var data in resting)
+        {
+            // Tìm BeastUnit tương ứng với BeastData (nếu đã spawn nhưng bị swap ra)
+            // Trong trường hợp đơn giản: chỉ log, HP thực sẽ được reset lúc spawn
+            Debug.Log($"[RestTick] {data.beastName} đang nghỉ ngơi (+{Mathf.RoundToInt(data.maxHP * 0.02f)} HP).");
+        }
+
+        // Với thú đã spawn nhưng bị ForceSwap ra (đang SetActive(false)):
+        foreach (var unit in playerTeam)
+        {
+            if (unit != null && !unit.gameObject.activeSelf && unit.CurrentHP > 0)
+                unit.RestTick();
+        }
+    }
+
+    /// <summary>Cập nhật danh sách bench cho FruitBuffManager.</summary>
+    private void RefreshFruitBuffBench()
+    {
+        if (fruitBuffManager == null) return;
+        var bench = playerTeam.Where(b => b != null && !b.gameObject.activeSelf).ToList();
+        fruitBuffManager.SetBenchUnits(bench);
     }
 }

@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 905641819987155313}
   - component: {fileID: 8741672333137560138}
   - component: {fileID: 7526405380476300479}
-  - component: {fileID: 435159685353057172}
   m_Layer: 20
   m_Name: HuntingBeast
   m_TagString: Untagged
@@ -173,28 +172,3 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!114 &435159685353057172
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3309293192620767129}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 115eef338e32c5444bb7327c8c36cff5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HuntingBeastEncounter
-  battleTransferData: {fileID: 11400000, guid: 4c8c63eab6e68f14f962224b0e752080, type: 2}
-  playerData: {fileID: 11400000, guid: 86002785663fef148821f3bc0a8c1986, type: 2}
-  beastBallPrefab: {fileID: 1389236990844413207, guid: b5f6d57a268133c4aae518d1ddfcb560, type: 3}
-  uniqueId: 32
-  enemyTeam:
-  - {fileID: 11400000, guid: 91e5a22ec5f2e6944a2df86d89a10c7c, type: 2}
-  - {fileID: 11400000, guid: e55dc0f53a3a571469a658d6fc50634b, type: 2}
-  - {fileID: 11400000, guid: 3664efd77d5a45246a83ff415482ab87, type: 2}
-  - {fileID: 11400000, guid: ab81c744891a0f34f803067972ca5597, type: 2}
-  encounterPanel: {fileID: 0}
-  encounterText: {fileID: 0}
-  btnFight: {fileID: 0}
-  btnRun: {fileID: 0}

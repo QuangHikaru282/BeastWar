@@ -9,7 +9,7 @@ public class GameSceneManager : MonoBehaviour
     // Tên các scene — phải khớp với tên scene trong Build Settings
     public const string SCENE_MAP        = "MapScene";
     public const string SCENE_FORMATION  = "FormationScene";
-    public const string SCENE_BATTLE     = "BattleScene";
+    public const string SCENE_BATTLE     = "BattleSceneF";
     public const string SCENE_HUNTING    = "HuntingScene";
     public const string SCENE_WORLDMAP   = "WorldMapScene";
 
@@ -26,9 +26,43 @@ public class GameSceneManager : MonoBehaviour
         }
     }
 
-    public static void GoToMap()        => SceneManager.LoadScene(SCENE_MAP);
-    public static void GoToFormation()  => SceneManager.LoadScene(SCENE_FORMATION);
-    public static void GoToBattle()     => SceneManager.LoadScene(SCENE_BATTLE);
-    public static void GoToHunting()    => SceneManager.LoadScene(SCENE_HUNTING);
-    public static void GoToWorldMap()   => SceneManager.LoadScene(SCENE_WORLDMAP);
+    public static void GoToMap()
+    {
+        if (SceneTransitionManager.Instance != null)
+            SceneTransitionManager.Instance.TransitionToScene(SCENE_MAP, "Đang vào làng...");
+        else
+            SceneManager.LoadScene(SCENE_MAP);
+    }
+
+    public static void GoToFormation()
+    {
+        if (SceneTransitionManager.Instance != null)
+            SceneTransitionManager.Instance.TransitionToScene(SCENE_FORMATION, "Đang chuẩn bị đội hình...");
+        else
+            SceneManager.LoadScene(SCENE_FORMATION);
+    }
+
+    public static void GoToBattle()
+    {
+        if (SceneTransitionManager.Instance != null)
+            SceneTransitionManager.Instance.TransitionToScene(SCENE_BATTLE, "Đang chuẩn bị chiến đấu...");
+        else
+            SceneManager.LoadScene(SCENE_BATTLE);
+    }
+
+    public static void GoToHunting()
+    {
+        if (SceneTransitionManager.Instance != null)
+            SceneTransitionManager.Instance.TransitionToScene(SCENE_HUNTING, "Đang chuẩn bị săn bắt...");
+        else
+            SceneManager.LoadScene(SCENE_HUNTING);
+    }
+
+    public static void GoToWorldMap()
+    {
+        if (SceneTransitionManager.Instance != null)
+            SceneTransitionManager.Instance.TransitionToScene(SCENE_WORLDMAP, "Đang mở bản đồ thế giới...");
+        else
+            SceneManager.LoadScene(SCENE_WORLDMAP);
+    }
 }
