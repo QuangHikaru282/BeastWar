@@ -1,0 +1,120 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8297897261226514390
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6344235762129293175}
+  - component: {fileID: 5655493652288737021}
+  m_Layer: 0
+  m_Name: Shopmanager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6344235762129293175
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8297897261226514390}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.1, y: -12.2, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5655493652288737021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8297897261226514390}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 485584b985f9d9f449f53f4980c1096c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShopManager
+  shopPanel: {fileID: 0}
+  goldText: {fileID: 0}
+  content: {fileID: 0}
+  itemPrefab: {fileID: -2113098661914952289, guid: 942cac4ab3b3e124a849e70bf35d222f, type: 3}
+  itemScrollRect: {fileID: 0}
+  detailPanel: {fileID: 0}
+  detailIcon: {fileID: 0}
+  detailName: {fileID: 0}
+  detailType: {fileID: 0}
+  attackText: {fileID: 0}
+  durabilityText: {fileID: 0}
+  descriptionText: {fileID: 0}
+  detailPriceText: {fileID: 0}
+  buyButton: {fileID: 0}
+  cancelButton: {fileID: 0}
+  messageText: {fileID: 0}
+  allButton: {fileID: 0}
+  weaponButton: {fileID: 0}
+  armorButton: {fileID: 0}
+  itemButton: {fileID: 0}
+  sellButton: {fileID: 0}
+  playerGold: 12500
+  questUIManager: {fileID: 0}
+  items:
+  - itemID: 
+    itemName: Sword
+    icon: {fileID: -4725872483281334863, guid: 989a77da23bbd1c4091825c4a3c3547a, type: 3}
+    category: 0
+    price: 500
+    itemTypeText: Balo
+    attack: 5
+    durability: 100
+    description: Tangsucchuachonhanvat
+    startingOwned: 5
+  - itemID: 
+    itemName: Pokemon1
+    icon: {fileID: 4193216105327200859, guid: c2e0053d88821da49afd9697df104f25, type: 3}
+    category: 1
+    price: 1000
+    itemTypeText: 
+    attack: 15
+    durability: 100
+    description: 'He Thuy '
+    startingOwned: 0
+  - itemID: 
+    itemName: Pokemon2
+    icon: {fileID: 3715234044505307179, guid: c2e0053d88821da49afd9697df104f25, type: 3}
+    category: 1
+    price: 2000
+    itemTypeText: 
+    attack: 30
+    durability: 100
+    description: Co Kha nang tien hoa
+    startingOwned: 0
+  - itemID: 
+    itemName: Pokemon3
+    icon: {fileID: -6547005893679095629, guid: c2e0053d88821da49afd9697df104f25, type: 3}
+    category: 2
+    price: 5000
+    itemTypeText: 
+    attack: 30
+    durability: 100
+    description: BOSS
+    startingOwned: 0
+  - itemID: 
+    itemName: Pokemon3
+    icon: {fileID: -6547005893679095629, guid: c2e0053d88821da49afd9697df104f25, type: 3}
+    category: 2
+    price: 5000
+    itemTypeText: 
+    attack: 30
+    durability: 100
+    description: BOSS
+    startingOwned: 0

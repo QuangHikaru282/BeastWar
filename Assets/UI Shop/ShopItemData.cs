@@ -11,17 +11,18 @@ public enum ShopItemCategory
 [Serializable]
 public class ShopItemData
 {
+    [Header("Mã item")]
+    [Tooltip("Ví dụ: iron_sword, health_potion")]
+    public string itemID;
+
     [Header("Thông tin cơ bản")]
     public string itemName;
-
     public Sprite icon;
-
     public ShopItemCategory category;
 
     [Min(0)]
     public int price;
 
-    [Tooltip("Ví dụ: Level 5 Weapon")]
     public string itemTypeText;
 
     [Header("Chỉ số")]
@@ -38,8 +39,6 @@ public class ShopItemData
     [Min(0)]
     public int startingOwned;
 
-    // Số lượng trong lúc chơi game.
-    // Không hiện trong Inspector.
     [NonSerialized]
     public int owned;
 }
