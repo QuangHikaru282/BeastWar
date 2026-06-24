@@ -46,6 +46,8 @@ public class ShopManager : MonoBehaviour
 
     [Header("TIỀN NGƯỜI CHƠI")]
     [SerializeField, Min(0)] private int playerGold = 12500;
+    [Header("QUEST")]
+    [SerializeField] private QuestUIManager questUIManager;
 
     [Header("ITEM ĐƯỢC BÁN")]
     [SerializeField]
@@ -373,10 +375,11 @@ public class ShopManager : MonoBehaviour
         if (playerGold < selectedItem.price)
         {
             SetMessage("Không đủ vàng!");
-            Debug.Log("Không đủ vàng để mua " + selectedItem.itemName);
+            Debug.Log("Mua thất bại: không đủ vàng.");
             return;
         }
 
+        // Mua thành công
         playerGold -= selectedItem.price;
         selectedItem.owned++;
 
@@ -386,11 +389,25 @@ public class ShopManager : MonoBehaviour
         SetMessage("Đã mua " + selectedItem.itemName);
 
         Debug.Log(
-            "Đã mua " +
+            "MUA THÀNH CÔNG: " +
             selectedItem.itemName +
-            ". Owned: " +
-            selectedItem.owned
+            " | Item ID: " +
+            selectedItem.itemID
         );
+
+        // Báo cho hệ thống nhiệm vụ
+        if (questUIManager != null)
+        {
+            questUIManager.NotifyItemPurchased("");
+
+            Debug.Log("Đã gửi thông báo mua item sang QuestUIManager.");
+        }
+        else
+        {
+            Debug.LogError(
+                "ShopManager chưa được gán QuestUIManager trong Inspector!"
+            );
+        }
     }
 
     private void RefreshVisibleOwnedAmounts()
@@ -440,5 +457,17 @@ public class ShopManager : MonoBehaviour
 #else
         return Input.GetKeyDown(KeyCode.Escape);
 #endif
+    }
+    public void AddGold(int amount)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        playerGold += amount;
+        UpdateGoldText();
+
+        Debug.Log("Nhận thêm " + amount + " Gold");
     }
 }
