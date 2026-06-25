@@ -2,15 +2,9 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!78 &1
 TagManager:
-<<<<<<< Updated upstream
-  serializedVersion: 2
-  tags: []
-=======
   serializedVersion: 3
   tags:
   - ItemDrop
-  - ItemPickup
->>>>>>> Stashed changes
   layers:
   - Default
   - TransparentFX
@@ -48,23 +42,32 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: UnderGround
+    uniqueID: 1491075687
+    locked: 0
   - name: Ground
-    uniqueID: 901172549
-    locked: 0
-  - name: WalkBehind
-    uniqueID: 1970376437
-    locked: 0
-  - name: Player
-    uniqueID: 2155229465
-    locked: 0
-  - name: Collision
-    uniqueID: 204932909
+    uniqueID: 1928724721
     locked: 0
   - name: WalkInFront
-    uniqueID: 2958301409
+    uniqueID: 3608558063
+    locked: 0
+  - name: Collision
+    uniqueID: 2636057635
     locked: 0
   - name: Decor
-    uniqueID: 3055247799
+    uniqueID: 1020758281
+    locked: 0
+  - name: Player
+    uniqueID: 910177161
+    locked: 0
+  - name: House
+    uniqueID: 2165832267
+    locked: 0
+  - name: Tree
+    uniqueID: 132594385
+    locked: 0
+  - name: WalkBehind
+    uniqueID: 1231128239
     locked: 0
   m_RenderingLayers:
   - Default
