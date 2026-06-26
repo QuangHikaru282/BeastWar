@@ -131,6 +131,33 @@ namespace Kinnly
                 Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 mouseWorldPos.z = 0;
                 Vector3Int cellPos = terrainManager.Grid.WorldToCell(mouseWorldPos);
+
+                // 1. KIỂM TRA SỬ DỤNG CÔNG CỤ (Cuốc, Bình Tưới, Hạt Giống...)
+                if (playerInventory.CurrentlySelectedInventoryItem != null && 
+                    playerInventory.CurrentlySelectedInventoryItem.Item != null &&
+                    playerInventory.CurrentlySelectedInventoryItem.Item.farmingItemDelegate != null)
+                {
+                    var farmingItem = playerInventory.CurrentlySelectedInventoryItem.Item.farmingItemDelegate;
+                    
+                    // Kiểm tra xem công cụ này có thể dùng lên ô đất hiện tại không
+                    if (farmingItem.CanUse(cellPos))
+                    {
+                        bool success = farmingItem.Use(cellPos);
+                        if (success)
+                        {
+                            // Nếu là vật phẩm tiêu hao (Hạt giống), trừ số lượng đi 1
+                            if (farmingItem.Consumable)
+                            {
+                                playerInventory.RemoveItem(playerInventory.CurrentlySelectedInventoryItem, 1);
+                            }
+                            
+                            if (playerMovement != null) playerMovement.SetDirection(this.transform.localPosition);
+                            return; // Dừng lại vì đã dùng tool thành công
+                        }
+                    }
+                }
+
+                // 2. NẾU KHÔNG DÙNG TOOL -> MẶC ĐỊNH LÀ THU HOẠCH TAY KHÔNG
                 var cropData = terrainManager.GetCropDataAt(cellPos);
                 
                 // Nếu có cây trồng và đã chín (GrowthRatio = 1)

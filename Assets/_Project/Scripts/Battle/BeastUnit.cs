@@ -17,12 +17,20 @@ public class BeastUnit : MonoBehaviour
     [SerializeField] private Image spriteImage;
     [SerializeField] private HPBarUI hpBar;
     [SerializeField] private RageBarUI rageBar;  // Thanh Nộ (gán trong Inspector)
-    [SerializeField] private TextMeshProUGUI nameText;
+    [SerializeField] private TextMeshProUGUI nameTextTMP;
+    [SerializeField] private Text nameTextLegacy;
 
     // ─── Runtime Stats ────────────────────────────────────────────────
     public int CurrentHP  { get; private set; }
     public bool IsAlive   => CurrentHP > 0;
     public bool IsPlayerTeam { get; private set; }
+
+    public void SetExternalUI(TextMeshProUGUI extNameTextTMP, Text extNameTextLegacy, HPBarUI extHpBar)
+    {
+        if (extNameTextTMP != null) this.nameTextTMP = extNameTextTMP;
+        if (extNameTextLegacy != null) this.nameTextLegacy = extNameTextLegacy;
+        if (extHpBar != null) this.hpBar = extHpBar;
+    }
 
     // ─── Crit ────────────────────────────────────────────────────────
     /// <summary>Tỉ lệ chí mạng (0.0 → 1.0). Mặc định 20%.</summary>
@@ -82,7 +90,9 @@ public class BeastUnit : MonoBehaviour
                 : data.frontSprite;
         }
 
-        if (nameText != null) nameText.text = data.beastName;
+        if (nameTextTMP != null) nameTextTMP.text = data.beastName;
+        if (nameTextLegacy != null) nameTextLegacy.text = data.beastName;
+        
         hpBar?.Initialize(data.maxHP);
 
         // Reset Rage về 0 mỗi khi thú được khởi tạo vào sân

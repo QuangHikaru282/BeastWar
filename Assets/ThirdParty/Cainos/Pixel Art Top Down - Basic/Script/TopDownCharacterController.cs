@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,11 +8,11 @@ namespace Cainos.PixelArtTopDown_Basic
     {
         public float speed;
 
-        private Animator animator;
+        public Animator animator;
 
         private void Start()
         {
-            animator = GetComponent<Animator>();
+            if (animator == null) animator = GetComponent<Animator>();
         }
 
 
@@ -22,27 +22,47 @@ namespace Cainos.PixelArtTopDown_Basic
             if (Input.GetKey(KeyCode.A))
             {
                 dir.x = -1;
-                animator.SetInteger("Direction", 3);
+                if (animator != null) animator.SetInteger("Direction", 3);
             }
             else if (Input.GetKey(KeyCode.D))
             {
                 dir.x = 1;
-                animator.SetInteger("Direction", 2);
+                if (animator != null) animator.SetInteger("Direction", 2);
             }
 
             if (Input.GetKey(KeyCode.W))
             {
                 dir.y = 1;
-                animator.SetInteger("Direction", 1);
+                if (animator != null) animator.SetInteger("Direction", 1);
             }
             else if (Input.GetKey(KeyCode.S))
             {
                 dir.y = -1;
-                animator.SetInteger("Direction", 0);
+                if (animator != null) animator.SetInteger("Direction", 0);
             }
 
             dir.Normalize();
-            animator.SetBool("IsMoving", dir.magnitude > 0);
+            
+            if (animator != null) 
+            {
+                animator.SetBool("IsMoving", dir.magnitude > 0);
+                
+                // Cập nhật tham số cho Blend Tree mới
+                animator.SetFloat("speed", dir.magnitude);
+                if (dir != Vector2.zero)
+                {
+                    animator.SetFloat("dirX", dir.x);
+                    animator.SetFloat("dirY", dir.y);
+                }
+
+                // Lật ảnh khi sang trái
+                SpriteRenderer sr = animator.GetComponent<SpriteRenderer>();
+                if (sr != null)
+                {
+                    if (dir.x < 0) sr.flipX = true;
+                    else if (dir.x > 0) sr.flipX = false;
+                }
+            }
 
             GetComponent<Rigidbody2D>().linearVelocity = speed * dir;
         }

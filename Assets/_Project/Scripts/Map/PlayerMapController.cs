@@ -41,6 +41,14 @@ public class PlayerMapController : MonoBehaviour
             {
                 animator.SetFloat(AnimDirX, moveInput.x);
                 animator.SetFloat(AnimDirY, moveInput.y);
+
+                // Tự động lật mặt nhân vật (trái/phải)
+                SpriteRenderer sr = animator.GetComponent<SpriteRenderer>();
+                if (sr != null)
+                {
+                    if (moveInput.x < 0) sr.flipX = true;
+                    else if (moveInput.x > 0) sr.flipX = false;
+                }
             }
         }
     }
@@ -55,5 +63,11 @@ public class PlayerMapController : MonoBehaviour
     {
         canMove = value;
         if (!value) rb.linearVelocity = Vector2.zero;
+    }
+
+    /// <summary>Cập nhật Animator khi đổi nhân vật.</summary>
+    public void SetAnimator(Animator anim)
+    {
+        animator = anim;
     }
 }
