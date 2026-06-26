@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fa3c59b908c17f468de2d04e00f9531, type: 3}
   m_Name: Kinnly_WaterCan
   m_EditorClassIdentifier: Assembly-CSharp::Kinnly.Item
-  id: 0
-  name: 
+  id: 2
+  name: "B\xECnh n\u01B0\u1EDBc"
   description: 
   price: 0
   image: {fileID: 0}
@@ -21,7 +21,7 @@ MonoBehaviour:
   isConsumable: 0
   isBuildable: 0
   building: {fileID: 0}
-  isTools: 0
+  isTools: 1
   isAxe: 0
   isPickaxe: 0
-  farmingItemDelegate: {fileID: 0}
+  farmingItemDelegate: {fileID: 11400000, guid: aa0b57ee302309648a874dc615c63742, type: 2}

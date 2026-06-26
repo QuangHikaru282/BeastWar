@@ -26,10 +26,11 @@ public class QuestUI : MonoBehaviour
 
         if (playerData.tutorialQuestStage == 0)
         {
-            // Ẩn bảng nhiệm vụ an toàn (không dùng SetActive(false) để tránh tắt luôn script)
-            questText.text = "";
             Image panelImg = questPanel.GetComponent<Image>();
-            if (panelImg != null) panelImg.enabled = false;
+            if (panelImg != null) panelImg.enabled = true;
+
+            questText.text = "Nhiệm vụ: Gặp Trưởng Làng để nhận bạn đồng hành khởi đầu.";
+            questText.color = Color.black;
         }
         else if (playerData.tutorialQuestStage == 1)
         {
