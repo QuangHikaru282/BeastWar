@@ -89958,109 +89958,17 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 2.0625, y: 1.6077147}
   m_EdgeRadius: 0
---- !u!1 &2091122290
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2091122292}
-  - component: {fileID: 2091122291}
-  m_Layer: 0
-  m_Name: Shopmanager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &2091122291
+--- !u!114 &2091122291 stripped
 MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 5655493652288737021, guid: c4f563b92d1b6224e9bace8f26457eb6, type: 3}
+  m_PrefabInstance: {fileID: 5866198342633644440}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2091122290}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 485584b985f9d9f449f53f4980c1096c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopManager
-  shopPanel: {fileID: 0}
-  goldText: {fileID: 0}
-  content: {fileID: 0}
-  itemPrefab: {fileID: 0}
-  itemScrollRect: {fileID: 0}
-  detailPanel: {fileID: 0}
-  detailIcon: {fileID: 0}
-  detailName: {fileID: 0}
-  detailType: {fileID: 0}
-  attackText: {fileID: 0}
-  durabilityText: {fileID: 0}
-  descriptionText: {fileID: 0}
-  detailPriceText: {fileID: 0}
-  buyButton: {fileID: 0}
-  cancelButton: {fileID: 0}
-  messageText: {fileID: 0}
-  allButton: {fileID: 0}
-  weaponButton: {fileID: 0}
-  armorButton: {fileID: 0}
-  itemButton: {fileID: 0}
-  sellButton: {fileID: 0}
-  playerGold: 12500
-  items:
-  - itemName: 1
-    icon: {fileID: 0}
-    category: 0
-    price: 1
-    itemTypeText: 
-    attack: 0
-    durability: 100
-    description: 
-    startingOwned: 0
-  - itemName: 2
-    icon: {fileID: 0}
-    category: 0
-    price: 2
-    itemTypeText: 
-    attack: 0
-    durability: 100
-    description: 
-    startingOwned: 0
-  - itemName: 4
-    icon: {fileID: 0}
-    category: 0
-    price: 4
-    itemTypeText: 
-    attack: 0
-    durability: 100
-    description: 
-    startingOwned: 0
-  - itemName: 5
-    icon: {fileID: 0}
-    category: 0
-    price: 6
-    itemTypeText: 
-    attack: 0
-    durability: 100
-    description: 
-    startingOwned: 0
---- !u!4 &2091122292
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2091122290}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.1, y: -12.2, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2091217204
 GameObject:
   m_ObjectHideFlags: 0
@@ -90255,7 +90163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6cd82231500dc94db1be7feda01d96a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NPCShop
-  fText: {fileID: 0}
+  pressFObject: {fileID: 0}
   shopManager: {fileID: 2091122291}
 --- !u!61 &2107303632
 BoxCollider2D:
@@ -90377,6 +90285,63 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &5866198342633644440
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 6344235762129293175, guid: c4f563b92d1b6224e9bace8f26457eb6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -2.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6344235762129293175, guid: c4f563b92d1b6224e9bace8f26457eb6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -12.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6344235762129293175, guid: c4f563b92d1b6224e9bace8f26457eb6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6344235762129293175, guid: c4f563b92d1b6224e9bace8f26457eb6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6344235762129293175, guid: c4f563b92d1b6224e9bace8f26457eb6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6344235762129293175, guid: c4f563b92d1b6224e9bace8f26457eb6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6344235762129293175, guid: c4f563b92d1b6224e9bace8f26457eb6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6344235762129293175, guid: c4f563b92d1b6224e9bace8f26457eb6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6344235762129293175, guid: c4f563b92d1b6224e9bace8f26457eb6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6344235762129293175, guid: c4f563b92d1b6224e9bace8f26457eb6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8297897261226514390, guid: c4f563b92d1b6224e9bace8f26457eb6, type: 3}
+      propertyPath: m_Name
+      value: Shopmanager
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: c4f563b92d1b6224e9bace8f26457eb6, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -90385,4 +90350,4 @@ SceneRoots:
   - {fileID: 86501079}
   - {fileID: 1640564715}
   - {fileID: 2107303634}
-  - {fileID: 2091122292}
+  - {fileID: 5866198342633644440}
