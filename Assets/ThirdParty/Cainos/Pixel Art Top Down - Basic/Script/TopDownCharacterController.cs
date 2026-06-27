@@ -22,31 +22,24 @@ namespace Cainos.PixelArtTopDown_Basic
             if (Input.GetKey(KeyCode.A))
             {
                 dir.x = -1;
-                if (animator != null) animator.SetInteger("Direction", 3);
             }
             else if (Input.GetKey(KeyCode.D))
             {
                 dir.x = 1;
-                if (animator != null) animator.SetInteger("Direction", 2);
             }
 
             if (Input.GetKey(KeyCode.W))
             {
                 dir.y = 1;
-                if (animator != null) animator.SetInteger("Direction", 1);
             }
             else if (Input.GetKey(KeyCode.S))
             {
                 dir.y = -1;
-                if (animator != null) animator.SetInteger("Direction", 0);
             }
 
             dir.Normalize();
-            
             if (animator != null) 
             {
-                animator.SetBool("IsMoving", dir.magnitude > 0);
-                
                 // Cập nhật tham số cho Blend Tree mới
                 animator.SetFloat("speed", dir.magnitude);
                 if (dir != Vector2.zero)
