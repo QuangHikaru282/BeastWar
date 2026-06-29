@@ -1,11 +1,12 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 public enum ShopItemCategory
 {
     Weapon,
     Armor,
-    Item
+    Item,
+    Seed
 }
 
 [Serializable]

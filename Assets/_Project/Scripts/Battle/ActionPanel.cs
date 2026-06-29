@@ -113,8 +113,13 @@ public class ActionPanel : MonoBehaviour
 
     private void ShowSkillPanelForBeast(BeastUnit beast)
     {
-        if (skillPanel == null) return;
+        if (skillPanel == null)
+        {
+            Debug.LogError("[ActionPanel] skillPanel is NULL!");
+            return;
+        }
         
+        Debug.Log($"[ActionPanel] ShowSkillPanelForBeast called for {beast.Data.beastName}. moves count: {beast.Data.moves.Length}");
         skillPanel.SetActive(true);
 
         for (int i = 0; i < skillButtons.Length; i++)
@@ -123,8 +128,12 @@ public class ActionPanel : MonoBehaviour
             {
                 skillButtons[i].gameObject.SetActive(true);
                 skillButtons[i].interactable = true;
-                if (skillTextsTMP[i] != null) skillTextsTMP[i].text = beast.Data.moves[i].moveName;
-                if (skillTextsLegacy[i] != null) skillTextsLegacy[i].text = beast.Data.moves[i].moveName;
+                
+                string moveName = beast.Data.moves[i].moveName;
+                Debug.Log($"[ActionPanel] Button {i} setting to '{moveName}'. TMP={skillTextsTMP[i]!=null}, Legacy={skillTextsLegacy[i]!=null}");
+                
+                if (skillTextsTMP[i] != null) skillTextsTMP[i].text = moveName;
+                if (skillTextsLegacy[i] != null) skillTextsLegacy[i].text = moveName;
             }
             else
             {

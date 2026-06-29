@@ -51,6 +51,7 @@ namespace Kinnly
             {
                 if (isInteracting == false)
                 {
+                    Debug.Log($"<color=cyan>[PlayerInteract]</color> Đã nhận phím E hoặc Chuột phải! Đang kiểm tra vùng chạm (insideTrigger = {(insideTrigger != null ? insideTrigger.name : "null")})...");
                     Interact();
                     interactTime = 0.15f;
                 }

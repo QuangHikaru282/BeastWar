@@ -1,4 +1,4 @@
-﻿using TMPro;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,6 +9,9 @@ public class QuestListItemUI : MonoBehaviour
     [SerializeField] private TMP_Text progressText;
     [SerializeField] private TMP_Text stateText;
     [SerializeField] private Button selectButton;
+    [SerializeField] private Image backgroundImage;
+    [SerializeField] private Color completedColor = new Color(0.5f, 1f, 0.5f, 1f); // Green
+    [SerializeField] private Color normalColor = Color.white;
 
     private QuestData questData;
     private QuestUIManager questUIManager;
@@ -18,6 +21,10 @@ public class QuestListItemUI : MonoBehaviour
         if (selectButton == null)
         {
             selectButton = GetComponent<Button>();
+        }
+        if (backgroundImage == null)
+        {
+            backgroundImage = GetComponent<Image>();
         }
     }
 
@@ -79,6 +86,11 @@ public class QuestListItemUI : MonoBehaviour
                     stateText.text = "Đã nhận thưởng";
                     break;
             }
+        }
+
+        if (backgroundImage != null)
+        {
+            backgroundImage.color = (questData.state == QuestState.Completed) ? completedColor : normalColor;
         }
     }
 

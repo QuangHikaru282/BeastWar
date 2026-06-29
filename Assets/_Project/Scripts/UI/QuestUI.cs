@@ -13,6 +13,19 @@ public class QuestUI : MonoBehaviour
 
     private int lastPrintedStage = -1;
 
+    private void Start()
+    {
+        // Luôn đưa bảng nhiệm vụ (questPanel) về lớp nền dưới cùng để không che bất kỳ UI nào khác
+        if (questPanel != null)
+        {
+            questPanel.transform.SetAsFirstSibling();
+        }
+        else
+        {
+            transform.SetAsFirstSibling();
+        }
+    }
+
     private void Update()
     {
         if (playerData == null) return;

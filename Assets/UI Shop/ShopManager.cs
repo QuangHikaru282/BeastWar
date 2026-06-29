@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -45,7 +45,7 @@ public class ShopManager : MonoBehaviour
     [SerializeField] private Button sellButton;
 
     [Header("TIỀN NGƯỜI CHƠI")]
-    [SerializeField, Min(0)] private int playerGold = 12500;
+    [SerializeField] private PlayerData playerData;
     [Header("QUEST")]
     [SerializeField] private QuestUIManager questUIManager;
 
@@ -70,6 +70,11 @@ public class ShopManager : MonoBehaviour
 
     private void Awake()
     {
+        if (playerData == null)
+        {
+            playerData = Resources.Load<PlayerData>("PlayerData");
+        }
+        
         InitializeOwnedAmounts();
         SetupButtons();
 
@@ -152,12 +157,15 @@ public class ShopManager : MonoBehaviour
 
     public void OpenShop()
     {
+        Debug.Log($"<color=green>[ShopManager]</color> OpenShop() đang được gọi trên Object: <b>{gameObject.name}</b>, thuộc Scene: <b>{gameObject.scene.name}</b>");
+
         if (shopPanel == null)
         {
             Debug.LogError("ShopManager chưa được gán ShopPanel.");
             return;
         }
 
+        Debug.Log($"<color=yellow>[ShopManager]</color> Đang bật hiển thị cho bảng: <b>{shopPanel.name}</b>");
         shopPanel.SetActive(true);
 
         UpdateGoldText();
@@ -372,7 +380,7 @@ public class ShopManager : MonoBehaviour
             return;
         }
 
-        if (playerGold < selectedItem.price)
+        if (playerData != null && playerData.gold < selectedItem.price)
         {
             SetMessage("Không đủ vàng!");
             Debug.Log("Mua thất bại: không đủ vàng.");
@@ -380,7 +388,11 @@ public class ShopManager : MonoBehaviour
         }
 
         // Mua thành công
-        playerGold -= selectedItem.price;
+        if (playerData != null)
+        {
+            playerData.gold -= selectedItem.price;
+            playerData.Save();
+        }
         selectedItem.owned++;
 
         UpdateGoldText();
@@ -435,9 +447,9 @@ public class ShopManager : MonoBehaviour
 
     private void UpdateGoldText()
     {
-        if (goldText != null)
+        if (goldText != null && playerData != null)
         {
-            goldText.text = playerGold.ToString("N0") + " G";
+            goldText.text = playerData.gold.ToString("N0") + " G";
         }
     }
 
@@ -460,12 +472,13 @@ public class ShopManager : MonoBehaviour
     }
     public void AddGold(int amount)
     {
-        if (amount <= 0)
+        if (amount <= 0 || playerData == null)
         {
             return;
         }
 
-        playerGold += amount;
+        playerData.gold += amount;
+        playerData.Save();
         UpdateGoldText();
 
         Debug.Log("Nhận thêm " + amount + " Gold");

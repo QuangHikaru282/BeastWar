@@ -381,6 +381,11 @@ public class BattleManager : MonoBehaviour
             // ĐÁNH XA: Đứng tại chỗ nhảy nhẹ lên lấy đà (niệm phép)
             yield return attacker.transform.DOJump(originalPos, 0.5f, 1, 0.3f).WaitForCompletion();
         }
+        else if (type == MoveType.Self)
+        {
+            // BẢN THÂN: Phóng to nhẹ rồi thu nhỏ lại (hiệu ứng nảy chữ hoặc buff)
+            yield return attacker.transform.DOJump(originalPos, 0.2f, 1, 0.25f).WaitForCompletion();
+        }
 
         // Gọi hiệu ứng VFX nếu chiêu này có cài đặt hiệu ứng
         if (move != null && move.vfxPrefab != null)
@@ -409,6 +414,29 @@ public class BattleManager : MonoBehaviour
 
                 // Chờ đạn bay tới nơi (0.3s) rồi mới trừ máu
                 yield return new WaitForSeconds(0.3f);
+            }
+            else if (move.vfxSpawnType == VfxSpawnType.RainFromSky)
+            {
+                // MƯA TỪ TRÊN TRỜI: Hiện cách địch 5 đơn vị Y hướng đi xuống
+                Vector3 skyPos = target.transform.position + Vector3.up * 5f;
+                GameObject projectile = Instantiate(move.vfxPrefab, skyPos, Quaternion.identity);
+                
+                // Hướng thẳng xuống dưới
+                projectile.transform.rotation = Quaternion.Euler(0, 0, -90f);
+
+                // Bay xuống mục tiêu trong 0.4s rồi tự hủy
+                projectile.transform.DOMove(target.transform.position, 0.4f).SetEase(Ease.InQuad).OnComplete(() => {
+                    Destroy(projectile, 0.5f);
+                });
+
+                // Đợi rơi trúng đích (0.4s)
+                yield return new WaitForSeconds(0.4f);
+            }
+            else if (move.vfxSpawnType == VfxSpawnType.SpawnAtSelf)
+            {
+                // BẢN THÂN: Hiện VFX trực tiếp trên người thi triển (ví dụ: Hào quang hồi máu)
+                GameObject vfx = Instantiate(move.vfxPrefab, attacker.transform.position, Quaternion.identity);
+                Destroy(vfx, 1.5f);
             }
         }
 

@@ -10,6 +10,7 @@ public class ElderNPC : MonoBehaviour, IInteractable
     [Header("State")]
     public bool hasGivenStarter = false;
 
+
     public void Interact(PlayerInventory playerInventory)
     {
         if (!hasGivenStarter && starterSelectionUI != null)
