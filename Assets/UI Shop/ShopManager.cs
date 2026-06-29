@@ -40,6 +40,8 @@ public class ShopManager : MonoBehaviour
     [SerializeField] private Button weaponButton;
     [SerializeField] private Button armorButton;
     [SerializeField] private Button itemButton;
+    [Header("HIỆU ỨNG UI")]
+    [SerializeField] private ShopPanelHoverSetup hoverSetup;
 
     [Tooltip("Chức năng bán chưa làm. Có thể để trống.")]
     [SerializeField] private Button sellButton;
@@ -270,7 +272,12 @@ public class ShopManager : MonoBehaviour
         {
             itemScrollRect.verticalNormalizedPosition = 1f;
         }
+        if (hoverSetup != null)
+        {
+            hoverSetup.RefreshHoverEffects();
+        }
     }
+
 
     public void SelectItem(ShopItemData item)
     {
