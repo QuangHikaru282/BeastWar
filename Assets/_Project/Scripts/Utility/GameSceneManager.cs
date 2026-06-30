@@ -13,6 +13,7 @@ public class GameSceneManager : MonoBehaviour
     public const string SCENE_HUNTING    = "HuntingScene";
     public const string SCENE_WORLDMAP   = "WorldMapScene";
     public const string SCENE_CITYMAP    = "City"; // Theo yêu cầu của user, scene của bạn ấy tên là City
+    public const string SCENE_HUBTOWN    = "HubTownNew";
 
     private void Awake()
     {
@@ -33,6 +34,14 @@ public class GameSceneManager : MonoBehaviour
             SceneTransitionManager.Instance.TransitionToScene(SCENE_MAP, "Đang vào làng...");
         else
             SceneManager.LoadScene(SCENE_MAP);
+    }
+
+    public static void GoToHubTown()
+    {
+        if (SceneTransitionManager.Instance != null)
+            SceneTransitionManager.Instance.TransitionToScene(SCENE_HUBTOWN, "Đang vào HubTown...");
+        else
+            SceneManager.LoadScene(SCENE_HUBTOWN);
     }
 
     public static void GoToFormation()

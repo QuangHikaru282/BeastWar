@@ -15,9 +15,9 @@ public class ActionPanel : MonoBehaviour
 
     [Header("UI Kĩ năng (Skill Panel)")]
     [SerializeField] private GameObject skillPanel;
-    [SerializeField] private Button[] skillButtons = new Button[3];
-    [SerializeField] private TextMeshProUGUI[] skillTextsTMP = new TextMeshProUGUI[3];
-    [SerializeField] private Text[] skillTextsLegacy = new Text[3];
+    [SerializeField] private Button[] skillButtons = new Button[4];
+    [SerializeField] private TextMeshProUGUI[] skillTextsTMP = new TextMeshProUGUI[4];
+    [SerializeField] private Text[] skillTextsLegacy = new Text[4];
 
     // Callback trả về lựa chọn cho BattleManager
     private Action<BeastUnit, BeastUnit, MoveData, bool> onActionConfirmed;
@@ -49,23 +49,28 @@ public class ActionPanel : MonoBehaviour
 
         if (skillPanel != null && (skillButtons == null || skillButtons.Length == 0 || skillButtons[0] == null))
         {
-            skillButtons = new Button[3];
-            skillTextsTMP = new TextMeshProUGUI[3];
-            skillTextsLegacy = new Text[3];
+            skillButtons = new Button[4];
+            skillTextsTMP = new TextMeshProUGUI[4];
+            skillTextsLegacy = new Text[4];
             
             // Tìm các nút bên trong CombatButtons
-            Transform[] children = skillPanel.GetComponentsInChildren<Transform>(true);
+            Button[] allBtns = skillPanel.GetComponentsInChildren<Button>(true);
             int btnIndex = 0;
-            foreach (Transform t in children)
+            foreach (Button b in allBtns)
             {
-                if (t.name.Contains("AttackButton") && btnIndex < 3)
+                if (btnIndex < 4)
                 {
-                    skillButtons[btnIndex] = t.GetComponent<Button>();
-                    Transform txt = t.Find("Text");
+                    skillButtons[btnIndex] = b;
+                    Transform txt = b.transform.Find("Text") ?? b.transform.Find("Text (TMP)");
                     if (txt != null)
                     {
                         skillTextsTMP[btnIndex] = txt.GetComponent<TextMeshProUGUI>();
                         skillTextsLegacy[btnIndex] = txt.GetComponent<Text>();
+                    }
+                    else
+                    {
+                        skillTextsTMP[btnIndex] = b.GetComponentInChildren<TextMeshProUGUI>();
+                        skillTextsLegacy[btnIndex] = b.GetComponentInChildren<Text>();
                     }
                     btnIndex++;
                 }
@@ -137,10 +142,11 @@ public class ActionPanel : MonoBehaviour
             }
             else
             {
-                // Tắt các nút dư thừa hoặc làm mờ đi nếu quái chưa học đủ 3 chiêu
-                skillButtons[i].interactable = false;
-                if (skillTextsTMP[i] != null) skillTextsTMP[i].text = "- Trống -";
-                if (skillTextsLegacy[i] != null) skillTextsLegacy[i].text = "- Trống -";
+                // Ẩn luôn nút nếu quái chưa học đủ chiêu
+                if (skillButtons[i] != null)
+                {
+                    skillButtons[i].gameObject.SetActive(false);
+                }
             }
         }
     }

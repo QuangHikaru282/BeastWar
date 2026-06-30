@@ -61,6 +61,8 @@ public class ShopManager : MonoBehaviour
 
     private ShopItemData selectedItem;
     private ShopItemCategory? currentCategory;
+    private bool isSellingMode = false;
+    private Kinnly.InventoryItem selectedInventoryItemToSell;
 
     public bool IsOpen
     {
@@ -150,10 +152,11 @@ public class ShopManager : MonoBehaviour
             cancelButton.onClick.AddListener(CloseDetailPanel);
         }
 
-        // Chức năng Sell chưa được làm.
         if (sellButton != null)
         {
-            sellButton.interactable = false;
+            sellButton.interactable = true;
+            sellButton.onClick.RemoveAllListeners();
+            sellButton.onClick.AddListener(EnterSellMode);
         }
     }
 
@@ -172,6 +175,7 @@ public class ShopManager : MonoBehaviour
 
         UpdateGoldText();
         CloseDetailPanel();
+        EnterBuyMode();
         ShowAllItems();
     }
 
@@ -202,26 +206,52 @@ public class ShopManager : MonoBehaviour
         }
     }
 
+    private void EnterBuyMode()
+    {
+        isSellingMode = false;
+        if (buyButton != null)
+        {
+            TMP_Text btnText = buyButton.GetComponentInChildren<TMP_Text>();
+            if (btnText != null) btnText.text = "MUA";
+        }
+    }
+
+    public void EnterSellMode()
+    {
+        isSellingMode = true;
+        currentCategory = null;
+        if (buyButton != null)
+        {
+            TMP_Text btnText = buyButton.GetComponentInChildren<TMP_Text>();
+            if (btnText != null) btnText.text = "BÁN";
+        }
+        CreateSellItemList();
+    }
+
     private void ShowAllItems()
     {
+        EnterBuyMode();
         currentCategory = null;
         CreateItemList();
     }
 
     private void ShowWeapons()
     {
+        EnterBuyMode();
         currentCategory = ShopItemCategory.Weapon;
         CreateItemList();
     }
 
     private void ShowArmor()
     {
+        EnterBuyMode();
         currentCategory = ShopItemCategory.Armor;
         CreateItemList();
     }
 
     private void ShowNormalItems()
     {
+        EnterBuyMode();
         currentCategory = ShopItemCategory.Item;
         CreateItemList();
     }
@@ -286,6 +316,60 @@ public class ShopManager : MonoBehaviour
         }
     }
 
+    private void CreateSellItemList()
+    {
+        if (content == null || itemPrefab == null) return;
+
+        visibleItemSlots.Clear();
+        for (int i = content.childCount - 1; i >= 0; i--)
+        {
+            GameObject child = content.GetChild(i).gameObject;
+            child.SetActive(false);
+            Destroy(child);
+        }
+
+        var playerInventory = Kinnly.Player.Instance?.GetComponent<Kinnly.PlayerInventory>();
+        if (playerInventory != null)
+        {
+            foreach (GameObject slot in playerInventory.InventorySlots)
+            {
+                if (slot.transform.childCount > 0)
+                {
+                    Kinnly.InventoryItem invItem = slot.GetComponentInChildren<Kinnly.InventoryItem>();
+                    if (invItem != null && invItem.Item != null)
+                    {
+                        ShopItemData tempSellData = new ShopItemData
+                        {
+                            itemID = invItem.Item.name,
+                            itemName = invItem.Item.name,
+                            icon = invItem.Item.image,
+                            category = ShopItemCategory.Item,
+                            price = invItem.Item.price > 0 ? invItem.Item.price : 10,
+                            description = invItem.Item.description + "\n\n<color=yellow>(Vật phẩm trong túi của bạn)</color>",
+                            startingOwned = invItem.Amount,
+                            owned = invItem.Amount
+                        };
+
+                        ShopItemUI newSlot = Instantiate(itemPrefab, content);
+                        newSlot.gameObject.SetActive(true);
+                        newSlot.Setup(tempSellData, this);
+                        // Cấu hình tạm để truyền InventoryItem qua
+                        newSlot.GetComponent<Button>().onClick.AddListener(() => {
+                            selectedInventoryItemToSell = invItem;
+                            SelectItem(tempSellData);
+                        });
+                        visibleItemSlots.Add(newSlot);
+                    }
+                }
+            }
+        }
+
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(content);
+        if (itemScrollRect != null) itemScrollRect.verticalNormalizedPosition = 1f;
+        if (hoverSetup != null) hoverSetup.RefreshHoverEffects();
+    }
+
 
     public void SelectItem(ShopItemData item)
     {
@@ -295,6 +379,7 @@ public class ShopManager : MonoBehaviour
         }
 
         selectedItem = item;
+        if (!isSellingMode) selectedInventoryItemToSell = null;
 
         if (detailPanel != null)
         {
@@ -387,45 +472,71 @@ public class ShopManager : MonoBehaviour
             return;
         }
 
-        if (playerData != null && playerData.gold < selectedItem.price)
+        if (isSellingMode)
         {
-            SetMessage("Không đủ vàng!");
-            Debug.Log("Mua thất bại: không đủ vàng.");
-            return;
-        }
+            // BÁN ĐỒ
+            if (selectedInventoryItemToSell == null)
+            {
+                SetMessage("Lỗi không tìm thấy vật phẩm trong túi!");
+                return;
+            }
 
-        // Mua thành công
-        if (playerData != null)
-        {
-            playerData.gold -= selectedItem.price;
-            playerData.Save();
-        }
-        selectedItem.owned++;
+            var playerInventory = Kinnly.Player.Instance?.GetComponent<Kinnly.PlayerInventory>();
+            if (playerInventory != null)
+            {
+                // Cộng tiền cho người chơi
+                AddGold(selectedItem.price);
+                // Xóa 1 item trong kho
+                playerInventory.RemoveItem(selectedInventoryItemToSell, 1);
+                
+                SetMessage("Đã bán " + selectedItem.itemName);
+                Debug.Log("BÁN THÀNH CÔNG: " + selectedItem.itemName + " thu được " + selectedItem.price + " G");
 
-        UpdateGoldText();
-        RefreshVisibleOwnedAmounts();
-
-        SetMessage("Đã mua " + selectedItem.itemName);
-
-        Debug.Log(
-            "MUA THÀNH CÔNG: " +
-            selectedItem.itemName +
-            " | Item ID: " +
-            selectedItem.itemID
-        );
-
-        // Báo cho hệ thống nhiệm vụ
-        if (questUIManager != null)
-        {
-            questUIManager.NotifyItemPurchased("");
-
-            Debug.Log("Đã gửi thông báo mua item sang QuestUIManager.");
+                // Làm mới danh sách bán
+                CreateSellItemList();
+                CloseDetailPanel();
+            }
         }
         else
         {
-            Debug.LogError(
-                "ShopManager chưa được gán QuestUIManager trong Inspector!"
-            );
+            // MUA ĐỒ (CŨ)
+            if (playerData != null && playerData.gold < selectedItem.price)
+            {
+                SetMessage("Không đủ vàng!");
+                Debug.Log("Mua thất bại: không đủ vàng.");
+                return;
+            }
+
+            // THÊM VÀO TÚI ĐỒ NẾU CÓ VẬT PHẨM KINNLY
+            var playerInventory = Kinnly.Player.Instance?.GetComponent<Kinnly.PlayerInventory>();
+            if (selectedItem.kinnlyItem != null && playerInventory != null)
+            {
+                // Kiểm tra xem túi đồ có đầy không
+                if (!playerInventory.IsSlotAvailable(selectedItem.kinnlyItem, 1))
+                {
+                    SetMessage("Túi đồ đã đầy!");
+                    return;
+                }
+                playerInventory.AddItem(selectedItem.kinnlyItem, 1);
+            }
+
+            if (playerData != null)
+            {
+                playerData.gold -= selectedItem.price;
+                playerData.Save();
+            }
+            selectedItem.owned++;
+
+            UpdateGoldText();
+            RefreshVisibleOwnedAmounts();
+
+            SetMessage("Đã mua " + selectedItem.itemName);
+            Debug.Log("MUA THÀNH CÔNG: " + selectedItem.itemName + " | Item ID: " + selectedItem.itemID);
+
+            if (questUIManager != null)
+            {
+                questUIManager.NotifyItemPurchased("");
+            }
         }
     }
 

@@ -54,14 +54,6 @@ public class BattleManager : MonoBehaviour
 
     private void Start()
     {
-        // XÓA BỎ BATTLESYSTEM CŨ CỦA TUTORIAL NẾU NGƯỜI DÙNG QUÊN XÓA
-        var oldSystem = FindFirstObjectByType<BattleSystem>();
-        if (oldSystem != null)
-        {
-            Debug.LogWarning("--- ĐÃ PHÁT HIỆN BATTLESYSTEM (TUTORIAL CŨ)! HỆ THỐNG ĐÃ TỰ ĐỘNG XÓA ĐỂ TRÁNH XUNG ĐỘT! ---");
-            Destroy(oldSystem.gameObject);
-        }
-
         StartCoroutine(RunBattle());
     }
 
@@ -393,7 +385,7 @@ public class BattleManager : MonoBehaviour
             if (move.vfxSpawnType == VfxSpawnType.SpawnAtTarget)
             {
                 // SÉT ĐÁNH: Hiện ngay tại chỗ địch
-                GameObject vfx = Instantiate(move.vfxPrefab, target.transform.position, Quaternion.identity);
+                GameObject vfx = Instantiate(move.vfxPrefab, target.transform.position, move.vfxPrefab.transform.rotation);
                 // Tự động xóa hiệu ứng đi sau 1.5 giây để tránh đầy bộ nhớ
                 Destroy(vfx, 1.5f); 
             }
@@ -409,7 +401,14 @@ public class BattleManager : MonoBehaviour
 
                 // Bay tới đích trong 0.3s rồi tự hủy
                 projectile.transform.DOMove(target.transform.position, 0.3f).SetEase(Ease.Linear).OnComplete(() => {
-                    Destroy(projectile, 0.5f); // Xóa cục VFX sau khi trúng đích 0.5s để đuôi lửa kịp biến mất
+                    // Thử tìm Animator và chạy animation "Hit" (vỡ ra) nếu có
+                    Animator anim = projectile.GetComponentInChildren<Animator>();
+                    if (anim != null)
+                    {
+                        // Thử play state có tên "Hit" (Aseprite thường lấy tên tag làm tên state)
+                        anim.Play("Hit");
+                    }
+                    Destroy(projectile, 0.5f); // Xóa cục VFX sau 0.5s để nó kịp chạy animation vỡ ra
                 });
 
                 // Chờ đạn bay tới nơi (0.3s) rồi mới trừ máu
@@ -419,13 +418,19 @@ public class BattleManager : MonoBehaviour
             {
                 // MƯA TỪ TRÊN TRỜI: Hiện cách địch 5 đơn vị Y hướng đi xuống
                 Vector3 skyPos = target.transform.position + Vector3.up * 5f;
-                GameObject projectile = Instantiate(move.vfxPrefab, skyPos, Quaternion.identity);
+                GameObject projectile = Instantiate(move.vfxPrefab, skyPos, move.vfxPrefab.transform.rotation);
                 
-                // Hướng thẳng xuống dưới
-                projectile.transform.rotation = Quaternion.Euler(0, 0, -90f);
+                // Nếu là sét (đã vẽ đứng) thì không xoay, nếu là đạn ngang thì xoay
+                // Tạm thời bỏ dòng ép -90 độ đi để giữ nguyên bản gốc của Prefab
+                // projectile.transform.rotation = Quaternion.Euler(0, 0, -90f);
 
                 // Bay xuống mục tiêu trong 0.4s rồi tự hủy
                 projectile.transform.DOMove(target.transform.position, 0.4f).SetEase(Ease.InQuad).OnComplete(() => {
+                    Animator anim = projectile.GetComponentInChildren<Animator>();
+                    if (anim != null)
+                    {
+                        anim.Play("Hit");
+                    }
                     Destroy(projectile, 0.5f);
                 });
 
@@ -435,41 +440,55 @@ public class BattleManager : MonoBehaviour
             else if (move.vfxSpawnType == VfxSpawnType.SpawnAtSelf)
             {
                 // BẢN THÂN: Hiện VFX trực tiếp trên người thi triển (ví dụ: Hào quang hồi máu)
-                GameObject vfx = Instantiate(move.vfxPrefab, attacker.transform.position, Quaternion.identity);
+                GameObject vfx = Instantiate(move.vfxPrefab, attacker.transform.position, move.vfxPrefab.transform.rotation);
                 Destroy(vfx, 1.5f);
             }
         }
 
-        // Tính sát thương dựa trên chiêu thức
-        int baseDamage = move != null ? attacker.CalculateDamage(target, move) : attacker.CalculateBaseDamage(target);
-
-        // Roll Crit nếu là đòn của Player (IsPlayerTeam)
-        bool isCrit    = false;
-        int  finalDamage = baseDamage;
-        if (attacker.IsPlayerTeam)
+        // Xử lý logic chiêu thức
+        if (type == MoveType.Self)
         {
-            isCrit = UnityEngine.Random.value < attacker.CritChance;
-            if (isCrit)
-                finalDamage = Mathf.RoundToInt(baseDamage * attacker.CritMultiplier);
-        }
-
-        // Gây sát thương (dùng TakeDamageWithResult để event OnCritLanded được bắn)
-        bool died = target.TakeDamageWithResult(finalDamage, isCrit);
-
-        Debug.Log($"[Battle] {attacker.Data.beastName} gây {finalDamage} sát thương{(isCrit ? " (CRIT!" + ")": "")}! {target.Data.beastName} HP: {target.CurrentHP}");
-
-        yield return new WaitForSeconds(0.2f);
-
-        // Nếu là đánh gần, phải lùi về vị trí cũ
-        if (type == MoveType.Melee)
-        {
-            yield return attacker.transform.DOMove(originalPos, 0.25f).SetEase(Ease.InQuad).WaitForCompletion();
-        }
-
-        if (died)
-        {
-            Debug.Log($"[Battle] {target.Data.beastName} đã chết!");
+            // CHIÊU BUFF / HỒI MÁU
+            int healAmount = move != null ? move.power : 20; // Lấy sức mạnh chiêu làm số máu hồi
+            
+            attacker.Heal(healAmount);
+            
             yield return new WaitForSeconds(0.5f);
+        }
+        else
+        {
+            // CHIÊU TẤN CÔNG (Melee hoặc Ranged)
+            // Tính sát thương dựa trên chiêu thức
+            int baseDamage = move != null ? attacker.CalculateDamage(target, move) : attacker.CalculateBaseDamage(target);
+
+            // Roll Crit nếu là đòn của Player (IsPlayerTeam)
+            bool isCrit    = false;
+            int  finalDamage = baseDamage;
+            if (attacker.IsPlayerTeam)
+            {
+                isCrit = UnityEngine.Random.value < attacker.CritChance;
+                if (isCrit)
+                    finalDamage = Mathf.RoundToInt(baseDamage * attacker.CritMultiplier);
+            }
+
+            // Gây sát thương (dùng TakeDamageWithResult để event OnCritLanded được bắn)
+            bool died = target.TakeDamageWithResult(finalDamage, isCrit);
+
+            Debug.Log($"[Battle] {attacker.Data.beastName} gây {finalDamage} sát thương{(isCrit ? " (CRIT!" + ")": "")}! {target.Data.beastName} HP: {target.CurrentHP}");
+
+            yield return new WaitForSeconds(0.2f);
+
+            // Nếu là đánh gần, phải lùi về vị trí cũ
+            if (type == MoveType.Melee)
+            {
+                yield return attacker.transform.DOMove(originalPos, 0.25f).SetEase(Ease.InQuad).WaitForCompletion();
+            }
+
+            if (died)
+            {
+                Debug.Log($"[Battle] {target.Data.beastName} đã chết!");
+                yield return new WaitForSeconds(0.5f);
+            }
         }
     }
 
@@ -627,7 +646,7 @@ public class BattleManager : MonoBehaviour
             yield return new WaitForSeconds(1.5f);
             
             battleTransferData.currentArenaStageId = -1;
-            GameSceneManager.GoToMap();
+            GameSceneManager.GoToHubTown();
         }
         else
         {

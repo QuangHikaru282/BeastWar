@@ -16,6 +16,10 @@ public class ShopItemData
     [Tooltip("Ví dụ: iron_sword, health_potion")]
     public string itemID;
 
+    [Header("Vật phẩm thực tế (Kinnly)")]
+    [Tooltip("Kéo thả vật phẩm từ thư mục vào đây để khi mua nó sẽ bay vào túi đồ")]
+    public Kinnly.Item kinnlyItem;
+
     [Header("Thông tin cơ bản")]
     public string itemName;
     public Sprite icon;

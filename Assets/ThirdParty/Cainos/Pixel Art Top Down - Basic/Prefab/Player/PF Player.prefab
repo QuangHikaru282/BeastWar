@@ -5345,6 +5345,10 @@ MonoBehaviour:
   toolbarItem: {fileID: 2899700805568611129, guid: bc606109200488248b31962c3933d46e, type: 3}
   itemDrop: {fileID: 8030692452532231761, guid: 010ed6940c062e740b75c65f0e7aea74, type: 3}
   MaxAmount: 0
+  startingItems:
+  - {fileID: 11400000, guid: be5d72bebfeaa7245afc55d7b3ba11de, type: 2}
+  - {fileID: 11400000, guid: f0d3dff8b4c1f12428d933a0624593f2, type: 2}
+  - {fileID: 11400000, guid: 1bbfc4ab03e21af4db23f394cb57edcb, type: 2}
   CurrentlyHoveredInventorySlot: {fileID: 0}
   CurrentlyHoveredToolbarSlot: {fileID: 0}
   CurrentlySelectedInventoryItem: {fileID: 0}

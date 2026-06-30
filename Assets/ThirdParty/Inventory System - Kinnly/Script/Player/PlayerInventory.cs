@@ -14,6 +14,8 @@ namespace Kinnly
         [SerializeField] GameObject inventoryUI;
         [SerializeField] GameObject toolbarUI;
         [SerializeField] List<GameObject> inventorySlot = new List<GameObject>();
+        public List<GameObject> InventorySlots => inventorySlot;
+
         [SerializeField] List<GameObject> toolbarSlot = new List<GameObject>();
 
         [Header("Prefabs")]
@@ -23,6 +25,8 @@ namespace Kinnly
 
         [Header("Config")]
         public int MaxAmount;
+        [Tooltip("Kéo thả Cuốc, Bình tưới, Hạt giống vào đây để nhân vật có sẵn khi bắt đầu Game")]
+        public List<Item> startingItems = new List<Item>();
 
         [HideInInspector] public GameObject CurrentlyHoveredInventorySlot;
         [HideInInspector] public GameObject CurrentlyHoveredToolbarSlot;
@@ -42,6 +46,12 @@ namespace Kinnly
 
             CurrentlySelectedToolBar = 0;
             dialogBox = DialogBox.instance;
+
+            // Cấp phát đồ khởi đầu
+            foreach (var item in startingItems)
+            {
+                if (item != null) AddItem(item, 1);
+            }
         }
 
         // Update is called once per frame
@@ -196,7 +206,13 @@ namespace Kinnly
 
         public void SpawnItemDrop(Item item, int amount)
         {
-            GameObject go = Instantiate(itemDrop, transform.position + new Vector3(RandomNumber(-3f, 3f, -1f, 1f), RandomNumber(-3f, 3f, -1f, 1f), 0f), transform.rotation);
+            SpawnItemDropAtPosition(item, amount, transform.position);
+        }
+
+        public void SpawnItemDropAtPosition(Item item, int amount, Vector3 position)
+        {
+            // Spawn tại chính xác vị trí position, ItemDrop.cs sẽ tự xử lý hiệu ứng nảy ra xung quanh
+            GameObject go = Instantiate(itemDrop, position, transform.rotation);
             go.GetComponent<SpriteRenderer>().sprite = item.image;
             go.GetComponent<ItemDrop>().SetItem(item, amount);
         }

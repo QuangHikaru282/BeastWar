@@ -10,7 +10,7 @@ public class DamagePopup : MonoBehaviour
 {
     [SerializeField] private TMP_Text damageText;
 
-    public static DamagePopup Create(Vector3 worldPosition, int damage, bool isCritical = false)
+    public static DamagePopup Create(Vector3 worldPosition, int amount, bool isCritical = false, bool isHeal = false)
     {
         // Load prefab từ Resources hoặc dùng tạo động
         GameObject prefab = Resources.Load<GameObject>("Prefabs/DamagePopup");
@@ -37,17 +37,17 @@ public class DamagePopup : MonoBehaviour
         var instance = go.GetComponent<DamagePopup>();
         if (instance == null) instance = go.AddComponent<DamagePopup>();
 
-        instance.Init(damage, isCritical);
+        instance.Init(amount, isCritical, isHeal);
         return instance;
     }
 
-    private void Init(int damage, bool isCritical)
+    private void Init(int amount, bool isCritical, bool isHeal)
     {
         if (damageText == null)
             damageText = GetComponent<TMP_Text>();
 
-        damageText.text = $"-{damage}";
-        damageText.color = isCritical ? Color.yellow : Color.white;
+        damageText.text = isHeal ? $"+{amount}" : $"-{amount}";
+        damageText.color = isHeal ? Color.green : (isCritical ? Color.yellow : Color.white);
 
         transform.localScale = Vector3.one * (isCritical ? 1.4f : 1f);
 

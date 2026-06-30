@@ -14,12 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BeastBall.Farming.Crop
   UniqueID: crop_tomato
   GrowthStagesTiles:
-  - {fileID: 11400000, guid: 37f01a3ddbacfd5478e6e1574f5191cc, type: 2}
-  - {fileID: 11400000, guid: 867c839a0a3933a4d9d918148de0cddb, type: 2}
-  - {fileID: 11400000, guid: 546e115c08a16e140b1c35f2a0921607, type: 2}
-  - {fileID: 11400000, guid: 363a187dbdaa7f143a8077ffd4cf9c38, type: 2}
   - {fileID: 11400000, guid: df012403490611b4f9464b9591cbd9a8, type: 2}
-  Produce: {fileID: 11400000, guid: 3f51d8305f0d5b34bb6ea70e4b2f939e, type: 2}
+  - {fileID: 11400000, guid: ed6430b2fbb2b4b4580d9c8a3b662406, type: 2}
+  - {fileID: 11400000, guid: 595621107329b634b932d0ced0f4477f, type: 2}
+  - {fileID: 11400000, guid: 32d0bd5622bc52e4da9091356d81e7ac, type: 2}
+  - {fileID: 11400000, guid: 11f76000d70cdfb42ac1e37d1b5340db, type: 2}
+  - {fileID: 11400000, guid: 4a0d415ea81cc654ea4cb12bd46440c1, type: 2}
+  Produce: {fileID: 11400000, guid: 326927cc77c9ba847bb0e1c48d201d11, type: 2}
   GrowthTime: 1
   NumberOfHarvest: 1
   StageAfterHarvest: 1

@@ -23,8 +23,10 @@ namespace BeastBall.Farming
             var terrain = FarmingTerrainManager.Instance;
             var data = terrain.GetCropDataAt(target);
 
+            var playerInv = Kinnly.Player.Instance.GetComponent<Kinnly.PlayerInventory>();
+
             // Check if Player Inventory has enough space before harvesting
-            if (!FarmingInventoryManager.Instance.CanFitItem(data.GrowingCrop.Produce, data.GrowingCrop.ProductPerHarvest)) 
+            if (!playerInv.IsSlotAvailable(data.GrowingCrop.Produce, data.GrowingCrop.ProductPerHarvest)) 
             {
                 Debug.LogWarning("[BeastBall Farming] Inventory is full! Cannot harvest.");
                 return false;
@@ -35,8 +37,8 @@ namespace BeastBall.Farming
             if (product != null)
             {
                 // Add the harvested product to the Player Inventory
-                FarmingInventoryManager.Instance.AddItem(product.Produce, product.ProductPerHarvest);
-                Debug.Log($"[BeastBall Farming] Harvested {product.ProductPerHarvest} {product.Produce.DisplayName} and added to inventory!");
+                playerInv.AddItem(product.Produce, product.ProductPerHarvest);
+                Debug.Log($"[BeastBall Farming] Harvested {product.ProductPerHarvest} {product.Produce.name} and added to inventory!");
                
                 return true;
             }

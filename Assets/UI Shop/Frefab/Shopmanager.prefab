@@ -64,8 +64,9 @@ MonoBehaviour:
   weaponButton: {fileID: 0}
   armorButton: {fileID: 0}
   itemButton: {fileID: 0}
+  hoverSetup: {fileID: 0}
   sellButton: {fileID: 0}
-  playerGold: 12500
+  playerData: {fileID: 11400000, guid: 86002785663fef148821f3bc0a8c1986, type: 2}
   questUIManager: {fileID: 0}
   items:
   - itemID: 

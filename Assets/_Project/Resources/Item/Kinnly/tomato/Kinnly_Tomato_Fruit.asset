@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fa3c59b908c17f468de2d04e00f9531, type: 3}
+  m_Name: Kinnly_Tomato_Fruit
+  m_EditorClassIdentifier: Assembly-CSharp::Kinnly.Item
+  id: 0
+  name: Qua ca chua
+  description: 
+  price: 150
+  image: {fileID: -1257518098505440576, guid: 30401b90155eb854f92114349d8a8f54, type: 3}
+  isStackable: 1
+  isConsumable: 0
+  isBuildable: 0
+  building: {fileID: 0}
+  isTools: 0
+  isAxe: 0
+  isPickaxe: 0
+  farmingItemDelegate: {fileID: 0}
