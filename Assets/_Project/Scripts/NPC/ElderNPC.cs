@@ -10,10 +10,12 @@ public class ElderNPC : MonoBehaviour, IInteractable
     [Header("State")]
     public bool hasGivenStarter = false;
 
+
     public void Interact(PlayerInventory playerInventory)
     {
         if (!hasGivenStarter && starterSelectionUI != null)
         {
+            Debug.Log("Trưởng làng: Làng của chúng ta đang bị quái vật quấy phá. Cháu hãy nhận lấy một Pet khởi đầu và giúp ta giải quyết chúng nhé!");
             starterSelectionUI.SetActive(true);
             
             // Khóa di chuyển của người chơi tạm thời nếu cần

@@ -14,6 +14,12 @@ public class StarterSelectionUI : MonoBehaviour
     public BeastData starter2;
     public BeastData starter3;
 
+    private void OnEnable()
+    {
+        // Tự động đưa Panel lên trên cùng của Canvas để không bị các UI khác che khuất
+        transform.SetAsLastSibling();
+    }
+
     public void ChooseStarter1()
     {
         GivePet(starter1);

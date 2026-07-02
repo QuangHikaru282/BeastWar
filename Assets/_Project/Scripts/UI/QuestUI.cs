@@ -13,6 +13,19 @@ public class QuestUI : MonoBehaviour
 
     private int lastPrintedStage = -1;
 
+    private void Start()
+    {
+        // Luôn đưa bảng nhiệm vụ (questPanel) về lớp nền dưới cùng để không che bất kỳ UI nào khác
+        if (questPanel != null)
+        {
+            questPanel.transform.SetAsFirstSibling();
+        }
+        else
+        {
+            transform.SetAsFirstSibling();
+        }
+    }
+
     private void Update()
     {
         if (playerData == null) return;
@@ -26,10 +39,11 @@ public class QuestUI : MonoBehaviour
 
         if (playerData.tutorialQuestStage == 0)
         {
-            // Ẩn bảng nhiệm vụ an toàn (không dùng SetActive(false) để tránh tắt luôn script)
-            questText.text = "";
             Image panelImg = questPanel.GetComponent<Image>();
-            if (panelImg != null) panelImg.enabled = false;
+            if (panelImg != null) panelImg.enabled = true;
+
+            questText.text = "Nhiệm vụ: Gặp Trưởng Làng để nhận bạn đồng hành khởi đầu.";
+            questText.color = Color.black;
         }
         else if (playerData.tutorialQuestStage == 1)
         {

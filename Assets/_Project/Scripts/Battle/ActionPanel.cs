@@ -10,15 +10,14 @@ using TMPro;
 /// </summary>
 public class ActionPanel : MonoBehaviour
 {
-    private enum ActionState { SelectAttacker, SelectSkill, SelectTarget }
-
     [Header("Text hướng dẫn")]
     [SerializeField] private TextMeshProUGUI guideText;
 
     [Header("UI Kĩ năng (Skill Panel)")]
     [SerializeField] private GameObject skillPanel;
-    [SerializeField] private Button[] skillButtons = new Button[3];
-    [SerializeField] private TextMeshProUGUI[] skillTexts = new TextMeshProUGUI[3];
+    [SerializeField] private Button[] skillButtons = new Button[4];
+    [SerializeField] private TextMeshProUGUI[] skillTextsTMP = new TextMeshProUGUI[4];
+    [SerializeField] private Text[] skillTextsLegacy = new Text[4];
 
     // Callback trả về lựa chọn cho BattleManager
     private Action<BeastUnit, BeastUnit, MoveData, bool> onActionConfirmed;
@@ -27,7 +26,6 @@ public class ActionPanel : MonoBehaviour
     private List<BeastUnit> enemyTeam;
     private BeastUnit selectedAttacker;
     private MoveData selectedMove;
-    private ActionState currentState;
 
     public void Initialize(List<BeastUnit> pTeam, List<BeastUnit> eTeam,
                            Action<BeastUnit, BeastUnit, MoveData, bool> callback)
@@ -35,6 +33,50 @@ public class ActionPanel : MonoBehaviour
         playerTeam = pTeam;
         enemyTeam  = eTeam;
         onActionConfirmed = callback;
+
+        // Tự động tìm UI tĩnh của BattleSceneF nếu chưa được gán trong Inspector
+        if (guideText == null)
+        {
+            GameObject txtObj = GameObject.Find("DialogueText");
+            if (txtObj != null) guideText = txtObj.GetComponent<TextMeshProUGUI>();
+        }
+
+        if (skillPanel == null)
+        {
+            GameObject panelObj = GameObject.Find("CombatButtons");
+            if (panelObj != null) skillPanel = panelObj;
+        }
+
+        if (skillPanel != null && (skillButtons == null || skillButtons.Length == 0 || skillButtons[0] == null))
+        {
+            skillButtons = new Button[4];
+            skillTextsTMP = new TextMeshProUGUI[4];
+            skillTextsLegacy = new Text[4];
+            
+            // Tìm các nút bên trong CombatButtons
+            Button[] allBtns = skillPanel.GetComponentsInChildren<Button>(true);
+            int btnIndex = 0;
+            foreach (Button b in allBtns)
+            {
+                if (btnIndex < 4)
+                {
+                    skillButtons[btnIndex] = b;
+                    Transform txt = b.transform.Find("Text") ?? b.transform.Find("Text (TMP)");
+                    if (txt != null)
+                    {
+                        skillTextsTMP[btnIndex] = txt.GetComponent<TextMeshProUGUI>();
+                        skillTextsLegacy[btnIndex] = txt.GetComponent<Text>();
+                    }
+                    else
+                    {
+                        skillTextsTMP[btnIndex] = b.GetComponentInChildren<TextMeshProUGUI>();
+                        skillTextsLegacy[btnIndex] = b.GetComponentInChildren<Text>();
+                    }
+                    btnIndex++;
+                }
+            }
+            Debug.Log($"[ActionPanel] Đã tự động link {btnIndex} nút kĩ năng từ CombatButtons.");
+        }
 
         // Cài đặt sự kiện cho các nút bấm
         for (int i = 0; i < skillButtons.Length; i++)
@@ -48,13 +90,16 @@ public class ActionPanel : MonoBehaviour
         }
     }
 
-    public void Show()
+    public void Show(BeastUnit defaultAttacker)
     {
-        currentState = ActionState.SelectAttacker;
-        selectedAttacker = null;
+        selectedAttacker = defaultAttacker;
         selectedMove = null;
-        if (skillPanel != null) skillPanel.SetActive(false);
-        SetGuide("Chọn thú phe ta để ra đòn!");
+        
+        if (selectedAttacker != null)
+        {
+            ShowSkillPanelForBeast(selectedAttacker);
+            SetGuide($"Lượt của {selectedAttacker.Data.beastName}! Hãy chọn kĩ năng.");
+        }
     }
 
     public void Hide()
@@ -64,39 +109,22 @@ public class ActionPanel : MonoBehaviour
     }
 
     /// <summary>
-    /// Được gọi từ BattleManager.HandleBeastClick khi người chơi click vào thú trên sân.
+    /// Hàm này giờ không cần thiết nữa do tự động đánh, nhưng giữ lại phòng hờ
     /// </summary>
     public void OnBeastClicked(BeastUnit beast)
     {
-        if (beast == null || !beast.IsAlive) return;
-
-        if (currentState == ActionState.SelectAttacker)
-        {
-            // Chỉ chấp nhận thú phe mình
-            if (!beast.IsPlayerTeam) return;
-
-            selectedAttacker = beast;
-            currentState = ActionState.SelectSkill;
-            
-            // Hiển thị bảng kĩ năng
-            ShowSkillPanelForBeast(beast);
-            SetGuide($"Đã chọn {beast.Data.beastName}! Hãy chọn một kĩ năng.");
-        }
-        else if (currentState == ActionState.SelectTarget)
-        {
-            // Chỉ chấp nhận thú phe địch
-            if (beast.IsPlayerTeam) return;
-
-            // Xác nhận: tấn công với chiêu thức đã chọn
-            onActionConfirmed?.Invoke(selectedAttacker, beast, selectedMove, false);
-            Hide();
-        }
+        // Bỏ qua click chuột
     }
 
     private void ShowSkillPanelForBeast(BeastUnit beast)
     {
-        if (skillPanel == null) return;
+        if (skillPanel == null)
+        {
+            Debug.LogError("[ActionPanel] skillPanel is NULL!");
+            return;
+        }
         
+        Debug.Log($"[ActionPanel] ShowSkillPanelForBeast called for {beast.Data.beastName}. moves count: {beast.Data.moves.Length}");
         skillPanel.SetActive(true);
 
         for (int i = 0; i < skillButtons.Length; i++)
@@ -105,18 +133,19 @@ public class ActionPanel : MonoBehaviour
             {
                 skillButtons[i].gameObject.SetActive(true);
                 skillButtons[i].interactable = true;
-                if (skillTexts[i] != null)
-                {
-                    skillTexts[i].text = beast.Data.moves[i].moveName;
-                }
+                
+                string moveName = beast.Data.moves[i].moveName;
+                Debug.Log($"[ActionPanel] Button {i} setting to '{moveName}'. TMP={skillTextsTMP[i]!=null}, Legacy={skillTextsLegacy[i]!=null}");
+                
+                if (skillTextsTMP[i] != null) skillTextsTMP[i].text = moveName;
+                if (skillTextsLegacy[i] != null) skillTextsLegacy[i].text = moveName;
             }
             else
             {
-                // Tắt các nút dư thừa hoặc làm mờ đi nếu quái chưa học đủ 3 chiêu
-                skillButtons[i].interactable = false;
-                if (skillTexts[i] != null)
+                // Ẩn luôn nút nếu quái chưa học đủ chiêu
+                if (skillButtons[i] != null)
                 {
-                    skillTexts[i].text = "- Trống -";
+                    skillButtons[i].gameObject.SetActive(false);
                 }
             }
         }
@@ -132,9 +161,13 @@ public class ActionPanel : MonoBehaviour
             
             if (selectedMove != null)
             {
-                currentState = ActionState.SelectTarget;
-                if (skillPanel != null) skillPanel.SetActive(false); // Ẩn bảng kĩ năng đi để dễ chọn mục tiêu
-                SetGuide($"Dùng [{selectedMove.moveName}]! Giờ hãy chọn thú địch để tấn công!");
+                // Tự động tìm mục tiêu là quái địch đầu tiên còn sống
+                BeastUnit target = enemyTeam.Find(e => e != null && e.IsAlive);
+                if (target != null)
+                {
+                    onActionConfirmed?.Invoke(selectedAttacker, target, selectedMove, false);
+                    Hide();
+                }
             }
         }
     }

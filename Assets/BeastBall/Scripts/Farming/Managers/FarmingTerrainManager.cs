@@ -250,6 +250,10 @@ namespace BeastBall.Farming
 
         public void LoadData(TerrainDataSave data)
         {
+            GroundTilemap.ClearAllTiles();
+            WaterTilemap.ClearAllTiles();
+            CropTilemap.ClearAllTiles();
+
             m_GroundData.Clear();
             for (int i = 0; i < data.GroundDatas.Count; ++i)
             {

@@ -3,13 +3,16 @@ using UnityEngine;
 public enum MoveType
 {
     Melee,  // Đánh gần (lao vào mục tiêu)
-    Ranged  // Đánh xa (đứng tại chỗ niệm chú)
+    Ranged, // Đánh xa (đứng tại chỗ niệm chú)
+    Self    // Bản thân (dùng cho buff / hồi máu)
 }
 
 public enum VfxSpawnType
 {
     SpawnAtTarget,       // Hiện ra ngay trên vị trí địch (ví dụ: Sét đánh từ trên xuống)
-    ShootFromAttacker    // Bay từ người tấn công đến kẻ địch (ví dụ: Cầu lửa, Khí công)
+    ShootFromAttacker,   // Bay từ người tấn công đến kẻ địch (ví dụ: Cầu lửa, Khí công)
+    RainFromSky,         // Rơi từ trên trời xuống kẻ địch (ví dụ: Thiên thạch, mưa băng)
+    SpawnAtSelf          // Hiện ra ngay trên bản thân (ví dụ: Hồi máu, Buff giáp)
 }
 
 [CreateAssetMenu(fileName = "NewMoveData", menuName = "BeastBall/MoveData")]

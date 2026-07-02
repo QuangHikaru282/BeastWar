@@ -21,6 +21,11 @@ namespace Kinnly
         float speed;
         float delay;
 
+        Vector3 startPos;
+        Vector3 endPos;
+        float bounceTimer;
+        float bounceDuration;
+
         // Start is called before the first frame update
         void Start()
         {
@@ -32,9 +37,15 @@ namespace Kinnly
             }
 
             speed = 10f;
-            delay = 0.25f;
+            delay = 0.5f; // Thời gian chờ trên mặt đất trước khi có thể bị hút
             isDelay = true;
             spriteRenderer.sprite = item.image;
+
+            startPos = transform.position;
+            // Vị trí rớt ngẫu nhiên xung quanh
+            endPos = startPos + new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 0f), 0f);
+            bounceTimer = 0f;
+            bounceDuration = 0.4f; // Nảy trong 0.4s
         }
 
         // Update is called once per frame
@@ -69,7 +80,16 @@ namespace Kinnly
 
         private void TimeCountDown()
         {
-            delay -= 1f * Time.deltaTime;
+            if (bounceTimer < bounceDuration)
+            {
+                bounceTimer += Time.deltaTime;
+                float t = Mathf.Clamp01(bounceTimer / bounceDuration);
+                // Hiệu ứng parabol: cao nhất ở giữa (t=0.5)
+                float height = Mathf.Sin(t * Mathf.PI) * 1.0f; // Cao tối đa 1 unit
+                transform.position = Vector3.Lerp(startPos, endPos, t) + new Vector3(0, height, 0);
+            }
+
+            delay -= Time.deltaTime;
             if (delay <= 0f)
             {
                 isDelay = false;
@@ -79,7 +99,8 @@ namespace Kinnly
         private void CheckDistance()
         {
             if (player == null) return;
-            if (Vector2.Distance(this.transform.position, player.transform.position) <= 5f)
+            // Rút ngắn khoảng cách hút đồ (chỉ hút khi đứng cách 1.5 unit, thay vì 5 unit)
+            if (Vector2.Distance(this.transform.position, player.transform.position) <= 1.5f)
             {
                 isNear = true;
             }

@@ -19,6 +19,12 @@ public class MainMenuController : MonoBehaviour
     [SerializeField] private Button settingButton;
     [SerializeField] private Button quitButton;
 
+    [Header("Đăng nhập & Chọn nhân vật")]
+    [SerializeField] private LoginAndCharSelectManager loginAndCharSelectManager;
+
+    [Header("Dữ liệu Người Chơi")]
+    [SerializeField] private PlayerData playerData;
+
     private void Start()
     {
         // Gán sự kiện tự động nếu các Button được kéo thả vào Inspector
@@ -38,16 +44,20 @@ public class MainMenuController : MonoBehaviour
     {
         Debug.Log("MainMenu: Khởi tạo game mới...");
         
-        // Thực hiện reset các thông số game mới nếu cần thiết (ví dụ: PlayerPrefs.DeleteAll())
-        // PlayerPrefs.DeleteKey("SavedLevel"); 
-
-        if (SceneTransitionManager.Instance != null)
+        if (loginAndCharSelectManager != null)
         {
-            SceneTransitionManager.Instance.TransitionToScene(playTargetScene, playLoadingMessage);
+            loginAndCharSelectManager.StartCharSelectFlow();
         }
         else
         {
-            UnityEngine.SceneManagement.SceneManager.LoadScene(playTargetScene);
+            if (SceneTransitionManager.Instance != null)
+            {
+                SceneTransitionManager.Instance.TransitionToScene(playTargetScene, playLoadingMessage);
+            }
+            else
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene(playTargetScene);
+            }
         }
     }
 
@@ -58,7 +68,12 @@ public class MainMenuController : MonoBehaviour
     {
         Debug.Log("MainMenu: Đang tải lại tiến trình cũ...");
 
-        // Giả sử bạn lưu tên scene đã chơi qua PlayerPrefs
+        if (playerData != null)
+        {
+            playerData.Load();
+        }
+
+        // Tạm thời luôn load MapScene khi Continue
         string savedScene = PlayerPrefs.GetString("SavedScene", playTargetScene);
         string continueMessage = "Đang tiếp tục hành trình...";
 
@@ -103,8 +118,8 @@ public class MainMenuController : MonoBehaviour
     {
         if (continueButton != null)
         {
-            // Nếu chưa có file save (ở đây ví dụ là "HasSavedGame"), vô hiệu hóa nút Continue
-            bool hasSaveData = PlayerPrefs.HasKey("SavedScene");
+            // Kiểm tra xem có file save JSON của PlayerData không
+            bool hasSaveData = PlayerPrefs.HasKey("PlayerDataSave");
             continueButton.interactable = hasSaveData;
         }
     }

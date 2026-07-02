@@ -9,10 +9,14 @@ using UnityEngine;
 public class BattleTransferData : ScriptableObject
 {
     /// <summary>Scene nào đã kích hoạt trận chiến này.</summary>
-    public enum OriginScene { Map, Hunting, WorldMap }
+    public enum OriginScene { Map, Hunting, WorldMap, Arena }
 
     [Header("Nguồn gốc trận chiến")]
     public OriginScene originScene = OriginScene.Map;
+
+    [Header("Ải Arena đang đấu")]
+    [Tooltip("ID của ải Arena đang đấu. -1 nếu không phải.")]
+    public int currentArenaStageId = -1;
 
     /// <summary>
     /// Nếu true, BattleManager chỉ dùng 1 Beast đầu tiên trong đội hình của Player (1v1).

@@ -12,16 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fa3c59b908c17f468de2d04e00f9531, type: 3}
   m_Name: Kinnly_Hoe
   m_EditorClassIdentifier: Assembly-CSharp::Kinnly.Item
-  id: 0
-  name: 
-  description: 
+  id: 1
+  name: "Cu\u1ED1c"
+  description: "D\xF9ng \u0111\u1EC3 cu\u1ED1c \u0111\u1EA5t gieo h\u1EA1t"
   price: 0
-  image: {fileID: 0}
+  image: {fileID: -3190335049457495340, guid: c768c1f4bd3757948b553c1990a880b0, type: 3}
   isStackable: 0
   isConsumable: 0
   isBuildable: 0
   building: {fileID: 0}
-  isTools: 0
+  isTools: 1
   isAxe: 0
   isPickaxe: 0
-  farmingItemDelegate: {fileID: 0}
+  farmingItemDelegate: {fileID: 11400000, guid: 7911d87d174398344b6225de725a43df, type: 2}

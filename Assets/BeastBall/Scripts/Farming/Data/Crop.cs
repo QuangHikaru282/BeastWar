@@ -18,7 +18,7 @@ namespace BeastBall.Farming
         public TileBase[] GrowthStagesTiles;
 
         [Tooltip("The item given to the player when harvested")]
-        public Item Produce;
+        public Kinnly.Item Produce;
         
         [Tooltip("Total time in seconds needed to fully grow")]
         public float GrowthTime = 1.0f;

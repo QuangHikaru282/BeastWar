@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f258cfcff2745844b8fc8ff19e0842ae, type: 3}
+  m_Name: Heal
+  m_EditorClassIdentifier: Assembly-CSharp::MoveData
+  moveName: Heal
+  moveType: 2
+  icon: {fileID: 0}
+  description: 
+  power: 40
+  vfxPrefab: {fileID: -2253911629886400664, guid: 96e9d46d9768fc748ab4d69afd286916, type: 3}
+  vfxSpawnType: 3

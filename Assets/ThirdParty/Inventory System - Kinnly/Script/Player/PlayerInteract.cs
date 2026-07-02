@@ -51,6 +51,7 @@ namespace Kinnly
             {
                 if (isInteracting == false)
                 {
+                    Debug.Log($"<color=cyan>[PlayerInteract]</color> Đã nhận phím E hoặc Chuột phải! Đang kiểm tra vùng chạm (insideTrigger = {(insideTrigger != null ? insideTrigger.name : "null")})...");
                     Interact();
                     interactTime = 0.15f;
                 }
@@ -131,37 +132,42 @@ namespace Kinnly
                 Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 mouseWorldPos.z = 0;
                 Vector3Int cellPos = terrainManager.Grid.WorldToCell(mouseWorldPos);
+
+                // 1. ƯU TIÊN THU HOẠCH TRƯỚC (NẾU CÂY ĐÃ CHÍN)
                 var cropData = terrainManager.GetCropDataAt(cellPos);
-                
-                // Nếu có cây trồng và đã chín (GrowthRatio = 1)
                 if (cropData != null && Mathf.Approximately(cropData.GrowthRatio, 1.0f))
                 {
                     var crop = terrainManager.HarvestAt(cellPos);
                     if (crop != null && crop.Produce != null)
                     {
-                        // Tìm file Vỏ bọc Kinnly tương ứng trong thư mục Resources
-                        Kinnly.Item droppedKinnlyItem = null;
-                        var allKinnlyItems = Resources.LoadAll<Kinnly.Item>("");
-                        foreach (var ki in allKinnlyItems)
-                        {
-                            if (ki.farmingItemDelegate == crop.Produce)
-                            {
-                                droppedKinnlyItem = ki;
-                                break;
-                            }
-                        }
-
-                        if (droppedKinnlyItem != null)
-                        {
-                            playerInventory.SpawnItemDrop(droppedKinnlyItem, crop.ProductPerHarvest);
-                        }
-                        else
-                        {
-                            Debug.LogWarning("Farming: Không tìm thấy file Kinnly_... nào bọc lấy " + crop.Produce.name + " trong thư mục Resources!");
-                        }
+                        // Lấy vị trí trung tâm của ô đất để rớt quả ra đó
+                        Vector3 dropPos = terrainManager.Grid.GetCellCenterWorld(cellPos);
+                        playerInventory.SpawnItemDropAtPosition(crop.Produce, crop.ProductPerHarvest, dropPos);
                         
                         if (playerMovement != null) playerMovement.SetDirection(this.transform.localPosition);
-                        return; // Đã thu hoạch xong, dừng hàm lại
+                        return; // Đã thu hoạch xong, dừng lại
+                    }
+                }
+
+                // 2. NẾU KHÔNG THU HOẠCH ĐƯỢC -> MỚI KIỂM TRA DÙNG CÔNG CỤ (Cuốc, Bình Tưới, Hạt Giống...)
+                if (playerInventory.CurrentlySelectedInventoryItem != null && 
+                    playerInventory.CurrentlySelectedInventoryItem.Item != null &&
+                    playerInventory.CurrentlySelectedInventoryItem.Item.farmingItemDelegate != null)
+                {
+                    var farmingItem = playerInventory.CurrentlySelectedInventoryItem.Item.farmingItemDelegate;
+                    
+                    if (farmingItem.CanUse(cellPos))
+                    {
+                        bool success = farmingItem.Use(cellPos);
+                        if (success)
+                        {
+                            if (farmingItem.Consumable)
+                            {
+                                playerInventory.RemoveItem(playerInventory.CurrentlySelectedInventoryItem, 1);
+                            }
+                            if (playerMovement != null) playerMovement.SetDirection(this.transform.localPosition);
+                            return; // Dừng lại vì đã dùng tool thành công
+                        }
                     }
                 }
             }

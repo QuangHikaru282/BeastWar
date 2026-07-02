@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b72f15b89a08de468adc0ad91b2dda1, type: 3}
+  m_Name: Cua
+  m_EditorClassIdentifier: Assembly-CSharp::BeastData
+  beastName: "Cua B\xE1ch Chi\u1EBFn"
+  frontSprite: {fileID: -108454357525962208, guid: a26e7c276dacc394e84b073715964d62, type: 3}
+  backSprite: {fileID: 0}
+  animatorController: {fileID: 9100000, guid: baa67eee7fa8b9c4ba2715714aefac30, type: 2}
+  maxHP: 100
+  attack: 50
+  defense: 50
+  speed: 16
+  catchRate: 45
+  moves:
+  - {fileID: 11400000, guid: 886039c2f8442594fa07da311d33c4e0, type: 2}
+  - {fileID: 11400000, guid: 3979844a31ad45044a9136c9118e75e4, type: 2}
+  - {fileID: 11400000, guid: f801682ef75054c499bbb8f0f7ca71bf, type: 2}
+  - {fileID: 11400000, guid: 936bb3bd263d4f74a94410faa2dc90f3, type: 2}

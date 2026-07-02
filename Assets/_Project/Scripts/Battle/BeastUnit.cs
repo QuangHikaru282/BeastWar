@@ -17,12 +17,20 @@ public class BeastUnit : MonoBehaviour
     [SerializeField] private Image spriteImage;
     [SerializeField] private HPBarUI hpBar;
     [SerializeField] private RageBarUI rageBar;  // Thanh Nộ (gán trong Inspector)
-    [SerializeField] private TextMeshProUGUI nameText;
+    [SerializeField] private TextMeshProUGUI nameTextTMP;
+    [SerializeField] private Text nameTextLegacy;
 
     // ─── Runtime Stats ────────────────────────────────────────────────
     public int CurrentHP  { get; private set; }
     public bool IsAlive   => CurrentHP > 0;
     public bool IsPlayerTeam { get; private set; }
+
+    public void SetExternalUI(TextMeshProUGUI extNameTextTMP, Text extNameTextLegacy, HPBarUI extHpBar)
+    {
+        if (extNameTextTMP != null) this.nameTextTMP = extNameTextTMP;
+        if (extNameTextLegacy != null) this.nameTextLegacy = extNameTextLegacy;
+        if (extHpBar != null) this.hpBar = extHpBar;
+    }
 
     // ─── Crit ────────────────────────────────────────────────────────
     /// <summary>Tỉ lệ chí mạng (0.0 → 1.0). Mặc định 20%.</summary>
@@ -82,7 +90,9 @@ public class BeastUnit : MonoBehaviour
                 : data.frontSprite;
         }
 
-        if (nameText != null) nameText.text = data.beastName;
+        if (nameTextTMP != null) nameTextTMP.text = data.beastName;
+        if (nameTextLegacy != null) nameTextLegacy.text = data.beastName;
+        
         hpBar?.Initialize(data.maxHP);
 
         // Reset Rage về 0 mỗi khi thú được khởi tạo vào sân
@@ -189,8 +199,6 @@ public class BeastUnit : MonoBehaviour
         OnRageChanged?.Invoke(0, MaxRage);
     }
 
-    // ─── Rest & Heal ─────────────────────────────────────────────────
-
     /// <summary>
     /// Hồi 2% MaxHP mỗi lượt khi thú đang ở ngoài sân (đang nghỉ).
     /// Được BattleManager gọi cuối mỗi lượt địch.
@@ -202,6 +210,21 @@ public class BeastUnit : MonoBehaviour
         CurrentHP = Mathf.Min(Data.maxHP, CurrentHP + healAmount);
         hpBar?.UpdateHP(CurrentHP);
         Debug.Log($"[RestTick] {Data.beastName} nghỉ ngơi, hồi {healAmount} HP. HP hiện tại: {CurrentHP}/{Data.maxHP}");
+    }
+
+    /// <summary>
+    /// Hồi máu cho thú. Dùng khi sử dụng chiêu thức buff / hồi máu (MoveType.Self).
+    /// </summary>
+    public void Heal(int amount)
+    {
+        if (CurrentHP <= 0) return;
+        amount = Mathf.Max(1, amount); // Đảm bảo luôn hồi ít nhất 1 máu
+        CurrentHP = Mathf.Min(Data.maxHP, CurrentHP + amount);
+        hpBar?.UpdateHP(CurrentHP);
+
+        DamagePopup.Create(transform.position + Vector3.up * 0.5f, amount, false, true);
+
+        Debug.Log($"[Heal] {Data.beastName} tự hồi {amount} HP. HP hiện tại: {CurrentHP}/{Data.maxHP}");
     }
 
     /// <summary>
