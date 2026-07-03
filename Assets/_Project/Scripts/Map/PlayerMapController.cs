@@ -62,7 +62,15 @@ public class PlayerMapController : MonoBehaviour
     public void SetCanMove(bool value)
     {
         canMove = value;
-        if (!value) rb.linearVelocity = Vector2.zero;
+        if (!value) 
+        {
+            rb.linearVelocity = Vector2.zero;
+            // Ép tốc độ về 0 để Animator chuyển về trạng thái Idle (đứng im)
+            if (animator != null)
+            {
+                animator.SetFloat(AnimSpeed, 0f);
+            }
+        }
     }
 
     /// <summary>Cập nhật Animator khi đổi nhân vật.</summary>

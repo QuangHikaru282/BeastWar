@@ -838,6 +838,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 591562581}
   m_CullTransparentMesh: 1
+--- !u!1 &686064523
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 686064525}
+  - component: {fileID: 686064524}
+  m_Layer: 0
+  m_Name: Managers
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &686064524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 686064523}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7b17aea5276224fbbe3d864f0bbb6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LevelUpManager
+--- !u!4 &686064525
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 686064523}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -27.09657, y: -20.81905, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &784436384
 GameObject:
   m_ObjectHideFlags: 0
@@ -1539,7 +1583,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db732b982a8e4a94e92cbf8c1dcf6e4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuController
-  playTargetScene: HubTownNew
+  playTargetScene: HUNG
   playLoadingMessage: Loading . . .
   playButton: {fileID: 818328305}
   continueButton: {fileID: 2029842761}
@@ -1563,7 +1607,7 @@ MonoBehaviour:
   charSelectPanel: {fileID: 1295294974}
   maleButton: {fileID: 1211164921}
   femaleButton: {fileID: 784436385}
-  targetScene: HubTownNew
+  targetScene: HUNG
   loadingMessage: "\u0110ang b\u01B0\u1EDBc v\xE0o th\u1EBF gi\u1EDBi BeastWar..."
 --- !u!1 &1678572217
 GameObject:
@@ -2539,3 +2583,4 @@ SceneRoots:
   - {fileID: 1675924552}
   - {fileID: 1729980421}
   - {fileID: 1972564397}
+  - {fileID: 686064525}

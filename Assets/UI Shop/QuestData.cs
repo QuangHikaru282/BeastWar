@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -31,6 +31,12 @@ public class QuestRewardData
     public string rewardItemID;
 }
 
+public enum QuestActionType
+{
+    Buy,
+    Sell
+}
+
 [Serializable]
 public class QuestData
 {
@@ -41,6 +47,9 @@ public class QuestData
 
     [TextArea(3, 6)]
     public string description;
+
+    [Header("Loại nhiệm vụ")]
+    public QuestActionType questAction = QuestActionType.Buy;
 
     [Header("Mục tiêu mua hàng")]
     [Tooltip(

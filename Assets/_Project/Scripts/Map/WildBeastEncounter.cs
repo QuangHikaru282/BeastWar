@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using DG.Tweening;
 
 /// <summary>
 /// Gắn lên GameObject Wild Beast trên Map.
@@ -30,6 +31,16 @@ public class WildBeastEncounter : MonoBehaviour
     private Kinnly.PlayerInventory playerInventory;   // ← thêm
     private bool hasTriggered = false;
     private bool isStunned = false;
+
+    private void Awake()
+    {
+        // Tự động tạo ID nếu người dùng quên nhập trong Inspector
+        if (string.IsNullOrEmpty(uniqueId))
+        {
+            uniqueId = gameObject.name + "_" + transform.position.x + "_" + transform.position.y;
+            Debug.Log($"[WildBeast] Tự động tạo Unique ID cho quái: {uniqueId}");
+        }
+    }
 
     private void Start()
     {
@@ -62,14 +73,24 @@ public class WildBeastEncounter : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        HandleEncounter(other.gameObject);
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        HandleEncounter(collision.gameObject);
+    }
+
+    private void HandleEncounter(GameObject playerObj)
+    {
         if (hasTriggered) return;
-        if (!other.CompareTag("Player")) return;
+        if (!playerObj.CompareTag("Player")) return;
 
         hasTriggered = true;
 
         // Khóa di chuyển của Player
-        playerController = other.GetComponent<PlayerMapController>();
-        playerInventory   = other.GetComponent<Kinnly.PlayerInventory>();  // ← thêm
+        playerController = playerObj.GetComponent<PlayerMapController>();
+        playerInventory   = playerObj.GetComponent<Kinnly.PlayerInventory>();  // ← thêm
 
         // Đóng inventory nếu đang mở
         if (playerInventory != null) playerInventory.ForceCloseInventory();
@@ -80,14 +101,14 @@ public class WildBeastEncounter : MonoBehaviour
         }
         else
         {
-            cainosController = other.GetComponent("TopDownCharacterController") as MonoBehaviour;
+            cainosController = playerObj.GetComponent("TopDownCharacterController") as MonoBehaviour;
             if (cainosController != null)
             {
                 cainosController.enabled = false;
-                var rb = other.GetComponent<Rigidbody2D>();
+                var rb = playerObj.GetComponent<Rigidbody2D>();
                 if (rb != null) rb.linearVelocity = Vector2.zero;
-                var anim = other.GetComponent<Animator>();
-                if (anim != null) anim.SetBool("IsMoving", false);
+                var anim = playerObj.GetComponentInChildren<Animator>();
+                if (anim != null) anim.SetFloat("speed", 0f);
             }
         }
 
@@ -155,6 +176,9 @@ public class WildBeastEncounter : MonoBehaviour
         StartCoroutine(MapCatchRoutine());
     }
 
+    [Header("Hiệu ứng thu phục")]
+    [SerializeField] private GameObject captureBallPrefab; // Kéo prefab quả bóng (ví dụ: xr2a847...) vào ô này
+
     private System.Collections.IEnumerator MapCatchRoutine()
     {
         // Vô hiệu hóa các nút bấm trong lúc đang thu phục
@@ -165,13 +189,41 @@ public class WildBeastEncounter : MonoBehaviour
             ? enemyTeam[0].beastName 
             : "Quái vật";
 
-        // Tạo chuỗi hoạt ảnh lắc bóng trực tiếp qua text
         if (encounterText != null) encounterText.text = $"Ném BeastBall vào {beastName}...";
+
+        // Lấy vị trí của Player làm điểm xuất phát (nếu không có thì lấy vị trí hiện tại lùi lại 2 đơn vị)
+        Vector3 startPos = transform.position + new Vector3(-2f, 0, 0);
+        if (playerController != null) startPos = playerController.transform.position;
+        else if (cainosController != null) startPos = cainosController.transform.position;
+
+        GameObject ballObj = null;
+
+        // BƯỚC 1: QUĂNG BÓNG
+        if (captureBallPrefab != null)
+        {
+            ballObj = Instantiate(captureBallPrefab, startPos, Quaternion.identity);
+            
+            // Bay theo đường cong (Jump) đến vị trí của quái
+            ballObj.transform.DOJump(transform.position, jumpPower: 2f, numJumps: 1, duration: 0.8f).SetEase(Ease.OutQuad);
+        }
+
         yield return new WaitForSeconds(0.8f);
 
+        // BƯỚC 2: HÚT QUÁI VẬT VÀO BÓNG
+        // Thu nhỏ quái vật lại thành 0
+        transform.DOScale(Vector3.zero, 0.3f).SetEase(Ease.InBack);
+        yield return new WaitForSeconds(0.3f);
+
+        // BƯỚC 3: LẮC BÓNG 3 LẦN
         for (int i = 1; i <= 3; i++)
         {
             if (encounterText != null) encounterText.text = $"Lắc bóng{new string('.', i)} ⚪";
+            
+            if (ballObj != null)
+            {
+                // Lắc bóng sang trái phải
+                ballObj.transform.DOPunchRotation(new Vector3(0, 0, 30f), 0.5f, vibrato: 5);
+            }
             yield return new WaitForSeconds(0.6f);
         }
 
@@ -179,11 +231,18 @@ public class WildBeastEncounter : MonoBehaviour
         if (encounterText != null) 
             encounterText.text = $"🎉 Thu phục THÀNH CÔNG!\n{beastName} đã gia nhập đội hình của bạn!";
 
+        // BƯỚC 4: QUẢ BÓNG THU NHỎ DẦN RỒI BIẾN MẤT
+        if (ballObj != null)
+        {
+            ballObj.transform.DOScale(Vector3.zero, 0.4f).SetEase(Ease.InBack);
+        }
+        yield return new WaitForSeconds(0.5f);
+
         // Thêm vào danh sách quái sở hữu của người chơi
         if (enemyTeam != null && enemyTeam.Count > 0 && enemyTeam[0] != null)
         {
             playerData.AddBeast(enemyTeam[0]);
-            Debug.Log("đã thu phục");
+            Debug.Log("Đã thu phục thành công!");
         }
 
         // Lưu trạng thái đã bị bắt
@@ -200,6 +259,8 @@ public class WildBeastEncounter : MonoBehaviour
         if (encounterPanel != null) encounterPanel.SetActive(false);
         UnlockPlayer();
 
+        if (ballObj != null) Destroy(ballObj);
+        
         // Xóa quái khỏi map
         Destroy(gameObject);
     }
@@ -243,6 +304,16 @@ public class WildBeastEncounter : MonoBehaviour
         battleTransferData.lastEncounteredBeastId = uniqueId;
         battleTransferData.SetEnemyTeam(enemyTeam);
         battleTransferData.originScene = BattleTransferData.OriginScene.Map; // Lưu lại nguồn gốc để quay về
+        battleTransferData.isTrainerBattle = false; // Đảm bảo đây không phải trận đánh Trainer
+        
+        // LƯU LẠI VỊ TRÍ NGƯỜI CHƠI TRƯỚC TRẬN ĐẤU
+        var player = GameObject.FindWithTag("Player");
+        if (player != null)
+        {
+            battleTransferData.lastPlayerPosition = player.transform.position;
+            battleTransferData.returnToLastPosition = true;
+        }
+
         GameSceneManager.GoToBattle();
     }
 }

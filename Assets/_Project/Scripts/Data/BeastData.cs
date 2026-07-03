@@ -1,11 +1,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum BeastElement
+{
+    Normal,
+    Fire,
+    Water,
+    Grass
+}
+
 [CreateAssetMenu(fileName = "NewBeastData", menuName = "BeastBall/BeastData")]
 public class BeastData : ScriptableObject
 {
     [Header("Thông tin cơ bản")]
     public string beastName = "Unknown Beast";
+    public BeastElement element = BeastElement.Normal;
+    public bool isRare = false;
     public Sprite frontSprite;   // Sprite hiển thị khi là địch (nhìn về phía player)
     public Sprite backSprite;    // Sprite hiển thị khi là của mình (nhìn về phía địch)
     public RuntimeAnimatorController animatorController; // Hoạt ảnh chiến đấu của thú
@@ -25,4 +35,20 @@ public class BeastData : ScriptableObject
 
     /// <summary>Lực chiến tính tự động từ các chỉ số.</summary>
     public int CombatPower => maxHP + attack * 2 + defense + speed;
+
+    // ─── HỆ THỐNG LEVEL & EXP (MỚI) ──────────────────────────────
+    [Header("Level & EXP")]
+    [Min(1)] public int currentLevel = 1;
+    public int currentExp = 0;
+
+    [Header("Phần thưởng khi bị tiêu diệt")]
+    public int rewardGold = 10;
+    public int rewardExp = 50;
+
+    /// <summary>Tính lượng EXP cần để lên cấp tiếp theo.</summary>
+    public int GetExpToNextLevel()
+    {
+        // Công thức cơ bản: Cấp hiện tại * 100 (VD: Lv1 cần 100 EXP, Lv2 cần 200 EXP)
+        return currentLevel * 100;
+    }
 }

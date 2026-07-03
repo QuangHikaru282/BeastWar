@@ -18,11 +18,19 @@ public class BattleTransferData : ScriptableObject
     [Tooltip("ID của ải Arena đang đấu. -1 nếu không phải.")]
     public int currentArenaStageId = -1;
 
+    [Header("Vị trí người chơi trước trận đấu")]
+    public Vector3 lastPlayerPosition;
+    public bool returnToLastPosition = false;
+
     /// <summary>
     /// Nếu true, BattleManager chỉ dùng 1 Beast đầu tiên trong đội hình của Player (1v1).
     /// Dùng khi đến từ HuntingScene.
     /// </summary>
     public bool isSingleBattle = false;
+
+    [Header("Chế độ đấu Trainer")]
+    [Tooltip("Đánh với Trainer thì không được chạy trốn và không được bắt thú")]
+    public bool isTrainerBattle = false;
 
     [Header("Đội địch (gặp trên Map/Hunting)")]
     public List<BeastData> wildEnemyTeam = new List<BeastData>();
@@ -45,9 +53,9 @@ public class BattleTransferData : ScriptableObject
     public void ResetData()
     {
         lastEncounteredBeastId = "";
-        stunnedBeastIds.Clear();
-        caughtBeastIds.Clear();
         originScene = OriginScene.Map;
         isSingleBattle = false;
+        isTrainerBattle = false;
+        currentArenaStageId = -1;
     }
 }

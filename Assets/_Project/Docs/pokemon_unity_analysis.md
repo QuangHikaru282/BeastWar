@@ -61,6 +61,7 @@ Sau khi clone dự án về thư mục `PokemonUnity_Ref`, chúng ta có cấu t
 1. **Bước 1: Rework Lớp Dữ liệu (Data Layer)**
    * Thêm thuộc tính `Element`, `maxMP` và `Level/EXP` vào `BeastData.cs`.
    * Thêm thuộc tính `Element`, `mpCost` và `StatusCondition` vào `MoveData.cs`.
+   * **[TECHNICAL DEBT] Chuyển đổi dữ liệu sang Instance:** Hiện tại `PlayerData` lưu tham chiếu trực tiếp đến file Asset `ScriptableObject` (như Bat.asset). Khi nâng cấp Level hoặc Skill, nó sẽ ghi đè lên Asset gốc. Giai đoạn sau cần refactor: tạo các class Runtime như `OwnedBeast` và `OwnedMove` để bọc `BeastData` và `MoveData` lại, cho phép mỗi instance lưu thông tin level độc lập.
    * Viết logic khắc hệ nguyên tố và công thức tính sát thương chuẩn theo GDD.
 2. **Bước 2: Rework Lớp Chiến đấu 3v3 (Battle Loop)**
    * Thay đổi `BattleManager` để spawn đồng thời 3 con Player và 3 con Enemy lên sân.

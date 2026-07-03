@@ -54,6 +54,34 @@ public class GameSceneManager : MonoBehaviour
 
     public static void GoToBattle()
     {
+        // Lưu lại TẤT CẢ các Scene hiện tại (Hỗ trợ Multi-Scene Editing)
+        string scenes = "";
+        for (int i = 0; i < SceneManager.sceneCount; i++)
+        {
+            Scene s = SceneManager.GetSceneAt(i);
+            if (s.isLoaded && s.name != "DontDestroyOnLoad") // Bỏ qua DontDestroyOnLoad
+            {
+                if (scenes.Length > 0) scenes += ",";
+                scenes += s.name;
+            }
+        }
+        
+        // Nếu không lấy được, fallback về Active Scene
+        if (string.IsNullOrEmpty(scenes))
+        {
+            scenes = SceneManager.GetActiveScene().name;
+        }
+
+        // Lưu lại chính xác số lượng kho đồ & thanh công cụ trước khi vào trận đấu
+        Kinnly.PlayerInventory currentInv = FindFirstObjectByType<Kinnly.PlayerInventory>();
+        if (currentInv != null)
+        {
+            currentInv.SaveNow();
+        }
+
+        PlayerPrefs.SetString("SceneBeforeBattle", scenes);
+        PlayerPrefs.Save();
+
         if (SceneTransitionManager.Instance != null)
             SceneTransitionManager.Instance.TransitionToScene(SCENE_BATTLE, "Đang chuẩn bị chiến đấu...");
         else

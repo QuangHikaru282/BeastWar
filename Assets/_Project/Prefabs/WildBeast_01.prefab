@@ -20,7 +20,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2836667981432910107
 Transform:
   m_ObjectHideFlags: 0
@@ -89,12 +89,11 @@ MonoBehaviour:
   uniqueId: Bat2
   enemyTeam:
   - {fileID: 11400000, guid: 91e5a22ec5f2e6944a2df86d89a10c7c, type: 2}
-  - {fileID: 11400000, guid: 91e5a22ec5f2e6944a2df86d89a10c7c, type: 2}
-  - {fileID: 11400000, guid: 91e5a22ec5f2e6944a2df86d89a10c7c, type: 2}
   encounterPanel: {fileID: 0}
   encounterText: {fileID: 0}
   btnFight: {fileID: 0}
   btnRun: {fileID: 0}
+  captureBallPrefab: {fileID: 1389236990844413207, guid: b5f6d57a268133c4aae518d1ddfcb560, type: 3}
 --- !u!114 &905641819987155313
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -186,8 +185,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 2129977301182375049, guid: b438465a32eb63243a7889eb1f400d29,
-    type: 3}
+  m_Sprite: {fileID: 2129977301182375049, guid: b438465a32eb63243a7889eb1f400d29, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

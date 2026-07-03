@@ -12,17 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4081ce30a195e3a4f8cac15b400cafb6, type: 3}
   m_Name: PlayerData
   m_EditorClassIdentifier: Assembly-CSharp::PlayerData
-  ownedBeasts:
-  - {fileID: 11400000, guid: e55dc0f53a3a571469a658d6fc50634b, type: 2}
-  - {fileID: 11400000, guid: 91e5a22ec5f2e6944a2df86d89a10c7c, type: 2}
-  currentFormation:
-  - {fileID: 11400000, guid: e55dc0f53a3a571469a658d6fc50634b, type: 2}
-  characterGender: Female
-  tutorialQuestStage: 2
-  highestUnlockedStage: 2
-  arenaHighestUnlockedStage: 6
+  ownedBeasts: []
+  currentFormation: []
+  characterGender: Male
+  currentMainQuestId: 0
   unlockedMaps:
   - City
+  defeatedTrainers: []
   gold: 0
-  stageStarsArray: 000000000300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-  arenaStageStarsArray: 0000000003000000030000000300000002000000020000000000000000000000000000000000000000000000

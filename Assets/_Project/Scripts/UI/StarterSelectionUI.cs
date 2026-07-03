@@ -66,11 +66,14 @@ public class StarterSelectionUI : MonoBehaviour
             elderNPC.hasGivenStarter = true;
         }
 
-        // Bắt đầu nhiệm vụ thu phục Pet (nếu chưa làm)
-        if (playerData.tutorialQuestStage == 0)
+        // Hoàn thành Nhiệm vụ 0 và phát phần thưởng (Cuốc + Hạt giống)
+        if (global::QuestManager.Instance != null && playerData.currentMainQuestId == 0)
         {
-            playerData.tutorialQuestStage = 1;
-            Debug.Log("Bắt đầu nhiệm vụ: Thu phục thú cưng!");
+            global::QuestManager.Instance.AdvanceQuest();
+        }
+        else if (playerData.currentMainQuestId == 0)
+        {
+            playerData.currentMainQuestId = 1;
         }
 
         // Mở lại di chuyển của người chơi (nếu lúc nãy đã khóa)

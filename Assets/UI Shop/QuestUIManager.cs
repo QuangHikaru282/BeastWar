@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -330,6 +330,11 @@ public class QuestUIManager : MonoBehaviour
                 continue;
             }
 
+            if (quest.questAction != QuestActionType.Buy)
+            {
+                continue;
+            }
+
             // Target Item ID để trống:
             // mua item nào cũng được tính.
             bool matchesItem =
@@ -388,6 +393,48 @@ public class QuestUIManager : MonoBehaviour
             Debug.LogWarning(
                 "Không có nhiệm vụ mua hàng nào được cập nhật."
             );
+        }
+    }
+
+    public void NotifyItemSold(string soldItemID)
+    {
+        Debug.Log("QuestUIManager nhận được item đã bán: " + soldItemID);
+        bool questChanged = false;
+
+        foreach (QuestData quest in acceptedQuests)
+        {
+            if (quest == null || quest.state != QuestState.InProgress || quest.questAction != QuestActionType.Sell)
+            {
+                continue;
+            }
+
+            bool matchesItem = string.IsNullOrWhiteSpace(quest.targetItemID);
+            if (!matchesItem)
+            {
+                matchesItem = string.Equals(quest.targetItemID.Trim(), soldItemID.Trim(), System.StringComparison.OrdinalIgnoreCase);
+            }
+
+            if (!matchesItem) continue;
+
+            int required = Mathf.Max(1, quest.requiredAmount);
+            quest.currentAmount = Mathf.Clamp(quest.currentAmount + 1, 0, required);
+
+            if (quest.currentAmount >= required)
+            {
+                quest.state = QuestState.Completed;
+                Debug.Log("HOÀN THÀNH NHIỆM VỤ BÁN HÀNG: " + quest.questName);
+            }
+
+            questChanged = true;
+        }
+
+        if (questChanged)
+        {
+            RefreshVisibleUI();
+        }
+        else
+        {
+            Debug.LogWarning("Không có nhiệm vụ bán hàng nào được cập nhật.");
         }
     }
 

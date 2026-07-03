@@ -198,17 +198,26 @@ namespace Kinnly
 
         private void OnTriggerEnter2D(Collider2D collision)
         {
-            insideTrigger = null;
+            if (collision.GetComponent<IInteractable>() != null)
+            {
+                insideTrigger = collision.gameObject;
+            }
         }
 
         private void OnTriggerStay2D(Collider2D collision)
         {
-            insideTrigger = collision.gameObject;
+            if (insideTrigger == null && collision.GetComponent<IInteractable>() != null)
+            {
+                insideTrigger = collision.gameObject;
+            }
         }
 
         private void OnTriggerExit2D(Collider2D collision)
         {
-            insideTrigger = null;
+            if (insideTrigger == collision.gameObject)
+            {
+                insideTrigger = null;
+            }
         }
 
         private void OnDrawOutline()

@@ -14,21 +14,30 @@ public class MapPortalTrigger : MonoBehaviour
     [Tooltip("Tên Scene thật sự trong Build Settings")]
     [SerializeField] private string targetSceneName = "City";
 
-    [Header("Dữ liệu")]
-    [SerializeField] private PlayerData playerData;
+    [Tooltip("ID của Nhiệm vụ cần hoàn thành ĐỂ MỞ KHÓA cổng này. Ví dụ: Rừng Xanh cần hoàn thành Quest 5 thì nhập số 5.")]
+    public int requiredQuestIdToUnlock = 0;
 
     [Header("UI Thông báo (Tùy chọn)")]
     [Tooltip("Dùng để hiển thị thông báo 'Chưa mở khóa' nếu Player chạm vào portal")]
     [SerializeField] private TextMeshProUGUI notificationText;
+    
+    [Tooltip("Dòng chữ hiện lên khi chưa đủ điều kiện")]
+    [SerializeField] private string lockedMessage = "Khu vực này chưa được mở khóa!";
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
-            if (playerData == null) return;
+            // Kiểm tra xem Quest hiện tại đã vượt qua yêu cầu chưa
+            bool isUnlocked = true;
+            if (global::QuestManager.Instance != null)
+            {
+                // Nếu currentMainQuestId > requiredQuestIdToUnlock tức là đã qua quest đó rồi (hoặc bằng nếu là kiểu quest hoàn thành)
+                // Ở hệ thống chúng ta, khi hoàn thành quest 5 thì currentMainQuestId nhảy lên 6.
+                isUnlocked = global::QuestManager.Instance.playerData.currentMainQuestId > requiredQuestIdToUnlock;
+            }
 
-            // Kiểm tra xem map đã được mở khóa chưa
-            if (playerData.IsMapUnlocked(targetMapName) || playerData.IsMapUnlocked(targetSceneName))
+            if (isUnlocked)
             {
                 Debug.Log($"[Portal] Đang di chuyển sang map: {targetMapName}...");
                 
@@ -44,11 +53,11 @@ public class MapPortalTrigger : MonoBehaviour
             }
             else
             {
-                Debug.Log($"[Portal] Map {targetMapName} chưa được mở khóa! Hãy hoàn thành Arena.");
+                Debug.Log($"[Portal] Map {targetMapName} bị chặn! Yêu cầu hoàn thành Nhiệm Vụ số {requiredQuestIdToUnlock}.");
                 
                 if (notificationText != null)
                 {
-                    notificationText.text = $"Khu vực {targetMapName} chưa được mở khóa!\nHãy vượt qua 5 ải Arena trước.";
+                    notificationText.text = lockedMessage;
                     notificationText.gameObject.SetActive(true);
                     Invoke("HideNotification", 3f); // Tắt thông báo sau 3 giây
                 }

@@ -54,6 +54,13 @@ public class BattleManager : MonoBehaviour
 
     private void Start()
     {
+        // ─── CHẾ ĐỘ TRAINER BATTLE ───
+        if (battleTransferData != null && battleTransferData.isTrainerBattle)
+        {
+            Debug.Log("[Battle] Bắt đầu trận đấu với TRAINER! Không được phép Bắt thú hay Bỏ chạy.");
+        }
+
+        SetupUIHooks();
         StartCoroutine(RunBattle());
     }
 
@@ -105,6 +112,13 @@ public class BattleManager : MonoBehaviour
         // --- KẾT THÚC ---
         state = BattleState.BattleEnd;
         yield return StartCoroutine(EndBattle());
+    }
+
+    // ─── UI HOOKS ────────────────────────────────────────────────────
+
+    private void SetupUIHooks()
+    {
+        // Hiện tại chưa có Button Catch/Flee nên tạm để trống
     }
 
     // ─── INIT ────────────────────────────────────────────────────────
@@ -576,113 +590,143 @@ public class BattleManager : MonoBehaviour
         // Player thắng khi tất cả enemy trên sân gục VÀ hàng chờ địch không còn con nào
         bool playerWon = enemyTeam.All(b => b == null || !b.IsAlive) && pendingEnemyQueue.Count == 0;
 
-        // ── Xử lý theo nguồn gốc trận đấu ────────────────────────────
+        int totalExpToGive = 0;
+        int totalGoldToGive = 0;
 
-        if (battleTransferData != null && battleTransferData.originScene == BattleTransferData.OriginScene.WorldMap)
+        if (playerWon)
         {
-            // ── KẾT QUẢ ẢI ──────────────────────────────────────────
-            if (playerWon)
-            {
-                Debug.Log("--- BƯỚC 8: NGƯỜI CHƠI ĐÃ THẮNG! Bắt đầu lưu ải và mở khoá... ---");
-                int stars   = CalculateStars();
-                int stageId = battleTransferData.currentStageId;
-
-                // Cộng vàng từ StageData (nếu được gán)
-                int rewardGold = currentStageData != null ? currentStageData.rewardGold : 0;
-                playerData.SetStageResult(stageId, stars, rewardGold);
-
-                string goldMsg = rewardGold > 0 ? $" | +{rewardGold} vàng" : "";
-                Debug.Log($"[Battle] TÔI ĐÃ THẮNG ẢI {stageId}! Số sao: {stars} ⭐{goldMsg}");
-                Debug.Log("--- BƯỚC 9: LƯU THÀNH CÔNG! Đang quay về World Map... ---");
-            }
-            else
-            {
-                Debug.Log("--- BƯỚC 8: NGƯỜI CHƠI ĐÃ THUA! Không lưu ải... ---");
-                Debug.Log("[Battle] THUA ẢI. Thử lại!");
-            }
-
-            yield return new WaitForSeconds(1.5f);
-
-            battleTransferData.currentStageId = -1;
-            GameSceneManager.GoToWorldMap();
-        }
-        else if (battleTransferData != null && battleTransferData.originScene == BattleTransferData.OriginScene.Hunting)
-        {
-            // ── KẾT QUẢ HUNT ─────────────────────────────────────────
-            if (playerWon && !string.IsNullOrEmpty(battleTransferData.lastEncounteredBeastId))
-            {
-                if (!battleTransferData.stunnedBeastIds.Contains(battleTransferData.lastEncounteredBeastId))
-                    battleTransferData.stunnedBeastIds.Add(battleTransferData.lastEncounteredBeastId);
-
-                Debug.Log($"[Battle] THẮNG! Quái {battleTransferData.lastEncounteredBeastId} bị choáng.");
-            }
-            else if (!playerWon)
-            {
-                Debug.Log("[Battle] THUA! Quái sẽ di chuyển lại khi Player quay về.");
-            }
-
-            yield return new WaitForSeconds(1.5f);
-
-            battleTransferData.isSingleBattle = false;
-            GameSceneManager.GoToHunting();
-        }
-        else if (battleTransferData != null && battleTransferData.originScene == BattleTransferData.OriginScene.Arena)
-        {
-            // ── KẾT QUẢ ARENA ─────────────────────────────────────────
-            if (playerWon)
-            {
-                int stars = CalculateStars();
-                int stageId = battleTransferData.currentArenaStageId;
-                int rewardGold = currentStageData != null ? currentStageData.rewardGold : 0;
-                
-                playerData.SetArenaStageResult(stageId, stars, rewardGold);
-                Debug.Log($"[Battle] THẮNG ẢI ARENA {stageId}! Số sao: {stars}");
-            }
-            else
-            {
-                Debug.Log("[Battle] THUA ẢI ARENA. Thử lại!");
-            }
-
-            yield return new WaitForSeconds(1.5f);
+            Debug.Log("--- BƯỚC 8: NGƯỜI CHƠI ĐÃ THẮNG! Phân phát Kinh nghiệm (EXP)... ---");
             
-            battleTransferData.currentArenaStageId = -1;
-            GameSceneManager.GoToHubTown();
+            // Tính tổng Vàng và EXP từ các quái vật địch đã bị đánh bại
+            totalGoldToGive = currentStageData != null ? currentStageData.rewardGold : 0; // Vàng cơ bản của màn chơi
+            
+            foreach (var b in enemyTeam)
+            {
+                if (b != null && b.Data != null)
+                {
+                    totalExpToGive += b.Data.rewardExp;
+                    totalGoldToGive += b.Data.rewardGold;
+                }
+            }
+
+            if (totalExpToGive == 0) totalExpToGive = 100; // Mặc định nếu chưa set
+
+            if (LevelUpManager.Instance != null)
+            {
+                LevelUpManager.Instance.DistributeExpToFormation(totalExpToGive, playerData);
+            }
+
+            // Cộng thêm Vàng khi thắng
+            playerData.gold += totalGoldToGive;
+            Debug.Log($"[Battle] Nhận được {totalGoldToGive} Vàng! Tổng vàng: {playerData.gold}");
+
+            // Nếu đây là trận đánh quái hoang dã hoặc Trainer thì lưu trạng thái
+            if (battleTransferData != null && !string.IsNullOrEmpty(battleTransferData.lastEncounteredBeastId))
+            {
+                if (battleTransferData.isTrainerBattle)
+                {
+                    // Lưu vĩnh viễn vào PlayerData để Trainer không đánh lại nữa
+                    if (!playerData.defeatedTrainers.Contains(battleTransferData.lastEncounteredBeastId))
+                    {
+                        playerData.defeatedTrainers.Add(battleTransferData.lastEncounteredBeastId);
+                        Debug.Log($"Đã đánh bại Trainer: {battleTransferData.lastEncounteredBeastId}");
+                        
+                        if (global::QuestManager.Instance != null)
+                        {
+                            if (battleTransferData.lastEncounteredBeastId.Contains("Rival"))
+                                global::QuestManager.Instance.OnRivalDefeated();
+                            else if (battleTransferData.lastEncounteredBeastId.Contains("Boss"))
+                                global::QuestManager.Instance.OnBossDefeated();
+                            else
+                                global::QuestManager.Instance.OnTrainerDefeated();
+                        }
+                    }
+                }
+                else
+                {
+                    if (!battleTransferData.stunnedBeastIds.Contains(battleTransferData.lastEncounteredBeastId))
+                        battleTransferData.stunnedBeastIds.Add(battleTransferData.lastEncounteredBeastId);
+                        
+                    if (global::QuestManager.Instance != null)
+                    {
+                        global::QuestManager.Instance.OnWildBeastDefeated();
+                    }
+                }
+            }
         }
         else
         {
-            // ── KẾT QUẢ CHIẾN ĐẤU THƯỜNG (MapScene) ─────────────────
-            if (playerWon && battleTransferData != null
-                && !string.IsNullOrEmpty(battleTransferData.lastEncounteredBeastId))
-            {
-                if (!battleTransferData.stunnedBeastIds.Contains(battleTransferData.lastEncounteredBeastId))
-                    battleTransferData.stunnedBeastIds.Add(battleTransferData.lastEncounteredBeastId);
+            Debug.Log("--- BƯỚC 8: NGƯỜI CHƠI ĐÃ THUA! Các thú cần nghỉ ngơi. ---");
+            // Sau này có thể thêm cơ chế trừ tiền hoặc quay về bệnh viện thú
+        }
 
-                Debug.Log($"[Battle] THẮNG! Quái {battleTransferData.lastEncounteredBeastId} bị choáng.");
-            }
+        playerData.Save();
 
-            yield return new WaitForSeconds(1.5f);
-            GameSceneManager.GoToMap();
+        yield return new WaitForSeconds(1.5f);
+
+        RewardUIManager rewardUI = RewardUIManager.Instance;
+        if (rewardUI == null)
+        {
+            rewardUI = FindFirstObjectByType<RewardUIManager>(FindObjectsInactive.Include);
+        }
+
+        if (playerWon && rewardUI != null)
+        {
+            // Bật active cho GameObject chứa RewardUIManager nếu nó đang bị disable toàn bộ
+            rewardUI.gameObject.SetActive(true);
+            rewardUI.ShowBattleReward(totalGoldToGive, totalExpToGive, () => {
+                ReturnToMap();
+            });
+        }
+        else
+        {
+            // Trả về bản đồ luôn nếu không có bảng thưởng hoặc thua trận
+            ReturnToMap();
         }
     }
 
-    // ─── TÍNH SAO SAU KHI THẮNG ───────────────────────────────────────
-
-    /// <summary>
-    /// Tính số sao dựa trên % HP còn lại của đội player.
-    /// ≥ 70% HP → 3 sao | ≥ 40% HP → 2 sao | thắng → 1 sao
-    /// </summary>
-    private int CalculateStars()
+    private void ReturnToMap()
     {
-        float totalMax     = playerTeam.Where(b => b != null).Sum(b => (float)b.Data.maxHP);
-        float totalCurrent = playerTeam.Where(b => b != null && b.IsAlive).Sum(b => (float)b.CurrentHP);
+        Debug.Log("--- BƯỚC 9: Quay về Bản Đồ! ---");
 
-        if (totalMax <= 0) return 1;
+        // Lấy lại tên Scene trước khi đánh (HUNG, HubTownNew, MapScene...)
+        string sceneToReturn = PlayerPrefs.GetString("SceneBeforeBattle", GameSceneManager.SCENE_MAP);
 
-        float ratio = totalCurrent / totalMax;
-        if (ratio >= 0.70f) return 3;
-        if (ratio >= 0.40f) return 2;
-        return 1;
+        if (SceneTransitionManager.Instance != null)
+        {
+            SceneTransitionManager.Instance.TransitionToScene(sceneToReturn, "Đang quay về...");
+        }
+        else 
+        {
+            // Fallback nếu người chơi xóa/chưa kéo prefab Scene_Manager vào (SceneTransitionManager.Instance == null)
+            string[] scenes = sceneToReturn.Split(',');
+            string primaryScene = scenes[0];
+            
+            // Load scene chính
+            UnityEngine.SceneManagement.SceneManager.LoadScene(primaryScene, UnityEngine.SceneManagement.LoadSceneMode.Single);
+            
+            // Load các scene phụ nếu có
+            for (int i = 1; i < scenes.Length; i++)
+            {
+                string sceneNameSub = scenes[i];
+                bool isLoaded = false;
+                for (int j = 0; j < UnityEngine.SceneManagement.SceneManager.sceneCount; j++)
+                {
+                    if (UnityEngine.SceneManagement.SceneManager.GetSceneAt(j).name == sceneNameSub)
+                    {
+                        isLoaded = true;
+                        break;
+                    }
+                }
+                
+                if (!isLoaded)
+                {
+                    UnityEngine.SceneManagement.SceneManager.LoadScene(sceneNameSub, UnityEngine.SceneManagement.LoadSceneMode.Additive);
+                }
+            }
+        }
     }
+
 
 
     // ─── CLICK HANDLER ───────────────────────────────────────────────

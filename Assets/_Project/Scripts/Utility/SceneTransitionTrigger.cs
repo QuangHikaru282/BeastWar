@@ -64,7 +64,7 @@ public class SceneTransitionTrigger : MonoBehaviour
         }
 
         // Kiểm tra xem tiến trình đã tới ải yêu cầu chưa
-        if (playerData.highestUnlockedStage >= requiredStageIndex)
+        if (playerData.currentMainQuestId >= requiredStageIndex)
         {
             return true;
         }

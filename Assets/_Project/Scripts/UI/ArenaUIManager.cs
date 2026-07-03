@@ -50,8 +50,8 @@ public class ArenaUIManager : MonoBehaviour
     {
         if (openArenaButton == null || playerData == null) return;
 
-        // Chỉ mở khóa khi hoàn thành Tutorial (đã thu phục pet, tutorialQuestStage >= 2)
-        bool isUnlocked = playerData.tutorialQuestStage >= 2;
+        // Chỉ mở khóa khi hoàn thành Tutorial (đã thu phục pet, currentMainQuestId >= 2)
+        bool isUnlocked = playerData.currentMainQuestId >= 2;
         
         openArenaButton.interactable = isUnlocked;
         if (lockOverlay != null) lockOverlay.SetActive(!isUnlocked);
@@ -101,9 +101,9 @@ public class ArenaUIManager : MonoBehaviour
             StageData data = arenaData.stages[i];
             int stageId = data.stageId; // Nên là 1 đến 10
 
-            // Kiểm tra trạng thái mở khóa và sao
-            bool isUnlocked = stageId <= playerData.arenaHighestUnlockedStage;
-            int stars = playerData.GetArenaStageStars(stageId);
+            // Bỏ khóa Arena tạm thời vì đang làm lại hệ thống
+            bool isUnlocked = true;
+            int stars = 3;
 
             if (stars > 0) completedStages++;
 
@@ -163,12 +163,14 @@ public class ArenaUIManager : MonoBehaviour
         if (playerData == null || arenaData == null) return;
         
         // Đếm số ải đã qua
-        int completedStages = 0;
+        int completedStages = arenaData.stages.Count; // Tạm giả lập đã qua hết
+        /*
         for (int i = 0; i < arenaData.stages.Count; i++)
         {
-            if (playerData.GetArenaStageStars(arenaData.stages[i].stageId) > 0)
-                completedStages++;
+            // if (playerData.GetArenaStageStars(arenaData.stages[i].stageId) > 0)
+            //     completedStages++;
         }
+        */
 
         if (completedStages >= arenaData.stagesToUnlockNewMap)
         {

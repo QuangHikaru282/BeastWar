@@ -495,6 +495,17 @@ public class ShopManager : MonoBehaviour
                 // Làm mới danh sách bán
                 CreateSellItemList();
                 CloseDetailPanel();
+
+                if (questUIManager != null)
+                {
+                    questUIManager.NotifyItemSold(selectedItem.itemID);
+                }
+
+                // Cập nhật hệ thống nhiệm vụ mới (Quest 5: Bán hàng cho Shop)
+                if (global::QuestManager.Instance != null && global::QuestManager.Instance.playerData.currentMainQuestId == 5)
+                {
+                    global::QuestManager.Instance.AdvanceQuest();
+                }
             }
         }
         else

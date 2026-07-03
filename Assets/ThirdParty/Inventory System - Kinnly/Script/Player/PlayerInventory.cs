@@ -17,6 +17,7 @@ namespace Kinnly
         public List<GameObject> InventorySlots => inventorySlot;
 
         [SerializeField] List<GameObject> toolbarSlot = new List<GameObject>();
+        public List<GameObject> ToolbarSlots => toolbarSlot;
 
         [Header("Prefabs")]
         [SerializeField] GameObject inventoryItem;
@@ -37,20 +38,78 @@ namespace Kinnly
         [HideInInspector] public bool IsDragging;
         [HideInInspector] public bool IsClicking;
 
+        /// <summary>Lưu toàn bộ kho đồ ngay lập tức (gọi trước khi chuyển scene).</summary>
+        public void SaveNow()
+        {
+            if (QuestManager.Instance != null && QuestManager.Instance.playerData != null)
+            {
+                // Tắt cờ tạm thời để đảm bảo save thành công (SaveNow luôn được gọi có chủ đích)
+                bool wasRestoring = QuestManager.Instance.playerData.isRestoringInventory;
+                QuestManager.Instance.playerData.isRestoringInventory = false;
+                QuestManager.Instance.playerData.SaveInventoryState(this);
+                QuestManager.Instance.playerData.isRestoringInventory = wasRestoring;
+            }
+        }
+
+        private void OnApplicationQuit()
+        {
+            // Lưu kho đồ khi thoát game
+            SaveNow();
+        }
+
+        private void OnApplicationPause(bool pause)
+        {
+            // Lưu kho đồ khi app vào background (Mobile)
+            if (pause) SaveNow();
+        }
+
         private DialogBox dialogBox;
 
         // Start is called before the first frame update
         void Start()
         {
             MaxAmount = 999;
-
             CurrentlySelectedToolBar = 0;
             dialogBox = DialogBox.instance;
 
-            // Cấp phát đồ khởi đầu
-            foreach (var item in startingItems)
+            bool hasSavedData = QuestManager.Instance != null
+                && QuestManager.Instance.playerData != null
+                && QuestManager.Instance.playerData.savedInventoryItems != null
+                && QuestManager.Instance.playerData.savedInventoryItems.Count > 0
+                && QuestManager.Instance.playerData.currentMainQuestId > 0;
+
+            if (hasSavedData)
             {
-                if (item != null) AddItem(item, 1);
+                // Có dữ liệu lưu -> Khôi phục ngay lập tức (không cần đợi frame, không race condition)
+                var pd = QuestManager.Instance.playerData;
+                pd.isRestoringInventory = true;
+                try
+                {
+                    // Nạp lại từng vật phẩm đã lưu (túi đang trống -> không cần clear)
+                    foreach (var saved in pd.savedInventoryItems)
+                    {
+                        Kinnly.Item matching = QuestManager.Instance.GetItemByName(saved.itemName);
+                        if (matching == null)
+                        {
+                            var all = Resources.LoadAll<Kinnly.Item>("");
+                            if (all != null) matching = System.Array.Find(all, x => x != null && x.name == saved.itemName);
+                        }
+                        if (matching != null && saved.amount > 0)
+                            AddItem(matching, saved.amount);
+                    }
+                }
+                finally
+                {
+                    pd.isRestoringInventory = false;
+                }
+            }
+            else
+            {
+                // Chưa có dữ liệu lưu (lần đầu chơi) -> Cấp đồ mặc định
+                foreach (var item in startingItems)
+                {
+                    if (item != null) AddItem(item, 1);
+                }
             }
         }
 

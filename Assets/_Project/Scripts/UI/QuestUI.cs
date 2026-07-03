@@ -31,37 +31,51 @@ public class QuestUI : MonoBehaviour
         if (playerData == null) return;
         if (questPanel == null || questText == null) return;
 
-        if (playerData.tutorialQuestStage != lastPrintedStage)
+        // Chỉ in ra console nếu ID quest thay đổi
+        if (playerData.currentMainQuestId != lastPrintedStage)
         {
-            Debug.Log("[QuestUI] Current Stage: " + playerData.tutorialQuestStage);
-            lastPrintedStage = playerData.tutorialQuestStage;
+            Debug.Log("[QuestUI] Current Quest ID: " + playerData.currentMainQuestId);
+            lastPrintedStage = playerData.currentMainQuestId;
         }
 
-        if (playerData.tutorialQuestStage == 0)
-        {
-            Image panelImg = questPanel.GetComponent<Image>();
-            if (panelImg != null) panelImg.enabled = true;
+        // Bật panel
+        Image panelImg = questPanel.GetComponent<Image>();
+        if (panelImg != null) panelImg.enabled = true;
 
-            questText.text = "Nhiệm vụ: Gặp Trưởng Làng để nhận bạn đồng hành khởi đầu.";
+        // Lấy text mô tả từ QuestManager
+        if (QuestManager.Instance != null)
+        {
+            questText.text = "Nhiệm vụ: " + QuestManager.Instance.GetCurrentQuestDescription();
+        }
+        else
+        {
+            questText.text = "Lỗi: Không tìm thấy QuestManager trong Scene!";
+        }
+
+        // Màu chữ mặc định (có thể đổi sang xanh nếu hoàn thành hết quest)
+        if (playerData.currentMainQuestId >= 17)
+        {
+            questText.color = Color.blue;
+        }
+        else
+        {
             questText.color = Color.black;
         }
-        else if (playerData.tutorialQuestStage == 1)
-        {
-            // Đã nhận Pet, đi thu phục
-            Image panelImg = questPanel.GetComponent<Image>();
-            if (panelImg != null) panelImg.enabled = true;
+    }
 
-            questText.text = "Nhiệm vụ: Vào bãi cỏ, chiến đấu và thu phục 1 con Pet hoang dã.";
-            questText.color = Color.black; // Chuyển sang màu đen cho dễ nhìn trên nền cỏ
+    // Hàm này sẽ được gọi khi bạn bấm vào nút (Button) trên QuestPanel
+    public void OnQuestPanelClicked()
+    {
+        if (playerData == null) return;
+
+        if (QuestNavigation.Instance != null)
+        {
+            // Bật/tắt mũi tên chỉ hướng tới mục tiêu của Quest hiện tại
+            QuestNavigation.Instance.ToggleNavigationForQuest(playerData.currentMainQuestId);
         }
-        else if (playerData.tutorialQuestStage == 2)
+        else
         {
-            // Đã thu phục xong
-            Image panelImg = questPanel.GetComponent<Image>();
-            if (panelImg != null) panelImg.enabled = true;
-
-            questText.text = "Nhiệm vụ hoàn thành! Bạn đã sẵn sàng khám phá thế giới.";
-            questText.color = Color.blue; // Chuyển sang màu xanh dương
+            Debug.LogWarning("[QuestUI] Không tìm thấy QuestNavigation trong Scene! Hãy tạo một GameObject và gắn script QuestNavigation vào.");
         }
     }
 }

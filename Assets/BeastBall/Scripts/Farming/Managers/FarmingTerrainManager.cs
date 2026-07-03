@@ -146,6 +146,12 @@ namespace BeastBall.Farming
             {
                 InitHarvestEffect(cropToPlant);
             }
+
+            // Báo cáo nhiệm vụ
+            if (global::QuestManager.Instance != null)
+            {
+                global::QuestManager.Instance.OnSeedPlanted();
+            }
         }
 
         public void WaterAt(Vector3Int target)
@@ -154,6 +160,12 @@ namespace BeastBall.Farming
             {
                 groundData.WaterTimer = GroundData.WaterDuration;
                 WaterTilemap.SetTile(target, WateredTile);
+
+                // Báo cáo nhiệm vụ
+                if (global::QuestManager.Instance != null)
+                {
+                    global::QuestManager.Instance.OnCropWatered();
+                }
             }
         }
 
@@ -177,6 +189,12 @@ namespace BeastBall.Farming
                 pool.RemoveAt(0);
                 pool.Add(effect); // Round-robin
                 effect.Play();
+            }
+
+            // Báo cáo nhiệm vụ
+            if (global::QuestManager.Instance != null)
+            {
+                global::QuestManager.Instance.OnCropHarvested();
             }
 
             return produce;

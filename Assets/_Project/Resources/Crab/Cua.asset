@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Cua
   m_EditorClassIdentifier: Assembly-CSharp::BeastData
   beastName: "Cua B\xE1ch Chi\u1EBFn"
+  element: 2
+  isRare: 1
   frontSprite: {fileID: -108454357525962208, guid: a26e7c276dacc394e84b073715964d62, type: 3}
   backSprite: {fileID: 0}
   animatorController: {fileID: 9100000, guid: baa67eee7fa8b9c4ba2715714aefac30, type: 2}
@@ -26,3 +28,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3979844a31ad45044a9136c9118e75e4, type: 2}
   - {fileID: 11400000, guid: f801682ef75054c499bbb8f0f7ca71bf, type: 2}
   - {fileID: 11400000, guid: 936bb3bd263d4f74a94410faa2dc90f3, type: 2}
+  currentLevel: 5
+  currentExp: 0

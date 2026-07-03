@@ -21,3 +21,6 @@ Khi bạn (Antigravity) hỗ trợ người dùng trong dự án Unity này, B�
 - Khi hướng dẫn người dùng kéo thả UI, thêm component hoặc chỉnh sửa GameObject trong Unity Editor, LUÔN LUÔN ghi rõ vị trí thao tác. 
 - Ví dụ cụ thể: "Hãy mở Prefab Player lên (click đúp để vào chế độ nền xanh) và kéo UI vào", hoặc "Hãy kéo nó làm con của Player thay vì để ngoài Scene".
 - Điều này giúp nhắc nhở người dùng không làm lộn xộn Scene chính và bảo toàn quy tắc Prefab.
+
+6. GIAO DI?N N�T B?M (BUTTON UI):
+- Khi hu?ng d?n ngu?i d�ng l�m UI N�t b?m (Button) c� h�nh ?nh n?i l�n/l�n xu?ng (Sprite Swap), LU�N LU�N nh?c h? s? d?ng script `ButtonIconPressEffect.cs` d? k�o c�c th�nh ph?n con (Icon, Text) l�n xu?ng theo n�t, gi�p giao di?n tr�ng th?c t? hon.
