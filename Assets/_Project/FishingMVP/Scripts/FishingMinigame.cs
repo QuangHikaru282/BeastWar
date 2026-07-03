@@ -153,6 +153,14 @@ public class FishingMinigame : MonoBehaviour
 		    currentFishOnLine = FishManager.GetRandomFish();
 	    }
 	    Debug.Log($"Caught a: {currentFishOnLine.name}");
+        
+        // --- HIỆU ỨNG POPUP ---
+        Sprite fishSprite = Resources.Load<Sprite>($"FishSprites/{currentFishOnLine.spriteID}");
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        Vector3 spawnPos = player != null ? player.transform.position : transform.position;
+        FishCatchEffect.Show(fishSprite, spawnPos, currentFishOnLine.name);
+        // ----------------------
+
 	    reelingFish = false; //No longer reeling in a fish
 	    //Reset the thought bubbles
 	    thoughtBubbles.SetActive(false);
