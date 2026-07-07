@@ -20,15 +20,15 @@ public class ActionPanel : MonoBehaviour
     [SerializeField] private Text[] skillTextsLegacy = new Text[4];
 
     // Callback trả về lựa chọn cho BattleManager
-    private Action<BeastUnit, BeastUnit, MoveData, bool> onActionConfirmed;
+    private Action<BeastUnit, BeastUnit, RuntimeMoveData, bool> onActionConfirmed;
 
     private List<BeastUnit> playerTeam;
     private List<BeastUnit> enemyTeam;
     private BeastUnit selectedAttacker;
-    private MoveData selectedMove;
+    private RuntimeMoveData selectedMove;
 
     public void Initialize(List<BeastUnit> pTeam, List<BeastUnit> eTeam,
-                           Action<BeastUnit, BeastUnit, MoveData, bool> callback)
+                           Action<BeastUnit, BeastUnit, RuntimeMoveData, bool> callback)
     {
         playerTeam = pTeam;
         enemyTeam  = eTeam;
@@ -98,7 +98,7 @@ public class ActionPanel : MonoBehaviour
         if (selectedAttacker != null)
         {
             ShowSkillPanelForBeast(selectedAttacker);
-            SetGuide($"Lượt của {selectedAttacker.Data.beastName}! Hãy chọn kĩ năng.");
+            SetGuide($"Lượt của {selectedAttacker.Data.baseBeast.beastName}! Hãy chọn kĩ năng.");
         }
     }
 
@@ -124,7 +124,7 @@ public class ActionPanel : MonoBehaviour
             return;
         }
         
-        Debug.Log($"[ActionPanel] ShowSkillPanelForBeast called for {beast.Data.beastName}. moves count: {beast.Data.moves.Length}");
+        Debug.Log($"[ActionPanel] ShowSkillPanelForBeast called for {beast.Data.baseBeast.beastName}. moves count: {beast.Data.moves.Length}");
         skillPanel.SetActive(true);
 
         for (int i = 0; i < skillButtons.Length; i++)
@@ -134,7 +134,7 @@ public class ActionPanel : MonoBehaviour
                 skillButtons[i].gameObject.SetActive(true);
                 skillButtons[i].interactable = true;
                 
-                string moveName = beast.Data.moves[i].moveName;
+                string moveName = beast.Data.moves[i].baseMove.moveName;
                 Debug.Log($"[ActionPanel] Button {i} setting to '{moveName}'. TMP={skillTextsTMP[i]!=null}, Legacy={skillTextsLegacy[i]!=null}");
                 
                 if (skillTextsTMP[i] != null) skillTextsTMP[i].text = moveName;

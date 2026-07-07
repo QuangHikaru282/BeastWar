@@ -204,7 +204,7 @@ public class HuntingBeastEncounter : MonoBehaviour
 
         if (enemyTeam != null && enemyTeam.Count > 0 && enemyTeam[0] != null)
         {
-            playerData.AddBeast(enemyTeam[0]);
+            playerData.AddBeast(new RuntimeBeastData(enemyTeam[0], 1));
             Debug.Log("đã thu phục");
         }
 
@@ -250,7 +250,14 @@ public class HuntingBeastEncounter : MonoBehaviour
     private void StartBattle()
     {
         battleTransferData.lastEncounteredBeastId = uniqueId;
-        battleTransferData.SetEnemyTeam(enemyTeam);
+        
+        List<RuntimeBeastData> runtimeTeam = new List<RuntimeBeastData>();
+        foreach(var beast in enemyTeam)
+        {
+            if (beast != null) runtimeTeam.Add(new RuntimeBeastData(beast, 1));
+        }
+
+        battleTransferData.SetEnemyTeam(runtimeTeam);
         // Đánh dấu trận này đến từ HuntingScene để BattleManager quay về đúng scene
         battleTransferData.originScene = BattleTransferData.OriginScene.Hunting;
         battleTransferData.isSingleBattle = true; // Chỉ dùng 1 Beast của player (1v1)

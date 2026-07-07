@@ -420,7 +420,7 @@ public class QuestManager : MonoBehaviour
     // ─── CÁC EVENT KIỂM TRA ĐIỀU KIỆN ────────────────────────────────────
 
     /// <summary>Kiểm tra khi có thú vừa bị thu phục.</summary>
-    public void OnBeastCaught(BeastData beast)
+    public void OnBeastCaught(RuntimeBeastData beast)
     {
         if (playerData.currentMainQuestId == 1)
         {
@@ -432,12 +432,12 @@ public class QuestManager : MonoBehaviour
             AdvanceQuest();
         }
 
-        if (playerData.currentMainQuestId == 8 && beast != null && beast.element == BeastElement.Water)
+        if (playerData.currentMainQuestId == 8 && beast != null && beast.baseBeast.element == BeastElement.Water)
         {
             AdvanceQuest();
         }
 
-        if (playerData.currentMainQuestId == 10 && beast != null && beast.isRare)
+        if (playerData.currentMainQuestId == 10 && beast != null && beast.baseBeast.isRare)
         {
             AdvanceQuest();
         }

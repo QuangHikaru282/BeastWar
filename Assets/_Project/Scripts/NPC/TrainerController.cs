@@ -116,7 +116,13 @@ public class TrainerController : MonoBehaviour
         
         // Cờ đặc biệt: Trận đấu Trainer!
         battleTransferData.isTrainerBattle = true;
-        battleTransferData.SetEnemyTeam(trainerTeam);
+        
+        List<RuntimeBeastData> runtimeTeam = new List<RuntimeBeastData>();
+        foreach (var beast in trainerTeam)
+        {
+            if (beast != null) runtimeTeam.Add(new RuntimeBeastData(beast, 1));
+        }
+        battleTransferData.SetEnemyTeam(runtimeTeam);
         
         // Lưu ID để khi quay về biết Trainer nào bị đánh bại
         battleTransferData.lastEncounteredBeastId = uniqueTrainerId; 

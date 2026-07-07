@@ -9,10 +9,10 @@ using UnityEngine;
 public class PlayerData : ScriptableObject
 {
     [Header("Bộ sưu tập Beast")]
-    public List<BeastData> ownedBeasts = new List<BeastData>();
+    public List<RuntimeBeastData> ownedBeasts = new List<RuntimeBeastData>();
 
     [Header("Đội hình hiện tại (tối đa 3)")]
-    public List<BeastData> currentFormation = new List<BeastData>();
+    public List<RuntimeBeastData> currentFormation = new List<RuntimeBeastData>();
 
     public const int MaxFormationSize = 3;
 
@@ -35,24 +35,24 @@ public class PlayerData : ScriptableObject
     // ─── Beast Methods ───────────────────────────────────────────────
 
     /// <summary>Thêm Beast vào bộ sưu tập (sau khi bắt được).</summary>
-    public void AddBeast(BeastData beast)
+    public void AddBeast(RuntimeBeastData beast)
     {
         if (beast == null) return;
         if (!ownedBeasts.Contains(beast))
             ownedBeasts.Add(beast);
-        Debug.Log($"[PlayerData] Đã thêm {beast.beastName} vào bộ sưu tập. Tổng: {ownedBeasts.Count}");
+        Debug.Log($"[PlayerData] Đã thêm {(beast.baseBeast != null ? beast.baseBeast.beastName : "Unknown")} vào bộ sưu tập. Tổng: {ownedBeasts.Count}");
         
         // Báo cho hệ thống Quest biết để cập nhật nhiệm vụ
-        if (QuestManager.Instance != null)
+        if (QuestManager.Instance != null && beast.baseBeast != null)
         {
             QuestManager.Instance.OnBeastCaught(beast);
         }
     }
 
     /// <summary>Lưu đội hình hiện tại.</summary>
-    public void SetFormation(List<BeastData> formation)
+    public void SetFormation(List<RuntimeBeastData> formation)
     {
-        currentFormation = new List<BeastData>(formation);
+        currentFormation = new List<RuntimeBeastData>(formation);
     }
 
     // ─── Map Methods ───────────────────────────────────────────────
@@ -92,14 +92,31 @@ public class PlayerData : ScriptableObject
     [System.Serializable]
     private class SaveData
     {
-        public List<string> ownedBeastNames = new List<string>();
-        public List<string> formationBeastNames = new List<string>();
+        public List<SavedRuntimeBeast> ownedBeasts = new List<SavedRuntimeBeast>();
+        public List<SavedRuntimeBeast> formationBeasts = new List<SavedRuntimeBeast>();
+        public List<int> formationIndices = new List<int>();
         public string characterGender;
         public int currentMainQuestId;
         public int gold;
         public List<string> unlockedMaps;
         public List<string> defeatedTrainers;
         public List<SavedItem> savedInventoryItems;
+    }
+
+    [System.Serializable]
+    public class SavedRuntimeBeast
+    {
+        public string baseBeastName;
+        public int currentLevel;
+        public int currentExp;
+        public List<SavedRuntimeMove> moves = new List<SavedRuntimeMove>();
+    }
+
+    [System.Serializable]
+    public class SavedRuntimeMove
+    {
+        public string baseMoveName;
+        public int currentLevel;
     }
 
     [System.Serializable]
@@ -185,6 +202,51 @@ public class PlayerData : ScriptableObject
         }
     }
 
+    private SavedRuntimeBeast SerializeBeast(RuntimeBeastData beast)
+    {
+        if (beast == null || beast.baseBeast == null) return null;
+        var saved = new SavedRuntimeBeast
+        {
+            baseBeastName = beast.baseBeast.name,
+            currentLevel = beast.currentLevel,
+            currentExp = beast.currentExp
+        };
+        if (beast.moves != null)
+        {
+            foreach (var m in beast.moves)
+            {
+                if (m != null && m.baseMove != null)
+                {
+                    saved.moves.Add(new SavedRuntimeMove { baseMoveName = m.baseMove.name, currentLevel = m.currentLevel });
+                }
+            }
+        }
+        return saved;
+    }
+
+    private RuntimeBeastData DeserializeBeast(SavedRuntimeBeast saved, Dictionary<string, BeastData> beastDict, Dictionary<string, MoveData> moveDict)
+    {
+        if (saved == null || string.IsNullOrEmpty(saved.baseBeastName)) return null;
+        if (!beastDict.TryGetValue(saved.baseBeastName, out BeastData baseBeast)) return null;
+
+        RuntimeBeastData rt = new RuntimeBeastData(baseBeast, saved.currentLevel);
+        rt.currentExp = saved.currentExp;
+
+        // Restore moves
+        if (saved.moves != null && saved.moves.Count > 0)
+        {
+            rt.moves = new RuntimeMoveData[saved.moves.Count];
+            for (int i = 0; i < saved.moves.Count; i++)
+            {
+                if (moveDict.TryGetValue(saved.moves[i].baseMoveName, out MoveData baseMove))
+                {
+                    rt.moves[i] = new RuntimeMoveData(baseMove, saved.moves[i].currentLevel);
+                }
+            }
+        }
+        return rt;
+    }
+
     public void Save()
     {
         SaveData data = new SaveData
@@ -199,12 +261,20 @@ public class PlayerData : ScriptableObject
 
         foreach (var b in ownedBeasts) 
         {
-            if (b != null) data.ownedBeastNames.Add(b.name);
+            var saved = SerializeBeast(b);
+            if (saved != null) data.ownedBeasts.Add(saved);
         }
+
         foreach (var b in currentFormation) 
         {
-            if (b != null) data.formationBeastNames.Add(b.name);
-            else data.formationBeastNames.Add(""); // Lưu chuỗi rỗng cho ô trống để giữ đúng vị trí
+            if (b != null) 
+            {
+                data.formationIndices.Add(ownedBeasts.IndexOf(b));
+            }
+            else 
+            {
+                data.formationIndices.Add(-1); // Ô trống
+            }
         }
 
         string json = JsonUtility.ToJson(data);
@@ -232,25 +302,42 @@ public class PlayerData : ScriptableObject
         Dictionary<string, BeastData> beastDict = new Dictionary<string, BeastData>();
         foreach (var b in allBeasts) beastDict[b.name] = b;
 
+        MoveData[] allMoves = Resources.LoadAll<MoveData>("");
+        Dictionary<string, MoveData> moveDict = new Dictionary<string, MoveData>();
+        foreach (var m in allMoves) moveDict[m.name] = m;
+
         ownedBeasts.Clear();
-        foreach (var bName in data.ownedBeastNames)
+        if (data.ownedBeasts != null)
         {
-            if (!string.IsNullOrEmpty(bName) && beastDict.TryGetValue(bName, out BeastData b)) 
+            foreach (var savedB in data.ownedBeasts)
             {
-                ownedBeasts.Add(b);
+                var rt = DeserializeBeast(savedB, beastDict, moveDict);
+                if (rt != null) ownedBeasts.Add(rt);
             }
         }
 
         currentFormation.Clear();
-        foreach (var bName in data.formationBeastNames)
+        if (data.formationIndices != null && data.formationIndices.Count > 0)
         {
-            if (!string.IsNullOrEmpty(bName) && beastDict.TryGetValue(bName, out BeastData b)) 
+            foreach (int idx in data.formationIndices)
             {
-                currentFormation.Add(b);
+                if (idx >= 0 && idx < ownedBeasts.Count)
+                {
+                    currentFormation.Add(ownedBeasts[idx]);
+                }
+                else
+                {
+                    currentFormation.Add(null);
+                }
             }
-            else
+        }
+        else if (data.formationBeasts != null && data.formationBeasts.Count > 0)
+        {
+            // Tương thích ngược: Bỏ qua load formation cũ để tránh nhân bản thú
+            // Người chơi sẽ phải tự kéo lại thú vào đội hình ở lần load này.
+            for (int i = 0; i < PlayerData.MaxFormationSize; i++)
             {
-                currentFormation.Add(null); // Ô trống
+                currentFormation.Add(null);
             }
         }
     }

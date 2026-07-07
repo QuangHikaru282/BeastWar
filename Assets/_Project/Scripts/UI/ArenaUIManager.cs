@@ -144,7 +144,14 @@ public class ArenaUIManager : MonoBehaviour
         battleTransferData.ResetData();
         battleTransferData.originScene = BattleTransferData.OriginScene.Arena;
         battleTransferData.currentArenaStageId = stage.stageId;
-        battleTransferData.SetEnemyTeam(stage.enemyTeam);
+        
+        List<RuntimeBeastData> runtimeTeam = new List<RuntimeBeastData>();
+        foreach (var beast in stage.enemyTeam)
+        {
+            if (beast != null) runtimeTeam.Add(new RuntimeBeastData(beast, 1));
+        }
+        battleTransferData.SetEnemyTeam(runtimeTeam);
+        
         battleTransferData.isSingleBattle = false; // Đấu đội hình
 
         // Chuyển sang scene battle

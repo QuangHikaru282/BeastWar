@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class DraggablePet : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
 {
     [HideInInspector] public Transform parentAfterDrag;
-    [HideInInspector] public BeastData myBeast;
+    [HideInInspector] public RuntimeBeastData myBeast;
     [HideInInspector] public PartySlotUI myCurrentSlot;
 
     private Image image;
@@ -31,13 +31,13 @@ public class DraggablePet : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
     [Tooltip("Kích thước khi nằm dưới Kho chứa")]
     public Vector2 storageSize = new Vector2(80, 80);
 
-    public void Setup(BeastData beast, PartySlotUI slot)
+    public void Setup(RuntimeBeastData beast, PartySlotUI slot)
     {
         myBeast = beast;
         myCurrentSlot = slot;
         if (image != null && beast != null)
         {
-            image.sprite = beast.frontSprite;
+            image.sprite = beast.baseBeast.frontSprite;
         }
 
         UpdateSizeBasedOnSlot();

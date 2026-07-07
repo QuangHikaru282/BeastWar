@@ -61,7 +61,7 @@ public class FishCatchEffect : MonoBehaviour
         }
 
         // 5. Tích hợp Fake Inventory (Giả vờ nhét cá vào balo)
-        Kinnly.PlayerInventory inventory = FindObjectOfType<Kinnly.PlayerInventory>();
+        Kinnly.PlayerInventory inventory = UnityEngine.Object.FindFirstObjectByType<Kinnly.PlayerInventory>();
         if (inventory != null)
         {
             // Tạo một ScriptableObject Item giả ngay trên RAM

@@ -106,13 +106,13 @@ public class FruitBuffManager : MonoBehaviour
         if (ActiveFruit != FruitType.CritRage) return;
 
         critCount++;
-        Debug.Log($"[FruitBuff] Crit #{critCount}/5 bởi {attacker.Data.beastName}");
+        Debug.Log($"[FruitBuff] Crit #{critCount}/5 bởi {attacker.Data.baseBeast.beastName}");
 
         if (critCount >= 5)
         {
             attacker.AddRage(attacker.MaxRage); // Hồi đầy Nộ
             critCount = 0;                       // Reset để có thể kích hoạt lại
-            Debug.Log($"[FruitBuff] RAGE FULL! {attacker.Data.beastName} đã đầy Nộ.");
+            Debug.Log($"[FruitBuff] RAGE FULL! {attacker.Data.baseBeast.beastName} đã đầy Nộ.");
         }
     }
 

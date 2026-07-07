@@ -50,13 +50,14 @@ public class StarterSelectionUI : MonoBehaviour
         }
 
         // 1. Thêm vào kho thú cưng (danh sách sở hữu)
-        playerData.AddBeast(chosenBeast);
+        RuntimeBeastData runtimeBeast = new RuntimeBeastData(chosenBeast, 1);
+        playerData.AddBeast(runtimeBeast);
         Debug.Log("Bạn đã nhận được Pet: " + chosenBeast.beastName);
 
         // 2. Tự động đưa vào đội hình chiến đấu luôn nếu đội hình đang trống
         if (playerData.currentFormation.Count < PlayerData.MaxFormationSize)
         {
-            playerData.currentFormation.Add(chosenBeast);
+            playerData.currentFormation.Add(runtimeBeast);
             Debug.Log("Đã tự động thêm " + chosenBeast.beastName + " vào đội hình chiến đấu!");
         }
 

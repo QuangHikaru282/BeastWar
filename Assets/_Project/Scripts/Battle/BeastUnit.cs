@@ -11,7 +11,7 @@ using DG.Tweening;
 public class BeastUnit : MonoBehaviour
 {
     [Header("Dữ liệu")]
-    public BeastData Data { get; private set; }
+    public RuntimeBeastData Data { get; private set; }
 
     [Header("UI References")]
     [SerializeField] private Image spriteImage;
@@ -51,19 +51,19 @@ public class BeastUnit : MonoBehaviour
 
     private SpriteRenderer sr;
 
-    public void Initialize(BeastData data, bool isPlayerTeam)
+    public void Initialize(RuntimeBeastData data, bool isPlayerTeam)
     {
         Data = data;
         IsPlayerTeam = isPlayerTeam;
-        CurrentHP = data.maxHP;
+        CurrentHP = data.MaxHP;
 
 
         // Hiển thị sprite: Player dùng backSprite (nhìn về phía địch), Enemy dùng frontSprite
         sr = GetComponent<SpriteRenderer>();
         if (sr != null)
         {
-            sr.sprite = isPlayerTeam ? (data.backSprite != null ? data.backSprite : data.frontSprite)
-                                     : data.frontSprite;
+            sr.sprite = isPlayerTeam ? (data.baseBeast.backSprite != null ? data.baseBeast.backSprite : data.baseBeast.frontSprite)
+                                     : data.baseBeast.frontSprite;
             if (!isPlayerTeam) sr.flipX = true; // Địch nhìn về bên trái
         }
 
@@ -71,9 +71,9 @@ public class BeastUnit : MonoBehaviour
         var anim = GetComponent<Animator>();
         if (anim != null)
         {
-            if (data.animatorController != null)
+            if (data.baseBeast.animatorController != null)
             {
-                anim.runtimeAnimatorController = data.animatorController;
+                anim.runtimeAnimatorController = data.baseBeast.animatorController;
                 anim.enabled = true;
             }
             else
@@ -86,14 +86,14 @@ public class BeastUnit : MonoBehaviour
         if (spriteImage != null)
         {
             spriteImage.sprite = isPlayerTeam
-                ? (data.backSprite != null ? data.backSprite : data.frontSprite)
-                : data.frontSprite;
+                ? (data.baseBeast.backSprite != null ? data.baseBeast.backSprite : data.baseBeast.frontSprite)
+                : data.baseBeast.frontSprite;
         }
 
-        if (nameTextTMP != null) nameTextTMP.text = data.beastName;
-        if (nameTextLegacy != null) nameTextLegacy.text = data.beastName;
+        if (nameTextTMP != null) nameTextTMP.text = data.baseBeast.beastName;
+        if (nameTextLegacy != null) nameTextLegacy.text = data.baseBeast.beastName;
         
-        hpBar?.Initialize(data.maxHP);
+        hpBar?.Initialize(data.MaxHP);
 
         // Reset Rage về 0 mỗi khi thú được khởi tạo vào sân
         CurrentRage = 0;
@@ -206,10 +206,10 @@ public class BeastUnit : MonoBehaviour
     public void RestTick()
     {
         if (CurrentHP <= 0) return; // Thú đã chết thì không hồi
-        int healAmount = Mathf.Max(1, Mathf.RoundToInt(Data.maxHP * 0.02f));
-        CurrentHP = Mathf.Min(Data.maxHP, CurrentHP + healAmount);
+        int healAmount = Mathf.Max(1, Mathf.RoundToInt(Data.MaxHP * 0.02f));
+        CurrentHP = Mathf.Min(Data.MaxHP, CurrentHP + healAmount);
         hpBar?.UpdateHP(CurrentHP);
-        Debug.Log($"[RestTick] {Data.beastName} nghỉ ngơi, hồi {healAmount} HP. HP hiện tại: {CurrentHP}/{Data.maxHP}");
+        Debug.Log($"[RestTick] {Data.baseBeast.beastName} nghỉ ngơi, hồi {healAmount} HP. HP hiện tại: {CurrentHP}/{Data.MaxHP}");
     }
 
     /// <summary>
@@ -219,12 +219,12 @@ public class BeastUnit : MonoBehaviour
     {
         if (CurrentHP <= 0) return;
         amount = Mathf.Max(1, amount); // Đảm bảo luôn hồi ít nhất 1 máu
-        CurrentHP = Mathf.Min(Data.maxHP, CurrentHP + amount);
+        CurrentHP = Mathf.Min(Data.MaxHP, CurrentHP + amount);
         hpBar?.UpdateHP(CurrentHP);
 
         DamagePopup.Create(transform.position + Vector3.up * 0.5f, amount, false, true);
 
-        Debug.Log($"[Heal] {Data.beastName} tự hồi {amount} HP. HP hiện tại: {CurrentHP}/{Data.maxHP}");
+        Debug.Log($"[Heal] {Data.baseBeast.beastName} tự hồi {amount} HP. HP hiện tại: {CurrentHP}/{Data.MaxHP}");
     }
 
     /// <summary>
@@ -233,24 +233,26 @@ public class BeastUnit : MonoBehaviour
     public void TeamHeal()
     {
         if (CurrentHP <= 0) return; // Thú đã chết thì không hồi
-        int healAmount = Mathf.RoundToInt(Data.maxHP * 0.5f);
-        CurrentHP = Mathf.Min(Data.maxHP, CurrentHP + healAmount);
+        int healAmount = Mathf.RoundToInt(Data.MaxHP * 0.5f);
+        CurrentHP = Mathf.Min(Data.MaxHP, CurrentHP + healAmount);
         hpBar?.UpdateHP(CurrentHP);
-        Debug.Log($"[TeamHeal] {Data.beastName} được hồi {healAmount} HP. HP hiện tại: {CurrentHP}/{Data.maxHP}");
+        Debug.Log($"[TeamHeal] {Data.baseBeast.beastName} được hồi {healAmount} HP. HP hiện tại: {CurrentHP}/{Data.MaxHP}");
     }
 
     /// <summary>Tính sát thương gây ra cho target theo chiêu thức.</summary>
-    public int CalculateDamage(BeastUnit target, MoveData move)
+    public int CalculateDamage(BeastUnit target, RuntimeMoveData move)
     {
-        // Công thức: damage = Max(1, attacker.attack * movePower / 50 - defender.defense)
-        int raw = Mathf.RoundToInt(Data.attack * move.power / 50f) - target.Data.defense;
+        // TÌM RuntimeMoveData tương ứng (vì param move truyền vào có thể là MoveData gốc hoặc dùng tạm).
+        // Tạm thời nếu param là MoveData gốc, ta phải có power. Trong thiết kế mới, move có power gốc.
+        // Tốt nhất: CalculateDamage(BeastUnit target, RuntimeMoveData move)
+        int raw = Mathf.RoundToInt(Data.Attack * move.power / 50f) - target.Data.Defense;
         return Mathf.Max(1, raw);
     }
 
     /// <summary>Tính sát thương tấn công thường (không dùng chiêu).</summary>
     public int CalculateBaseDamage(BeastUnit target)
     {
-        int raw = Data.attack - target.Data.defense;
+        int raw = Data.Attack - target.Data.Defense;
         // Tăng damage lên tối thiểu 50 để đánh nhanh thắng nhanh (test luồng)
         return Mathf.Max(50, raw);
     }

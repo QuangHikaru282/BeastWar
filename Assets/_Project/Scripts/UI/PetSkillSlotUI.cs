@@ -12,11 +12,11 @@ public class PetSkillSlotUI : MonoBehaviour
     public TextMeshProUGUI costText;
     public Button upgradeButton;
 
-    private MoveData currentMove;
+    private RuntimeMoveData currentMove;
     private PlayerData currentPlayerData;
     private PetInfoUIManager manager;
 
-    public void Setup(MoveData move, PlayerData player, PetInfoUIManager uIManager)
+    public void Setup(RuntimeMoveData move, PlayerData player, PetInfoUIManager uIManager)
     {
         currentMove = move;
         currentPlayerData = player;
@@ -32,9 +32,9 @@ public class PetSkillSlotUI : MonoBehaviour
     {
         if (currentMove == null) return;
 
-        if (skillIcon != null && currentMove.icon != null)
+        if (skillIcon != null && currentMove.baseMove.icon != null)
         {
-            skillIcon.sprite = currentMove.icon;
+            skillIcon.sprite = currentMove.baseMove.icon;
             skillIcon.gameObject.SetActive(true);
         }
         else if (skillIcon != null)
@@ -42,13 +42,13 @@ public class PetSkillSlotUI : MonoBehaviour
             skillIcon.gameObject.SetActive(false);
         }
 
-        if (skillNameText != null) skillNameText.text = currentMove.moveName;
+        if (skillNameText != null) skillNameText.text = currentMove.baseMove.moveName;
         if (levelText != null) levelText.text = $"Lv.{currentMove.currentLevel}";
         if (powerText != null) powerText.text = $"Sức mạnh: {currentMove.power}";
         
         if (costText != null)
         {
-            if (currentMove.currentLevel >= currentMove.maxLevel)
+            if (currentMove.currentLevel >= currentMove.baseMove.maxLevel)
             {
                 costText.text = "MAX";
                 upgradeButton.interactable = false;

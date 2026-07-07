@@ -33,7 +33,7 @@ public class BattleTransferData : ScriptableObject
     public bool isTrainerBattle = false;
 
     [Header("Đội địch (gặp trên Map/Hunting)")]
-    public List<BeastData> wildEnemyTeam = new List<BeastData>();
+    public List<RuntimeBeastData> wildEnemyTeam = new List<RuntimeBeastData>();
 
     [Header("Trạng thái quái trên Map/Hunting")]
     public string lastEncounteredBeastId;
@@ -44,9 +44,9 @@ public class BattleTransferData : ScriptableObject
     [Tooltip("ID của ải đang đấu. -1 nếu không phải ải thường.")]
     public int currentStageId = -1;
 
-    public void SetEnemyTeam(List<BeastData> team)
+    public void SetEnemyTeam(List<RuntimeBeastData> team)
     {
-        wildEnemyTeam = new List<BeastData>(team);
+        wildEnemyTeam = new List<RuntimeBeastData>(team);
     }
 
     [ContextMenu("Reset Data")]

@@ -14,7 +14,7 @@ public class FishingMinigame_FishTrigger : MonoBehaviour
    private FishingMinigame minigameController;
 
    private void Start() {
-      minigameController = FindObjectOfType<FishingMinigame>();
+      minigameController = UnityEngine.Object.FindFirstObjectByType<FishingMinigame>();
    }
 
    private void OnTriggerEnter2D(Collider2D other) {

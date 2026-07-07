@@ -50,7 +50,7 @@ public class BattleManager : MonoBehaviour
     private bool        fruitSelected = false;  // Cờ chờ người chơi chọn Quả
     private BeastUnit   chosenAttacker;
     private BeastUnit   chosenTarget;
-    private MoveData    chosenMove;
+    private RuntimeMoveData    chosenMove;
 
     private void Start()
     {
@@ -124,9 +124,9 @@ public class BattleManager : MonoBehaviour
     // ─── INIT ────────────────────────────────────────────────────────
 
     // Hàng chờ quái địch dự phòng (đối với trận đấu ải WorldMap)
-    private Queue<BeastData> pendingEnemyQueue = new Queue<BeastData>();
+    private Queue<RuntimeBeastData> pendingEnemyQueue = new Queue<RuntimeBeastData>();
     // Hàng chờ thú của người chơi dự phòng
-    private Queue<BeastData> pendingPlayerQueue = new Queue<BeastData>();
+    private Queue<RuntimeBeastData> pendingPlayerQueue = new Queue<RuntimeBeastData>();
 
     private IEnumerator InitBattle()
     {
@@ -168,7 +168,7 @@ public class BattleManager : MonoBehaviour
                 var firstPlayer = pendingPlayerQueue.Dequeue();
                 var unit = SpawnBeastUnit(firstPlayer, playerSpawnPoints[0], true);
                 playerTeam.Add(unit);
-                Debug.Log($"--- BƯỚC 2: ĐÃ TẠO QUÁI PHE MÌNH ({firstPlayer.beastName}) ---");
+                Debug.Log($"--- BƯỚC 2: ĐÃ TẠO QUÁI PHE MÌNH ({firstPlayer.baseBeast.beastName}) ---");
             }
         }
 
@@ -187,7 +187,7 @@ public class BattleManager : MonoBehaviour
             var firstEnemy = pendingEnemyQueue.Dequeue();
             var unit = SpawnBeastUnit(firstEnemy, enemySpawnPoints[0], false);
             enemyTeam.Add(unit);
-            Debug.Log($"--- BƯỚC 3: ĐÃ TẠO QUÁI ĐỊCH ({firstEnemy.beastName}) ---");
+            Debug.Log($"--- BƯỚC 3: ĐÃ TẠO QUÁI ĐỊCH ({firstEnemy.baseBeast.beastName}) ---");
         }
 
         // Khởi tạo EnemyAI nếu chưa gán
@@ -245,11 +245,11 @@ public class BattleManager : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
     }
 
-    private BeastUnit SpawnBeastUnit(BeastData data, Transform spawnPoint, bool isPlayer)
+    private BeastUnit SpawnBeastUnit(RuntimeBeastData data, Transform spawnPoint, bool isPlayer)
     {
         GameObject go = beastUnitPrefab != null
             ? Instantiate(beastUnitPrefab, spawnPoint.position, Quaternion.identity)
-            : new GameObject($"BeastUnit_{data.beastName}");
+            : new GameObject($"BeastUnit_{data.baseBeast.beastName}");
 
         go.transform.position = spawnPoint.position;
         var unit = go.GetComponent<BeastUnit>() ?? go.AddComponent<BeastUnit>();
@@ -299,7 +299,7 @@ public class BattleManager : MonoBehaviour
             }
 
             unit.SetExternalUI(nameTxtTMP, nameTxtLegacy, hpBar);
-            Debug.Log($"[BattleManager] Đã tự động link UI cho {data.beastName} từ {hudName}");
+            Debug.Log($"[BattleManager] Đã tự động link UI cho {data.baseBeast.beastName} từ {hudName}");
         }
 
         unit.Initialize(data, isPlayer);
@@ -330,7 +330,7 @@ public class BattleManager : MonoBehaviour
         fruitBuffManager?.OnPlayerAttackFinished();
     }
 
-    private void OnPlayerActionChosen(BeastUnit attacker, BeastUnit target, MoveData move, bool isCatch)
+    private void OnPlayerActionChosen(BeastUnit attacker, BeastUnit target, RuntimeMoveData move, bool isCatch)
     {
         chosenAttacker = attacker;
         chosenTarget   = target;
@@ -347,7 +347,7 @@ public class BattleManager : MonoBehaviour
         bool valid = enemyAI.ChooseAction(enemyTeam, playerTeam,
                                           out BeastUnit attacker,
                                           out BeastUnit target,
-                                          out MoveData move);
+                                          out RuntimeMoveData move);
 
         if (!valid) yield break;
 
@@ -356,15 +356,15 @@ public class BattleManager : MonoBehaviour
 
     // ─── EXECUTE ATTACK ──────────────────────────────────────────────
 
-    private IEnumerator ExecuteAttack(BeastUnit attacker, BeastUnit target, MoveData move)
+    private IEnumerator ExecuteAttack(BeastUnit attacker, BeastUnit target, RuntimeMoveData move)
     {
         if (attacker == null || !attacker.IsAlive) yield break;
         if (target == null   || !target.IsAlive)   yield break;
 
-        string moveName = move != null ? move.moveName : "Tấn công thường";
-        MoveType type = move != null ? move.moveType : MoveType.Melee;
+        string moveName = move != null ? move.baseMove.moveName : "Tấn công thường";
+        MoveType type = move != null ? move.baseMove.moveType : MoveType.Melee;
         
-        Debug.Log($"[Battle] {attacker.Data.beastName} dùng {moveName} ({type}) tấn công {target.Data.beastName}!");
+        Debug.Log($"[Battle] {attacker.Data.baseBeast.beastName} dùng {moveName} ({type}) tấn công {target.Data.baseBeast.beastName}!");
 
         Vector3 originalPos = attacker.transform.position;
 
@@ -394,19 +394,19 @@ public class BattleManager : MonoBehaviour
         }
 
         // Gọi hiệu ứng VFX nếu chiêu này có cài đặt hiệu ứng
-        if (move != null && move.vfxPrefab != null)
+        if (move != null && move.baseMove.vfxPrefab != null)
         {
-            if (move.vfxSpawnType == VfxSpawnType.SpawnAtTarget)
+            if (move.baseMove.vfxSpawnType == VfxSpawnType.SpawnAtTarget)
             {
                 // SÉT ĐÁNH: Hiện ngay tại chỗ địch
-                GameObject vfx = Instantiate(move.vfxPrefab, target.transform.position, move.vfxPrefab.transform.rotation);
+                GameObject vfx = Instantiate(move.baseMove.vfxPrefab, target.transform.position, move.baseMove.vfxPrefab.transform.rotation);
                 // Tự động xóa hiệu ứng đi sau 1.5 giây để tránh đầy bộ nhớ
                 Destroy(vfx, 1.5f); 
             }
-            else if (move.vfxSpawnType == VfxSpawnType.ShootFromAttacker)
+            else if (move.baseMove.vfxSpawnType == VfxSpawnType.ShootFromAttacker)
             {
                 // PHUN LỬA / ĐẠN BAY: Hiện ở người đánh, xoay hướng về phía địch, rồi bay tới
-                GameObject projectile = Instantiate(move.vfxPrefab, attacker.transform.position, Quaternion.identity);
+                GameObject projectile = Instantiate(move.baseMove.vfxPrefab, attacker.transform.position, Quaternion.identity);
                 
                 // Tính góc xoay để viên đạn hướng thẳng về địch
                 Vector3 dirToTarget = (target.transform.position - attacker.transform.position).normalized;
@@ -428,11 +428,11 @@ public class BattleManager : MonoBehaviour
                 // Chờ đạn bay tới nơi (0.3s) rồi mới trừ máu
                 yield return new WaitForSeconds(0.3f);
             }
-            else if (move.vfxSpawnType == VfxSpawnType.RainFromSky)
+            else if (move.baseMove.vfxSpawnType == VfxSpawnType.RainFromSky)
             {
                 // MƯA TỪ TRÊN TRỜI: Hiện cách địch 5 đơn vị Y hướng đi xuống
                 Vector3 skyPos = target.transform.position + Vector3.up * 5f;
-                GameObject projectile = Instantiate(move.vfxPrefab, skyPos, move.vfxPrefab.transform.rotation);
+                GameObject projectile = Instantiate(move.baseMove.vfxPrefab, skyPos, move.baseMove.vfxPrefab.transform.rotation);
                 
                 // Nếu là sét (đã vẽ đứng) thì không xoay, nếu là đạn ngang thì xoay
                 // Tạm thời bỏ dòng ép -90 độ đi để giữ nguyên bản gốc của Prefab
@@ -451,10 +451,10 @@ public class BattleManager : MonoBehaviour
                 // Đợi rơi trúng đích (0.4s)
                 yield return new WaitForSeconds(0.4f);
             }
-            else if (move.vfxSpawnType == VfxSpawnType.SpawnAtSelf)
+            else if (move.baseMove.vfxSpawnType == VfxSpawnType.SpawnAtSelf)
             {
                 // BẢN THÂN: Hiện VFX trực tiếp trên người thi triển (ví dụ: Hào quang hồi máu)
-                GameObject vfx = Instantiate(move.vfxPrefab, attacker.transform.position, move.vfxPrefab.transform.rotation);
+                GameObject vfx = Instantiate(move.baseMove.vfxPrefab, attacker.transform.position, move.baseMove.vfxPrefab.transform.rotation);
                 Destroy(vfx, 1.5f);
             }
         }
@@ -488,7 +488,7 @@ public class BattleManager : MonoBehaviour
             // Gây sát thương (dùng TakeDamageWithResult để event OnCritLanded được bắn)
             bool died = target.TakeDamageWithResult(finalDamage, isCrit);
 
-            Debug.Log($"[Battle] {attacker.Data.beastName} gây {finalDamage} sát thương{(isCrit ? " (CRIT!" + ")": "")}! {target.Data.beastName} HP: {target.CurrentHP}");
+            Debug.Log($"[Battle] {attacker.Data.baseBeast.beastName} gây {finalDamage} sát thương{(isCrit ? " (CRIT!" + ")": "")}! {target.Data.baseBeast.beastName} HP: {target.CurrentHP}");
 
             yield return new WaitForSeconds(0.2f);
 
@@ -500,7 +500,7 @@ public class BattleManager : MonoBehaviour
 
             if (died)
             {
-                Debug.Log($"[Battle] {target.Data.beastName} đã chết!");
+                Debug.Log($"[Battle] {target.Data.baseBeast.beastName} đã chết!");
                 yield return new WaitForSeconds(0.5f);
             }
         }
@@ -533,13 +533,13 @@ public class BattleManager : MonoBehaviour
             Destroy(deadEnemy.gameObject);
 
             // Lấy con quái tiếp theo ra
-            BeastData nextEnemyData = pendingEnemyQueue.Dequeue();
+            RuntimeBeastData nextEnemyData = pendingEnemyQueue.Dequeue();
             
             // Spawn ở cùng vị trí điểm xuất hiện đầu tiên của Enemy (enemySpawnPoints[0])
             var newUnit = SpawnBeastUnit(nextEnemyData, enemySpawnPoints[0], false);
             enemyTeam.Add(newUnit);
 
-            Debug.Log($"[BattleManager] {nextEnemyData.beastName} đã xuất kích thế chỗ!");
+            Debug.Log($"[BattleManager] {nextEnemyData.baseBeast.beastName} đã xuất kích thế chỗ!");
 
             // Cập nhật lại UI ActionPanel để người chơi có thể chọn mục tiêu mới
             actionPanel?.Initialize(playerTeam, enemyTeam, OnPlayerActionChosen);
@@ -566,13 +566,13 @@ public class BattleManager : MonoBehaviour
             Destroy(deadPlayer.gameObject);
 
             // Lấy con thú tiếp theo ra
-            BeastData nextPlayerData = pendingPlayerQueue.Dequeue();
+            RuntimeBeastData nextPlayerData = pendingPlayerQueue.Dequeue();
             
             // Spawn ở cùng vị trí điểm xuất hiện đầu tiên của Player (playerSpawnPoints[0])
             var newUnit = SpawnBeastUnit(nextPlayerData, playerSpawnPoints[0], true);
             playerTeam.Add(newUnit);
 
-            Debug.Log($"[BattleManager] Thú {nextPlayerData.beastName} của Player đã xuất kích thế chỗ!");
+            Debug.Log($"[BattleManager] Thú {nextPlayerData.baseBeast.beastName} của Player đã xuất kích thế chỗ!");
 
             // Cập nhật lại UI ActionPanel để người chơi có thể điều khiển con mới
             actionPanel?.Initialize(playerTeam, enemyTeam, OnPlayerActionChosen);
@@ -604,8 +604,8 @@ public class BattleManager : MonoBehaviour
             {
                 if (b != null && b.Data != null)
                 {
-                    totalExpToGive += b.Data.rewardExp;
-                    totalGoldToGive += b.Data.rewardGold;
+                    totalExpToGive += b.Data.baseBeast.rewardExp;
+                    totalGoldToGive += b.Data.baseBeast.rewardGold;
                 }
             }
 
@@ -774,7 +774,7 @@ public class BattleManager : MonoBehaviour
         // (Nếu muốn đơn giản: giữ nguyên danh sách để track HP)
 
         // Spawn thú mới
-        BeastData nextData = pendingPlayerQueue.Dequeue();
+        RuntimeBeastData nextData = pendingPlayerQueue.Dequeue();
         var newUnit = SpawnBeastUnit(nextData, playerSpawnPoints[0], true);
         playerTeam.Add(newUnit);
 
@@ -786,7 +786,7 @@ public class BattleManager : MonoBehaviour
         RefreshFruitBuffBench();
 
         actionPanel?.Initialize(playerTeam, enemyTeam, OnPlayerActionChosen);
-        Debug.Log($"[BattleManager] Baton Pass! {nextData.beastName} xuất kích.");
+        Debug.Log($"[BattleManager] Baton Pass! {nextData.baseBeast.beastName} xuất kích.");
     }
 
     /// <summary>Trả về BeastUnit đang sống trên sân của Player.</summary>
@@ -800,12 +800,12 @@ public class BattleManager : MonoBehaviour
     {
         // Thú "đang nghỉ" = thú trong pendingPlayerQueue (chưa được spawn lên sân)
         // Queue không cho foreach trực tiếp → chuyển sang List tạm để duyệt
-        var resting = new List<BeastData>(pendingPlayerQueue);
+        var resting = new List<RuntimeBeastData>(pendingPlayerQueue);
         foreach (var data in resting)
         {
             // Tìm BeastUnit tương ứng với BeastData (nếu đã spawn nhưng bị swap ra)
             // Trong trường hợp đơn giản: chỉ log, HP thực sẽ được reset lúc spawn
-            Debug.Log($"[RestTick] {data.beastName} đang nghỉ ngơi (+{Mathf.RoundToInt(data.maxHP * 0.02f)} HP).");
+            Debug.Log($"[RestTick] {data.baseBeast.beastName} đang nghỉ ngơi (+{Mathf.RoundToInt(data.MaxHP * 0.02f)} HP).");
         }
 
         // Với thú đã spawn nhưng bị ForceSwap ra (đang SetActive(false)):

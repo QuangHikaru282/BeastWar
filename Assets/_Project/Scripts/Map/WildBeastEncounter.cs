@@ -238,10 +238,9 @@ public class WildBeastEncounter : MonoBehaviour
         }
         yield return new WaitForSeconds(0.5f);
 
-        // Thêm vào danh sách quái sở hữu của người chơi
         if (enemyTeam != null && enemyTeam.Count > 0 && enemyTeam[0] != null)
         {
-            playerData.AddBeast(enemyTeam[0]);
+            playerData.AddBeast(new RuntimeBeastData(enemyTeam[0], 1));
             Debug.Log("Đã thu phục thành công!");
         }
 
@@ -302,7 +301,14 @@ public class WildBeastEncounter : MonoBehaviour
     {
         // Truyền đội địch và ID quái sang BattleScene
         battleTransferData.lastEncounteredBeastId = uniqueId;
-        battleTransferData.SetEnemyTeam(enemyTeam);
+        
+        List<RuntimeBeastData> runtimeTeam = new List<RuntimeBeastData>();
+        foreach(var beast in enemyTeam)
+        {
+            if (beast != null) runtimeTeam.Add(new RuntimeBeastData(beast, 1)); // Level 1 mặc định
+        }
+
+        battleTransferData.SetEnemyTeam(runtimeTeam);
         battleTransferData.originScene = BattleTransferData.OriginScene.Map; // Lưu lại nguồn gốc để quay về
         battleTransferData.isTrainerBattle = false; // Đảm bảo đây không phải trận đánh Trainer
         

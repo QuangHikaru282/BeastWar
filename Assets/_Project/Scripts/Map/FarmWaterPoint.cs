@@ -29,7 +29,7 @@ public class FarmWaterPoint : MonoBehaviour, IInteractable
             {
                 foreach (var beast in formation)
                 {
-                    if (beast != null && beast.element == BeastElement.Water)
+                    if (beast != null && beast.baseBeast.element == BeastElement.Water)
                     {
                         hasWaterBeast = true;
                         break;

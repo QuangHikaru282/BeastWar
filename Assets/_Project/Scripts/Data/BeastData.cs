@@ -36,19 +36,10 @@ public class BeastData : ScriptableObject
     /// <summary>Lực chiến tính tự động từ các chỉ số.</summary>
     public int CombatPower => maxHP + attack * 2 + defense + speed;
 
-    // ─── HỆ THỐNG LEVEL & EXP (MỚI) ──────────────────────────────
-    [Header("Level & EXP")]
-    [Min(1)] public int currentLevel = 1;
-    public int currentExp = 0;
+    // ─── PHẦN THƯỞNG ──────────────────────────────
 
     [Header("Phần thưởng khi bị tiêu diệt")]
     public int rewardGold = 10;
     public int rewardExp = 50;
 
-    /// <summary>Tính lượng EXP cần để lên cấp tiếp theo.</summary>
-    public int GetExpToNextLevel()
-    {
-        // Công thức cơ bản: Cấp hiện tại * 100 (VD: Lv1 cần 100 EXP, Lv2 cần 200 EXP)
-        return currentLevel * 100;
-    }
 }

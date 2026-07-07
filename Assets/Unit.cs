@@ -21,25 +21,25 @@ public class Unit : MonoBehaviour
 	public int maxHP;
 	public int currentHP;
 
-	public void Setup(BeastData data, bool isPlayer)
+	public void Setup(RuntimeBeastData data, bool isPlayer)
 	{
-		unitName = data.beastName;
-		unitLevel = 1; // Mặc định level 1 vì BeastData chưa có Level
-		maxHP = data.maxHP;
-		currentHP = data.maxHP; // Hồi đầy máu
+		unitName = data.baseBeast.beastName;
+		unitLevel = data.currentLevel;
+		maxHP = data.MaxHP;
+		currentHP = data.MaxHP; // Hồi đầy máu
 
 		// Cập nhật hình ảnh (Quái của mình thì hiện hình từ đằng sau, địch thì hiện hình đằng trước)
 		SpriteRenderer sr = GetComponentInChildren<SpriteRenderer>();
 		if (sr != null)
 		{
-			sr.sprite = isPlayer ? data.backSprite : data.frontSprite;
+			sr.sprite = isPlayer ? data.baseBeast.backSprite : data.baseBeast.frontSprite;
 		}
 
 		// Cập nhật animation
 		Animator anim = GetComponentInChildren<Animator>();
-		if (anim != null && data.animatorController != null)
+		if (anim != null && data.baseBeast.animatorController != null)
 		{
-			anim.runtimeAnimatorController = data.animatorController;
+			anim.runtimeAnimatorController = data.baseBeast.animatorController;
 		}
 
 		// Cập nhật chiêu thức
@@ -49,7 +49,7 @@ public class Unit : MonoBehaviour
 			for (int i = 0; i < data.moves.Length; i++)
 			{
 				moves[i] = new Move();
-				moves[i].moveName = data.moves[i].moveName;
+				moves[i].moveName = data.moves[i].baseMove.moveName;
 				moves[i].damage = data.moves[i].power; // Ánh xạ power sang damage
 				moves[i].animTrigger = "Attack"; // Mặc định là Attack
 			}

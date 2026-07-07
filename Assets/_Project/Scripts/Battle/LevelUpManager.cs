@@ -24,12 +24,12 @@ public class LevelUpManager : MonoBehaviour
     /// <summary>
     /// Cộng EXP cho một thú cụ thể và xử lý Level Up nếu đủ.
     /// </summary>
-    public void AddExpToBeast(BeastData beast, int expAmount)
+    public void AddExpToBeast(RuntimeBeastData beast, int expAmount)
     {
         if (beast == null) return;
 
         beast.currentExp += expAmount;
-        Debug.Log($"[LevelUpManager] {beast.beastName} nhận được {expAmount} EXP. Hiện tại: {beast.currentExp}/{beast.GetExpToNextLevel()}");
+        Debug.Log($"[LevelUpManager] {beast.baseBeast.beastName} nhận được {expAmount} EXP. Hiện tại: {beast.currentExp}/{beast.GetExpToNextLevel()}");
 
         // Vòng lặp phòng trường hợp nhận được quá nhiều EXP, nhảy nhiều Level cùng lúc
         while (beast.currentExp >= beast.GetExpToNextLevel())
@@ -42,17 +42,11 @@ public class LevelUpManager : MonoBehaviour
     /// <summary>
     /// Logic Tăng Cấp: Tăng các chỉ số cơ bản của thú.
     /// </summary>
-    private void LevelUp(BeastData beast)
+    private void LevelUp(RuntimeBeastData beast)
     {
         beast.currentLevel++;
 
-        // Tăng chỉ số cơ bản (Mỗi level tăng một lượng cố định hoặc theo %)
-        beast.maxHP += 10;
-        beast.attack += 5;
-        beast.defense += 3;
-        beast.speed += 2;
-
-        Debug.Log($"<color=yellow>[LevelUpManager] CHÚC MỪNG! {beast.beastName} đã thăng cấp lên Level {beast.currentLevel}!</color>");
+        Debug.Log($"<color=yellow>[LevelUpManager] CHÚC MỪNG! {beast.baseBeast.beastName} đã thăng cấp lên Level {beast.currentLevel}!</color>");
         
         // TODO: Mở khóa chiêu thức hoặc Tiến hóa có thể kiểm tra ở đây
     }

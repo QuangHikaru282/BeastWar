@@ -26,7 +26,7 @@ public class EnemyAI : MonoBehaviour
         List<BeastUnit> playerTeam,
         out BeastUnit attacker,
         out BeastUnit target,
-        out MoveData move)
+        out RuntimeMoveData move)
     {
         attacker = null;
         target   = null;

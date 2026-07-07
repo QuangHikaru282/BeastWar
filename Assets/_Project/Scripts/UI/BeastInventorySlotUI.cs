@@ -9,15 +9,15 @@ public class BeastInventorySlotUI : MonoBehaviour
     public TextMeshProUGUI petNameText; // Đã đổi sang TextMeshPro
     public TextMeshProUGUI cpText;      // Đã đổi sang TextMeshPro
 
-    public void Setup(BeastData beast)
+    public void Setup(RuntimeBeastData beast)
     {
         if (beast == null) return;
         
         if (petIcon != null) 
-            petIcon.sprite = beast.frontSprite;
+            petIcon.sprite = beast.baseBeast.frontSprite;
             
         if (petNameText != null) 
-            petNameText.text = beast.beastName;
+            petNameText.text = beast.baseBeast.beastName;
             
         if (cpText != null) 
             cpText.text = "CP: " + beast.CombatPower;

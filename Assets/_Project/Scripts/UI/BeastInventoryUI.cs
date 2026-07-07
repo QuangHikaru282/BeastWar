@@ -33,7 +33,7 @@ public class BeastInventoryUI : MonoBehaviour
         }
 
         // 2. Tạo các ô mới tương ứng với số lượng thú cưng đang sở hữu
-        foreach (BeastData beast in playerData.ownedBeasts)
+        foreach (RuntimeBeastData beast in playerData.ownedBeasts)
         {
             if (beast != null)
             {

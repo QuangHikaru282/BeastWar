@@ -54,7 +54,7 @@ public class PartyUIManager : MonoBehaviour
             partySlots[i].partyIndex = i;
             partySlots[i].SetupManager(this);
 
-            BeastData beastInSlot = playerData.currentFormation[i];
+            RuntimeBeastData beastInSlot = playerData.currentFormation[i];
             if (beastInSlot != null)
             {
                 SpawnPetIcon(beastInSlot, partySlots[i].transform, partySlots[i]);
@@ -80,7 +80,7 @@ public class PartyUIManager : MonoBehaviour
         }
     }
 
-    private void SpawnPetIcon(BeastData beast, Transform parent, PartySlotUI slot)
+    private void SpawnPetIcon(RuntimeBeastData beast, Transform parent, PartySlotUI slot)
     {
         GameObject petObj = Instantiate(draggablePetPrefab, parent);
         DraggablePet dragComp = petObj.GetComponent<DraggablePet>();
@@ -98,13 +98,13 @@ public class PartyUIManager : MonoBehaviour
         PartySlotUI originSlot = draggedPet.myCurrentSlot;
         if (originSlot == targetSlot) return; // Rớt lại đúng chỗ cũ -> Không làm gì
 
-        BeastData draggedBeast = draggedPet.myBeast;
+        RuntimeBeastData draggedBeast = draggedPet.myBeast;
 
         // TỪ STORAGE KÉO VÀO PARTY
         if (originSlot.slotType == PartySlotUI.SlotType.Storage && targetSlot.slotType == PartySlotUI.SlotType.Party)
         {
             int targetIdx = targetSlot.partyIndex;
-            BeastData existingBeast = playerData.currentFormation[targetIdx];
+            RuntimeBeastData existingBeast = playerData.currentFormation[targetIdx];
 
             if (existingBeast == null)
             {
@@ -144,7 +144,7 @@ public class PartyUIManager : MonoBehaviour
             int originIdx = originSlot.partyIndex;
             int targetIdx = targetSlot.partyIndex;
 
-            BeastData temp = playerData.currentFormation[targetIdx];
+            RuntimeBeastData temp = playerData.currentFormation[targetIdx];
             playerData.currentFormation[targetIdx] = playerData.currentFormation[originIdx];
             playerData.currentFormation[originIdx] = temp;
         }
@@ -170,7 +170,7 @@ public class PartyUIManager : MonoBehaviour
     public GameObject petInfoPanel; // Kéo PetInfoUI_Panel vào đây
     public PetInfoUIManager petInfoManager; // Kéo script PetInfoUIManager vào đây
 
-    public void OpenPetInfo(BeastData beast)
+    public void OpenPetInfo(RuntimeBeastData beast)
     {
         if (petInfoPanel != null)
         {

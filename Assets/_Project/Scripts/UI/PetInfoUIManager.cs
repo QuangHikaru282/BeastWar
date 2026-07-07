@@ -26,7 +26,7 @@ public class PetInfoUIManager : MonoBehaviour
     [Header("Tài nguyên")]
     public TextMeshProUGUI goldText; // Hiển thị số vàng hiện tại
 
-    private BeastData selectedBeast;
+    private RuntimeBeastData selectedBeast;
     private List<GameObject> activeBeastButtons = new List<GameObject>();
     private List<GameObject> activeSkillSlots = new List<GameObject>();
 
@@ -64,7 +64,7 @@ public class PetInfoUIManager : MonoBehaviour
         // Tạo nút cho từng con thú
         for (int i = 0; i < playerData.ownedBeasts.Count; i++)
         {
-            BeastData beast = playerData.ownedBeasts[i];
+            RuntimeBeastData beast = playerData.ownedBeasts[i];
             if (beast == null) continue;
 
             GameObject btnObj = Instantiate(beastButtonPrefab, beastListContainer);
@@ -73,7 +73,7 @@ public class PetInfoUIManager : MonoBehaviour
 
             // Cập nhật tên hoặc avatar lên nút
             TextMeshProUGUI btnText = btnObj.GetComponentInChildren<TextMeshProUGUI>();
-            if (btnText != null) btnText.text = beast.beastName;
+            if (btnText != null) btnText.text = beast.baseBeast.beastName;
 
             // Tìm Image để gán avatar (bỏ qua Image nền của chính nút bấm)
             Image[] images = btnObj.GetComponentsInChildren<Image>();
@@ -82,7 +82,7 @@ public class PetInfoUIManager : MonoBehaviour
                 // Nếu tên của GameObject chứa chữ "Anh" hoặc "Avatar" hoặc "Icon" thì gán hình vào đó
                 if (img.gameObject.name.ToLower().Contains("anh") || img.gameObject.name.ToLower().Contains("avatar") || img.gameObject.name.ToLower().Contains("icon"))
                 {
-                    img.sprite = beast.frontSprite;
+                    img.sprite = beast.baseBeast.frontSprite;
                     break;
                 }
             }
@@ -102,27 +102,27 @@ public class PetInfoUIManager : MonoBehaviour
         }
     }
 
-    public void SelectBeast(BeastData beast)
+    public void SelectBeast(RuntimeBeastData beast)
     {
         selectedBeast = beast;
 
         // Cập nhật thông tin giữa màn hình
         if (displayImage != null)
         {
-            displayImage.sprite = beast.frontSprite;
+            displayImage.sprite = beast.baseBeast.frontSprite;
             // Đã xóa SetNativeSize() để bạn có thể tự kéo to ảnh bằng Rect Transform trong Unity
         }
 
-        if (nameText != null) nameText.text = beast.beastName;
+        if (nameText != null) nameText.text = beast.baseBeast.beastName;
         if (levelText != null) levelText.text = $"Lv.{beast.currentLevel}";
         if (powerText != null) powerText.text = $"Lực chiến: {beast.CombatPower}";
-        if (elementText != null) elementText.text = $"Hệ: {beast.element}";
+        if (elementText != null) elementText.text = $"Hệ: {beast.baseBeast.element}";
 
         // Tải danh sách kỹ năng bên phải
         LoadSkills(beast);
     }
 
-    private void LoadSkills(BeastData beast)
+    private void LoadSkills(RuntimeBeastData beast)
     {
         // Xóa kỹ năng cũ
         foreach (var slot in activeSkillSlots)
