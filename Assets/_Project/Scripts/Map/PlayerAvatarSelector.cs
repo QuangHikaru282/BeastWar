@@ -39,29 +39,11 @@ public class PlayerAvatarSelector : MonoBehaviour
         GameObject activeModel = isFemale ? femaleModel : maleModel;
         Animator anim = activeModel.GetComponent<Animator>();
 
-        // Cập nhật cho PlayerMapController
+        // Cập nhật Animator cho PlayerMapController
         PlayerMapController mapController = GetComponent<PlayerMapController>();
         if (mapController != null)
         {
             mapController.SetAnimator(anim);
-        }
-
-        // Cập nhật cho TopDownCharacterController (Cainos) nếu có sử dụng
-        MonoBehaviour cainosController = GetComponent("TopDownCharacterController") as MonoBehaviour;
-        if (cainosController != null)
-        {
-            var field = cainosController.GetType().GetField("animator");
-            if (field != null)
-            {
-                field.SetValue(cainosController, anim);
-            }
-        }
-
-        // Cập nhật cho Kinnly.PlayerMovement
-        Kinnly.PlayerMovement kinnlyMovement = GetComponent<Kinnly.PlayerMovement>();
-        if (kinnlyMovement != null)
-        {
-            kinnlyMovement.animator = anim;
         }
 
         Debug.Log($"[PlayerAvatarSelector] Đã thiết lập ngoại hình nhân vật: {(isFemale ? "Nữ" : "Nam")}");

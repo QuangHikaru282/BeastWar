@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using Kinnly;
 /// <summary>
 /// Điều khiển nhân vật di chuyển trên Map (2D Top-down).
 /// Gắn lên GameObject Player cùng Rigidbody2D và Collider2D.
@@ -17,6 +17,13 @@ public class PlayerMapController : MonoBehaviour
     private Vector2 moveInput;
     private bool canMove = true;
 
+    [Header("Click-to-Move")]
+    public float interactionRange = 1.5f;
+    private bool isClickMoving = false;
+    private Vector2 clickTargetPos;
+    private IInteractable targetInteractable;
+    private Kinnly.PlayerInventory inventory;
+
     private static readonly int AnimSpeed = Animator.StringToHash("speed");
     private static readonly int AnimDirX  = Animator.StringToHash("dirX");
     private static readonly int AnimDirY  = Animator.StringToHash("dirY");
@@ -24,16 +31,105 @@ public class PlayerMapController : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        inventory = GetComponent<Kinnly.PlayerInventory>();
         rb.gravityScale = 0f;
         rb.freezeRotation = true;
     }
 
     private void Update()
     {
-        if (!canMove) { moveInput = Vector2.zero; return; }
+        if (!canMove) 
+        { 
+            moveInput = Vector2.zero; 
+            isClickMoving = false; 
+            return; 
+        }
 
-        moveInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
+        // 1. Nhận input WASD/Joystick
+        Vector2 manualInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
 
+        // Nếu bấm phím di chuyển, lập tức hủy Click-to-Move
+        if (manualInput != Vector2.zero)
+        {
+            isClickMoving = false;
+            targetInteractable = null;
+        }
+
+        // 2. Nhận input Click chuột (Click-to-Move)
+        if (Input.GetMouseButtonDown(0)) // Left click
+        {
+            if (UnityEngine.EventSystems.EventSystem.current == null || !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+            {
+                Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                
+                // Bắn Raycast kiểm tra có click trúng Object tương tác không
+                RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero);
+                if (hit.collider != null)
+                {
+                    IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
+                    if (interactable != null)
+                    {
+                        targetInteractable = interactable;
+                        clickTargetPos = hit.collider.bounds.center;
+                        isClickMoving = true;
+                    }
+                    else
+                    {
+                        targetInteractable = null;
+                        clickTargetPos = mouseWorldPos;
+                        isClickMoving = true;
+                    }
+                }
+                else
+                {
+                    targetInteractable = null;
+                    clickTargetPos = mouseWorldPos;
+                    isClickMoving = true;
+                }
+            }
+        }
+
+        // 3. Tính toán moveInput thực tế
+        if (isClickMoving)
+        {
+            Vector2 currentPos = transform.position;
+            float distance = Vector2.Distance(currentPos, clickTargetPos);
+
+            if (targetInteractable != null)
+            {
+                if (distance <= interactionRange)
+                {
+                    // Đã tới gần mục tiêu -> Tương tác
+                    targetInteractable.Interact(inventory);
+                    isClickMoving = false;
+                    targetInteractable = null;
+                    moveInput = Vector2.zero;
+                }
+                else
+                {
+                    moveInput = (clickTargetPos - currentPos).normalized;
+                }
+            }
+            else
+            {
+                if (distance <= 0.1f)
+                {
+                    // Đã tới điểm click (đất trống)
+                    isClickMoving = false;
+                    moveInput = Vector2.zero;
+                }
+                else
+                {
+                    moveInput = (clickTargetPos - currentPos).normalized;
+                }
+            }
+        }
+        else
+        {
+            moveInput = manualInput;
+        }
+
+        // 4. Xử lý Animation
         if (animator != null)
         {
             animator.SetFloat(AnimSpeed, moveInput.magnitude);
