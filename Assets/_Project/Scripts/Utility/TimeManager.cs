@@ -59,7 +59,9 @@ public class TimeManager : MonoBehaviour
 
         if (currentTime >= secondsPerDay)
         {
-            PassToNextDay();
+            // Trôi qua 24:00 đêm -> Bước sang 00:00 ngày mới
+            currentTime -= secondsPerDay;
+            AdvanceDay();
         }
 
         float timePercent = currentTime / secondsPerDay;
@@ -72,18 +74,22 @@ public class TimeManager : MonoBehaviour
         OnTimeChanged?.Invoke(timePercent);
     }
 
-    public void PassToNextDay()
+    private void AdvanceDay()
     {
-        currentTime = secondsPerDay * 0.25f; // Đặt lại 06:00 sáng
         currentDay++;
-
         if (currentDay > 28)
         {
             currentDay = 1;
             PassToNextSeason();
         }
-
         OnDayChanged?.Invoke();
+    }
+
+    // Hàm dùng khi người chơi đi ngủ
+    public void SleepToNextDay()
+    {
+        currentTime = secondsPerDay * 0.25f; // Đặt lại 06:00 sáng
+        AdvanceDay();
     }
 
     public void PassToNextSeason()

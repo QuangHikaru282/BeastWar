@@ -1719,7 +1719,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1006261263163963152, guid: db11338bbc0e78640a1ac895b42f8845, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 280
+      value: 290
       objectReference: {fileID: 0}
     - target: {fileID: 1006261263163963152, guid: db11338bbc0e78640a1ac895b42f8845, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1755,7 +1755,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1006261263163963152, guid: db11338bbc0e78640a1ac895b42f8845, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -7.499999
+      value: -2.4999995
       objectReference: {fileID: 0}
     - target: {fileID: 1006261263163963152, guid: db11338bbc0e78640a1ac895b42f8845, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1768,6 +1768,10 @@ PrefabInstance:
     - target: {fileID: 1006261263163963152, guid: db11338bbc0e78640a1ac895b42f8845, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2991329122800502060, guid: db11338bbc0e78640a1ac895b42f8845, type: 3}
+      propertyPath: m_text
+      value: "Ti\u1EBFp t\u1EE5c \n"
       objectReference: {fileID: 0}
     - target: {fileID: 2991329122800502060, guid: db11338bbc0e78640a1ac895b42f8845, type: 3}
       propertyPath: m_fontColor.b
@@ -1840,6 +1844,10 @@ PrefabInstance:
     - target: {fileID: 6535636552815726801, guid: db11338bbc0e78640a1ac895b42f8845, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7190454107629372005, guid: db11338bbc0e78640a1ac895b42f8845, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -186.91667
       objectReference: {fileID: 0}
     - target: {fileID: 8353045973710034999, guid: db11338bbc0e78640a1ac895b42f8845, type: 3}
       propertyPath: m_AnchorMax.y
@@ -2636,6 +2644,17 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1614387416 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4826881312812967546, guid: db11338bbc0e78640a1ac895b42f8845, type: 3}
+  m_PrefabInstance: {fileID: 1146711571}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cffb37439ec616a4dba8363619e962f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RewardUIManager
 --- !u!1 &1648434816
 GameObject:
   m_ObjectHideFlags: 0
@@ -3106,6 +3125,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1753594871}
   - component: {fileID: 1753594870}
+  - component: {fileID: 1753594873}
+  - component: {fileID: 1753594872}
   m_Layer: 0
   m_Name: BattleManager
   m_TagString: Untagged
@@ -3132,9 +3153,7 @@ MonoBehaviour:
   enemySpawnPoints:
   - {fileID: 1862343628}
   beastUnitPrefab: {fileID: 1023162789521063245, guid: 8bf8824de0687fb408cafc1fed21a0bb, type: 3}
-  actionPanel: {fileID: 0}
   enemyAI: {fileID: 0}
-  fruitBuffManager: {fileID: 0}
   currentStageData: {fileID: 0}
 --- !u!4 &1753594871
 Transform:
@@ -3151,6 +3170,33 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1753594872
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1753594869}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4cabd920b1926114e98f49826c37d07a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUIManager
+  actionPanel: {fileID: 0}
+  fruitBuffManager: {fileID: 0}
+  rewardUIManager: {fileID: 1614387416}
+--- !u!114 &1753594873
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1753594869}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80186caee3e7e1f40ae989ab66c52b5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleActionExecutor
 --- !u!1 &1758120102
 GameObject:
   m_ObjectHideFlags: 0

@@ -33,9 +33,7 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private GameObject beastUnitPrefab;
 
     [Header("Components")]
-    [SerializeField] private ActionPanel     actionPanel;
     [SerializeField] private EnemyAI         enemyAI;
-    [SerializeField] private FruitBuffManager fruitBuffManager;  // Panel chọn Quả đầu trận
     [SerializeField] private StageData        currentStageData;   // Gán từ WorldMapData lúc load scene
 
     // ─── Runtime ─────────────────────────────────────────────────────
@@ -69,14 +67,13 @@ public class BattleManager : MonoBehaviour
         // --- PRE-BATTLE: Hiện Panel chọn Quả, đợi Player chọn xong ---
         state = BattleState.PreBattle;
         fruitSelected = false;
-        if (fruitBuffManager != null)
+        if (BattleUIManager.Instance != null && BattleUIManager.Instance.FruitBuffManager != null)
         {
-            fruitBuffManager.Show();
+            BattleUIManager.Instance.ShowFruitBuffManager();
             yield return new WaitUntil(() => fruitSelected);
         }
         else
         {
-            // Bỏ qua chọn quả nếu không có FruitBuffManager
             fruitSelected = true;
         }
 
@@ -118,7 +115,8 @@ public class BattleManager : MonoBehaviour
 
     private void SetupUIHooks()
     {
-        // Hiện tại chưa có Button Catch/Flee nên tạm để trống
+        if (BattleUIManager.Instance != null)
+            BattleUIManager.Instance.SetupUIHooks();
     }
 
     // ─── INIT ────────────────────────────────────────────────────────
@@ -204,24 +202,18 @@ public class BattleManager : MonoBehaviour
         }
 
         // Khởi tạo ActionPanel
-        if (actionPanel == null)
+        if (BattleUIManager.Instance != null && BattleUIManager.Instance.ActionPanel != null)
         {
-            actionPanel = FindFirstObjectByType<ActionPanel>();
-            if (actionPanel == null)
-            {
-                // Tự động tạo ActionPanel gắn tạm vào BattleManager để nó chạy code auto-link UI
-                actionPanel = gameObject.AddComponent<ActionPanel>();
-                Debug.Log("--- TỰ ĐỘNG TẠO SCRIPT ACTION PANEL ĐỂ KẾT NỐI VỚI GIAO DIỆN CỦA BẠN ---");
-            }
+            // ActionPanel tự xử lý trạng thái hiển thị qua hàm Show/Initialize
         }
 
-        if (actionPanel == null)
+        if (BattleUIManager.Instance == null || BattleUIManager.Instance.ActionPanel == null)
         {
             Debug.LogError("--- LỖI NGHIÊM TRỌNG: KHÔNG TÌM THẤY BẢNG CHỌN CHIÊU THỨC (ActionPanel)! TRẬN ĐẤU SẼ BỊ KẸT! ---");
         }
         else
         {
-            actionPanel.Initialize(playerTeam, enemyTeam, OnPlayerActionChosen);
+            BattleUIManager.Instance.ActionPanel.Initialize(playerTeam, enemyTeam, OnPlayerActionChosen);
             Debug.Log("--- BƯỚC 4: ĐÃ TẢI BẢNG CHỌN CHIÊU THỨC (UI) ---");
         }
 
@@ -229,17 +221,17 @@ public class BattleManager : MonoBehaviour
         RefreshFruitBuffBench();
 
         // Nếu đã chọn Quả TeamHeal → hồi luôn cho thú đang trên sân
-        if (fruitBuffManager != null && fruitBuffManager.ActiveFruit == FruitBuffManager.FruitType.TeamHeal)
+        if (BattleUIManager.Instance != null && BattleUIManager.Instance.FruitBuffManager != null && BattleUIManager.Instance.FruitBuffManager.ActiveFruit == FruitBuffManager.FruitType.TeamHeal)
         {
             foreach (var unit in playerTeam)
                 unit?.TeamHeal();
         }
 
         // Subscribe event Crit nếu đã chọn Quả CritRage
-        if (fruitBuffManager != null && fruitBuffManager.ActiveFruit == FruitBuffManager.FruitType.CritRage)
+        if (BattleUIManager.Instance != null && BattleUIManager.Instance.FruitBuffManager != null && BattleUIManager.Instance.FruitBuffManager.ActiveFruit == FruitBuffManager.FruitType.CritRage)
         {
             foreach (var unit in playerTeam)
-                fruitBuffManager.SubscribeToUnit(unit);
+                BattleUIManager.Instance.FruitBuffManager.SubscribeToUnit(unit);
         }
 
         yield return new WaitForSeconds(0.5f);
@@ -314,7 +306,7 @@ public class BattleManager : MonoBehaviour
         if (alive.Count == 0) yield break;
 
         waitingForPlayerAction = true;
-        actionPanel?.Show(alive[0]);
+        BattleUIManager.Instance?.ActionPanel?.Show(alive[0]);
         Debug.Log("--- BƯỚC 5: ĐẾN LƯỢT NGƯỜI CHƠI (Đang chờ bạn chọn chiêu trên màn hình...) ---");
 
         // Chờ player click chọn thú mình → click thú địch
@@ -323,11 +315,19 @@ public class BattleManager : MonoBehaviour
 
         Debug.Log($"--- BƯỚC 6: BẠN ĐÃ CHỌN CHIÊU XONG! Đang tung đòn... ---");
 
-        // Thực hiện tấn công
-        yield return StartCoroutine(ExecuteAttack(chosenAttacker, chosenTarget, chosenMove));
-
-        // Sau khi tấn công xong, báo FruitBuffManager (dùng cho Baton Pass)
-        fruitBuffManager?.OnPlayerAttackFinished();
+            if (chosenAttacker != null && chosenTarget != null)
+            {
+                if (BattleActionExecutor.Instance != null)
+                {
+                    yield return StartCoroutine(BattleActionExecutor.Instance.ExecuteAttack(chosenAttacker, chosenTarget, chosenMove));
+                }
+                else 
+                {
+                    Debug.LogError("[BattleManager] Thiếu BattleActionExecutor trong Scene!");
+                }
+            }
+            // Sau khi tấn công xong, báo FruitBuffManager (dùng cho Baton Pass)
+        BattleUIManager.Instance?.FruitBuffManager?.OnPlayerAttackFinished();
     }
 
     private void OnPlayerActionChosen(BeastUnit attacker, BeastUnit target, RuntimeMoveData move, bool isCatch)
@@ -351,160 +351,17 @@ public class BattleManager : MonoBehaviour
 
         if (!valid) yield break;
 
-        yield return StartCoroutine(ExecuteAttack(attacker, target, move));
+                if (BattleActionExecutor.Instance != null)
+                {
+                    yield return StartCoroutine(BattleActionExecutor.Instance.ExecuteAttack(attacker, target, move));
+                }
+                else 
+                {
+                    Debug.LogError("[BattleManager] Thiếu BattleActionExecutor trong Scene!");
+                }
     }
 
-    // ─── EXECUTE ATTACK ──────────────────────────────────────────────
-
-    private IEnumerator ExecuteAttack(BeastUnit attacker, BeastUnit target, RuntimeMoveData move)
-    {
-        if (attacker == null || !attacker.IsAlive) yield break;
-        if (target == null   || !target.IsAlive)   yield break;
-
-        string moveName = move != null ? move.baseMove.moveName : "Tấn công thường";
-        MoveType type = move != null ? move.baseMove.moveType : MoveType.Melee;
-        
-        Debug.Log($"[Battle] {attacker.Data.baseBeast.beastName} dùng {moveName} ({type}) tấn công {target.Data.baseBeast.beastName}!");
-
-        Vector3 originalPos = attacker.transform.position;
-
-        // Nếu có Animator xịn xò, ra lệnh chạy hoạt hình Attack
-        Animator anim = attacker.GetComponent<Animator>();
-        if (anim != null && anim.enabled)
-        {
-            anim.SetTrigger("Attack");
-        }
-
-        if (type == MoveType.Melee)
-        {
-            // ĐÁNH GẦN: Lao lên tiếp cận mục tiêu
-            Vector3 dir = (target.transform.position - originalPos).normalized;
-            Vector3 dashPos = target.transform.position - dir * 0.8f;
-            yield return attacker.transform.DOMove(dashPos, 0.2f).SetEase(Ease.OutQuad).WaitForCompletion();
-        }
-        else if (type == MoveType.Ranged)
-        {
-            // ĐÁNH XA: Đứng tại chỗ nhảy nhẹ lên lấy đà (niệm phép)
-            yield return attacker.transform.DOJump(originalPos, 0.5f, 1, 0.3f).WaitForCompletion();
-        }
-        else if (type == MoveType.Self)
-        {
-            // BẢN THÂN: Phóng to nhẹ rồi thu nhỏ lại (hiệu ứng nảy chữ hoặc buff)
-            yield return attacker.transform.DOJump(originalPos, 0.2f, 1, 0.25f).WaitForCompletion();
-        }
-
-        // Gọi hiệu ứng VFX nếu chiêu này có cài đặt hiệu ứng
-        if (move != null && move.baseMove.vfxPrefab != null)
-        {
-            if (move.baseMove.vfxSpawnType == VfxSpawnType.SpawnAtTarget)
-            {
-                // SÉT ĐÁNH: Hiện ngay tại chỗ địch
-                GameObject vfx = Instantiate(move.baseMove.vfxPrefab, target.transform.position, move.baseMove.vfxPrefab.transform.rotation);
-                // Tự động xóa hiệu ứng đi sau 1.5 giây để tránh đầy bộ nhớ
-                Destroy(vfx, 1.5f); 
-            }
-            else if (move.baseMove.vfxSpawnType == VfxSpawnType.ShootFromAttacker)
-            {
-                // PHUN LỬA / ĐẠN BAY: Hiện ở người đánh, xoay hướng về phía địch, rồi bay tới
-                GameObject projectile = Instantiate(move.baseMove.vfxPrefab, attacker.transform.position, Quaternion.identity);
-                
-                // Tính góc xoay để viên đạn hướng thẳng về địch
-                Vector3 dirToTarget = (target.transform.position - attacker.transform.position).normalized;
-                float angle = Mathf.Atan2(dirToTarget.y, dirToTarget.x) * Mathf.Rad2Deg;
-                projectile.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-
-                // Bay tới đích trong 0.3s rồi tự hủy
-                projectile.transform.DOMove(target.transform.position, 0.3f).SetEase(Ease.Linear).OnComplete(() => {
-                    // Thử tìm Animator và chạy animation "Hit" (vỡ ra) nếu có
-                    Animator anim = projectile.GetComponentInChildren<Animator>();
-                    if (anim != null)
-                    {
-                        // Thử play state có tên "Hit" (Aseprite thường lấy tên tag làm tên state)
-                        anim.Play("Hit");
-                    }
-                    Destroy(projectile, 0.5f); // Xóa cục VFX sau 0.5s để nó kịp chạy animation vỡ ra
-                });
-
-                // Chờ đạn bay tới nơi (0.3s) rồi mới trừ máu
-                yield return new WaitForSeconds(0.3f);
-            }
-            else if (move.baseMove.vfxSpawnType == VfxSpawnType.RainFromSky)
-            {
-                // MƯA TỪ TRÊN TRỜI: Hiện cách địch 5 đơn vị Y hướng đi xuống
-                Vector3 skyPos = target.transform.position + Vector3.up * 5f;
-                GameObject projectile = Instantiate(move.baseMove.vfxPrefab, skyPos, move.baseMove.vfxPrefab.transform.rotation);
-                
-                // Nếu là sét (đã vẽ đứng) thì không xoay, nếu là đạn ngang thì xoay
-                // Tạm thời bỏ dòng ép -90 độ đi để giữ nguyên bản gốc của Prefab
-                // projectile.transform.rotation = Quaternion.Euler(0, 0, -90f);
-
-                // Bay xuống mục tiêu trong 0.4s rồi tự hủy
-                projectile.transform.DOMove(target.transform.position, 0.4f).SetEase(Ease.InQuad).OnComplete(() => {
-                    Animator anim = projectile.GetComponentInChildren<Animator>();
-                    if (anim != null)
-                    {
-                        anim.Play("Hit");
-                    }
-                    Destroy(projectile, 0.5f);
-                });
-
-                // Đợi rơi trúng đích (0.4s)
-                yield return new WaitForSeconds(0.4f);
-            }
-            else if (move.baseMove.vfxSpawnType == VfxSpawnType.SpawnAtSelf)
-            {
-                // BẢN THÂN: Hiện VFX trực tiếp trên người thi triển (ví dụ: Hào quang hồi máu)
-                GameObject vfx = Instantiate(move.baseMove.vfxPrefab, attacker.transform.position, move.baseMove.vfxPrefab.transform.rotation);
-                Destroy(vfx, 1.5f);
-            }
-        }
-
-        // Xử lý logic chiêu thức
-        if (type == MoveType.Self)
-        {
-            // CHIÊU BUFF / HỒI MÁU
-            int healAmount = move != null ? move.power : 20; // Lấy sức mạnh chiêu làm số máu hồi
-            
-            attacker.Heal(healAmount);
-            
-            yield return new WaitForSeconds(0.5f);
-        }
-        else
-        {
-            // CHIÊU TẤN CÔNG (Melee hoặc Ranged)
-            // Tính sát thương dựa trên chiêu thức
-            int baseDamage = move != null ? attacker.CalculateDamage(target, move) : attacker.CalculateBaseDamage(target);
-
-            // Roll Crit nếu là đòn của Player (IsPlayerTeam)
-            bool isCrit    = false;
-            int  finalDamage = baseDamage;
-            if (attacker.IsPlayerTeam)
-            {
-                isCrit = UnityEngine.Random.value < attacker.CritChance;
-                if (isCrit)
-                    finalDamage = Mathf.RoundToInt(baseDamage * attacker.CritMultiplier);
-            }
-
-            // Gây sát thương (dùng TakeDamageWithResult để event OnCritLanded được bắn)
-            bool died = target.TakeDamageWithResult(finalDamage, isCrit);
-
-            Debug.Log($"[Battle] {attacker.Data.baseBeast.beastName} gây {finalDamage} sát thương{(isCrit ? " (CRIT!" + ")": "")}! {target.Data.baseBeast.beastName} HP: {target.CurrentHP}");
-
-            yield return new WaitForSeconds(0.2f);
-
-            // Nếu là đánh gần, phải lùi về vị trí cũ
-            if (type == MoveType.Melee)
-            {
-                yield return attacker.transform.DOMove(originalPos, 0.25f).SetEase(Ease.InQuad).WaitForCompletion();
-            }
-
-            if (died)
-            {
-                Debug.Log($"[Battle] {target.Data.baseBeast.beastName} đã chết!");
-                yield return new WaitForSeconds(0.5f);
-            }
-        }
-    }
+    // Đã chuyển ExecuteAttack sang BattleActionExecutor.cs
 
     // ─── CHECK BATTLE END ────────────────────────────────────────────
 
@@ -542,7 +399,10 @@ public class BattleManager : MonoBehaviour
             Debug.Log($"[BattleManager] {nextEnemyData.baseBeast.beastName} đã xuất kích thế chỗ!");
 
             // Cập nhật lại UI ActionPanel để người chơi có thể chọn mục tiêu mới
-            actionPanel?.Initialize(playerTeam, enemyTeam, OnPlayerActionChosen);
+            if (BattleUIManager.Instance != null && BattleUIManager.Instance.ActionPanel != null)
+            {
+                BattleUIManager.Instance.ActionPanel.Initialize(playerTeam, enemyTeam, OnPlayerActionChosen);
+            }
 
             yield return new WaitForSeconds(0.5f);
         }
@@ -575,7 +435,10 @@ public class BattleManager : MonoBehaviour
             Debug.Log($"[BattleManager] Thú {nextPlayerData.baseBeast.beastName} của Player đã xuất kích thế chỗ!");
 
             // Cập nhật lại UI ActionPanel để người chơi có thể điều khiển con mới
-            actionPanel?.Initialize(playerTeam, enemyTeam, OnPlayerActionChosen);
+            if (BattleUIManager.Instance != null && BattleUIManager.Instance.ActionPanel != null)
+            {
+                BattleUIManager.Instance.ActionPanel.Initialize(playerTeam, enemyTeam, OnPlayerActionChosen);
+            }
 
             yield return new WaitForSeconds(0.5f);
         }
@@ -664,23 +527,14 @@ public class BattleManager : MonoBehaviour
 
         yield return new WaitForSeconds(1.5f);
 
-        RewardUIManager rewardUI = RewardUIManager.Instance;
-        if (rewardUI == null)
+        if (playerWon)
         {
-            rewardUI = FindFirstObjectByType<RewardUIManager>(FindObjectsInactive.Include);
-        }
-
-        if (playerWon && rewardUI != null)
-        {
-            // Bật active cho GameObject chứa RewardUIManager nếu nó đang bị disable toàn bộ
-            rewardUI.gameObject.SetActive(true);
-            rewardUI.ShowBattleReward(totalGoldToGive, totalExpToGive, () => {
+            BattleUIManager.Instance?.ShowBattleReward(totalGoldToGive, totalExpToGive, () => {
                 ReturnToMap();
             });
         }
         else
         {
-            // Trả về bản đồ luôn nếu không có bảng thưởng hoặc thua trận
             ReturnToMap();
         }
     }
@@ -733,9 +587,9 @@ public class BattleManager : MonoBehaviour
 
     public void HandleBeastClick(BeastUnit clickedBeast)
     {
-        if (state == BattleState.PlayerTurn && waitingForPlayerAction && actionPanel != null)
+        if (state == BattleState.PlayerTurn && waitingForPlayerAction && BattleUIManager.Instance != null && BattleUIManager.Instance.ActionPanel != null)
         {
-            actionPanel.OnBeastClicked(clickedBeast);
+            BattleUIManager.Instance.ActionPanel.OnBeastClicked(clickedBeast);
         }
     }
 
@@ -748,7 +602,7 @@ public class BattleManager : MonoBehaviour
     public void OnFruitChosen()
     {
         fruitSelected = true;
-        Debug.Log($"[BattleManager] Quả đã chọn: {fruitBuffManager?.ActiveFruit}. Bắt đầu trận!");
+        Debug.Log($"[BattleManager] Quả đã chọn. Bắt đầu trận!");
     }
 
     /// <summary>
@@ -779,13 +633,13 @@ public class BattleManager : MonoBehaviour
         playerTeam.Add(newUnit);
 
         // Subscribe event Crit cho thú mới nếu đang chơi Quả CritRage
-        if (fruitBuffManager?.ActiveFruit == FruitBuffManager.FruitType.CritRage)
-            fruitBuffManager.SubscribeToUnit(newUnit);
+        if (BattleUIManager.Instance?.FruitBuffManager?.ActiveFruit == FruitBuffManager.FruitType.CritRage)
+            BattleUIManager.Instance.FruitBuffManager.SubscribeToUnit(newUnit);
 
         // Cập nhật bench list
         RefreshFruitBuffBench();
 
-        actionPanel?.Initialize(playerTeam, enemyTeam, OnPlayerActionChosen);
+        BattleUIManager.Instance?.ActionPanel?.Initialize(playerTeam, enemyTeam, OnPlayerActionChosen);
         Debug.Log($"[BattleManager] Baton Pass! {nextData.baseBeast.beastName} xuất kích.");
     }
 
@@ -819,8 +673,9 @@ public class BattleManager : MonoBehaviour
     /// <summary>Cập nhật danh sách bench cho FruitBuffManager.</summary>
     private void RefreshFruitBuffBench()
     {
-        if (fruitBuffManager == null) return;
-        var bench = playerTeam.Where(b => b != null && !b.gameObject.activeSelf).ToList();
-        fruitBuffManager.SetBenchUnits(bench);
+        if (BattleUIManager.Instance != null)
+        {
+            BattleUIManager.Instance.RefreshFruitBuffBench(playerTeam);
+        }
     }
 }

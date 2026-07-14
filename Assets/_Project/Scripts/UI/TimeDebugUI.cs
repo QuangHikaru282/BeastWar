@@ -35,7 +35,7 @@ public class TimeDebugUI : MonoBehaviour
     {
         if (TimeManager.Instance != null)
         {
-            TimeManager.Instance.PassToNextDay();
+            TimeManager.Instance.SleepToNextDay();
         }
     }
 }

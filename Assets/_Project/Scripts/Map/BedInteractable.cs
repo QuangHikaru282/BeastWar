@@ -36,7 +36,7 @@ public class BedInteractable : MonoBehaviour, IInteractable
         // 2. Chuyển sang ngày mới
         if (TimeManager.Instance != null)
         {
-            TimeManager.Instance.PassToNextDay();
+            TimeManager.Instance.SleepToNextDay();
         }
         
         // 3. Mở màn sáng lên

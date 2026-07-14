@@ -5142,12 +5142,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5628018141983903106}
-  - component: {fileID: 5628018141983903119}
   - component: {fileID: 5628018141983903116}
   - component: {fileID: 5628018141983903117}
   - component: {fileID: 5722142430092327172}
   - component: {fileID: 8957567572599846935}
   - component: {fileID: 1437855291485608368}
+  - component: {fileID: 5344966966369768696}
   m_Layer: 20
   m_Name: PF Player
   m_TagString: Player
@@ -5178,20 +5178,6 @@ Transform:
   - {fileID: 1246210218393294802}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5628018141983903119
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5628018141983903104}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: abd146093740c5d43b5909c7913f3109, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 3
-  animator: {fileID: 0}
 --- !u!61 &5628018141983903116
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -5372,6 +5358,21 @@ MonoBehaviour:
   playerData: {fileID: 11400000, guid: 86002785663fef148821f3bc0a8c1986, type: 2}
   maleModel: {fileID: 8700052613603549325}
   femaleModel: {fileID: 4260514754305861793}
+--- !u!114 &5344966966369768696
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5628018141983903104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f7eaed4d3afe1b418b09db04288ac11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMapController
+  moveSpeed: 5
+  animator: {fileID: 0}
+  interactionRange: 1.5
 --- !u!1 &5707580210119010585
 GameObject:
   m_ObjectHideFlags: 0

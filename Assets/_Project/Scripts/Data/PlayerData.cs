@@ -277,16 +277,13 @@ public class PlayerData : ScriptableObject
             }
         }
 
-        string json = JsonUtility.ToJson(data);
-        PlayerPrefs.SetString("PlayerDataSave", json);
-        PlayerPrefs.Save();
+        SaveLoadSystem.SaveData(data);
     }
 
     public void Load()
     {
-        if (!PlayerPrefs.HasKey("PlayerDataSave")) return;
-        string json = PlayerPrefs.GetString("PlayerDataSave");
-        SaveData data = JsonUtility.FromJson<SaveData>(json);
+        SaveData data = SaveLoadSystem.LoadData<SaveData>();
+        if (data == null) return;
 
         if (data == null) return;
 
@@ -295,7 +292,12 @@ public class PlayerData : ScriptableObject
         this.gold = data.gold;
         if (data.unlockedMaps != null) this.unlockedMaps = data.unlockedMaps;
         if (data.defeatedTrainers != null) this.defeatedTrainers = data.defeatedTrainers;
-        if (data.savedInventoryItems != null) this.savedInventoryItems = data.savedInventoryItems;
+        if (data.savedInventoryItems != null)
+        {
+            this.savedInventoryItems = data.savedInventoryItems;
+        }
+
+        Debug.Log($"[PlayerData] Load thành công từ File. Tiền: {gold}, Đội hình: {currentFormation.Count} thú.");
 
         // Restore Beasts from Resources
         BeastData[] allBeasts = Resources.LoadAll<BeastData>("");
@@ -312,7 +314,23 @@ public class PlayerData : ScriptableObject
             foreach (var savedB in data.ownedBeasts)
             {
                 var rt = DeserializeBeast(savedB, beastDict, moveDict);
-                if (rt != null) ownedBeasts.Add(rt);
+                if (rt != null) 
+                {
+                    // Lọc trùng lặp (nếu file save cũ bị lỗi nhân bản)
+                    bool isDuplicate = false;
+                    foreach (var existing in ownedBeasts)
+                    {
+                        if (existing.baseBeast == rt.baseBeast && existing.currentLevel == rt.currentLevel && existing.currentExp == rt.currentExp)
+                        {
+                            isDuplicate = true;
+                            break;
+                        }
+                    }
+                    if (!isDuplicate)
+                    {
+                        ownedBeasts.Add(rt);
+                    }
+                }
             }
         }
 
