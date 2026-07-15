@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 119a111b63fd7e84ebf79cf46f0f4fa3, type: 3}
+  m_Name: WaterBeast
+  m_EditorClassIdentifier: Assembly-CSharp::PetData
+  petId: 1
+  petName: WaterBeast
+  level: 1
+  listIcon: {fileID: 6894999169920593895, guid: 98d9078922ed68644b9c42400b71798b, type: 3}
+  displayImage: {fileID: 6894999169920593895, guid: 98d9078922ed68644b9c42400b71798b, type: 3}
+  elementIcon: {fileID: 0}
+  element: 2
+  rarity: 1
+  personality: Normal
+  health: 100
+  attack: 200
+  defense: 300
+  speed: 50
+  power: 1000

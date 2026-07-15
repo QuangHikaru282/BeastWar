@@ -11,59 +11,120 @@ public class LoginAndCharSelectManager : MonoBehaviour
     [SerializeField] private Button maleButton;
     [SerializeField] private Button femaleButton;
 
-    [Header("Cấu hình chuyển cảnh")]
-    [SerializeField] private string targetScene = "MapScene";
-    [SerializeField] private string loadingMessage = "Đang bước vào thế giới BeastWar...";
+    [Header("Main Menu Controller")]
+    [Tooltip("Controller sẽ phát trailer sau khi chọn nhân vật")]
+    [SerializeField] private MainMenuController mainMenuController;
+
+    private bool hasSelectedCharacter;
 
     private void Start()
     {
-        // Gán sự kiện cho các nút bấm
+        // Gán sự kiện cho hai nút chọn nhân vật.
         if (maleButton != null)
-            maleButton.onClick.AddListener(() => ConfirmAndEnterGame("Male"));
+        {
+            maleButton.onClick.AddListener(
+                () => ConfirmCharacter("Male")
+            );
+        }
 
         if (femaleButton != null)
-            femaleButton.onClick.AddListener(() => ConfirmAndEnterGame("Female"));
+        {
+            femaleButton.onClick.AddListener(
+                () => ConfirmCharacter("Female")
+            );
+        }
 
-        // Đảm bảo ẩn Panel lúc đầu, chỉ hiển thị khi bấm Play
-        if (charSelectPanel != null) charSelectPanel.SetActive(false);
+        // Ẩn bảng chọn nhân vật lúc mới vào Main Menu.
+        if (charSelectPanel != null)
+        {
+            charSelectPanel.SetActive(false);
+        }
     }
 
     /// <summary>
-    /// Kích hoạt luồng chọn nhân vật.
+    /// Được MainMenuController gọi khi người chơi bấm Play.
     /// </summary>
     public void StartCharSelectFlow()
     {
+        hasSelectedCharacter = false;
+
+        if (maleButton != null)
+            maleButton.interactable = true;
+
+        if (femaleButton != null)
+            femaleButton.interactable = true;
+
         if (charSelectPanel != null)
         {
             charSelectPanel.SetActive(true);
         }
         else
         {
-            // Fallback nếu không có bảng chọn: Vào Map luôn với nhân vật Nam
-            ConfirmAndEnterGame("Male");
+            Debug.LogError(
+                "LoginAndCharSelectManager: Chưa gán Char Select Panel."
+            );
         }
     }
 
-    private void ConfirmAndEnterGame(string gender)
+    /// <summary>
+    /// Khi người chơi bấm trực tiếp vào Male hoặc Female.
+    /// </summary>
+    private void ConfirmCharacter(string gender)
     {
+        // Ngăn bấm hai nhân vật nhiều lần.
+        if (hasSelectedCharacter)
+            return;
+
+        hasSelectedCharacter = true;
+
+        if (maleButton != null)
+            maleButton.interactable = false;
+
+        if (femaleButton != null)
+            femaleButton.interactable = false;
+
+        // Reset dữ liệu cho game mới và lưu giới tính.
         if (playerData != null)
         {
             playerData.ResetData();
             playerData.characterGender = gender;
         }
-
-        Debug.Log($"[MainMenu] Đã xác nhận giới tính: {gender}. Đang tải Map...");
-
-        if (charSelectPanel != null) charSelectPanel.SetActive(false);
-
-        // Chạy Loading Cutscene chuyển cảnh
-        if (SceneTransitionManager.Instance != null)
+        else
         {
-            SceneTransitionManager.Instance.TransitionToScene(targetScene, loadingMessage);
+            Debug.LogWarning(
+                "LoginAndCharSelectManager: Chưa gán PlayerData."
+            );
+        }
+
+        Debug.Log(
+            $"[MainMenu] Đã xác nhận giới tính: {gender}."
+        );
+
+        // Ẩn bảng chọn nhân vật.
+        if (charSelectPanel != null)
+        {
+            charSelectPanel.SetActive(false);
+        }
+
+        // Gọi MainMenuController để chạy trailer.
+        if (mainMenuController != null)
+        {
+            mainMenuController.PlayTrailerAndEnterGame();
         }
         else
         {
-            UnityEngine.SceneManagement.SceneManager.LoadScene(targetScene);
+            Debug.LogError(
+                "LoginAndCharSelectManager: " +
+                "Chưa gán MainMenuController."
+            );
+
+            hasSelectedCharacter = false;
+
+            if (maleButton != null)
+                maleButton.interactable = true;
+
+            if (femaleButton != null)
+                femaleButton.interactable = true;
         }
     }
 }
