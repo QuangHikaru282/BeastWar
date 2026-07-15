@@ -1,45 +1,9 @@
---- Unity Editor Console Log Initiated at 7/16/2026 2:24:36 AM ---
-[02:25:15] [Warning] Có 2 Player trong Scene! Đã vô hiệu hóa script của Player bị trùng để an toàn.
+--- Unity Editor Console Log Initiated at 7/16/2026 3:19:57 AM ---
+[03:21:19] [Warning] Có 2 Player trong Scene! Đã vô hiệu hóa script của Player bị trùng để an toàn.
 --------------------------------------------------
-[02:25:15] [Warning] Có 2 Player trong Scene! Đã vô hiệu hóa script của Player bị trùng để an toàn.
+[03:21:19] [Warning] Có 2 Player trong Scene! Đã vô hiệu hóa script của Player bị trùng để an toàn.
 --------------------------------------------------
-[02:25:16] [Error] PetUIOpenButton: Bạn chưa gán PetUI Root trong Inspector.
-Stack Trace:
-UnityEngine.Debug:LogError (object,UnityEngine.Object)
-PetUIOpen:OpenPetUI () (at Assets/Scene UI Pet/script/PetUIOpen.cs:36)
-UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@bb329a87fcdc/Runtime/UGUI/EventSystem/EventSystem.cs:514)
-
+[03:21:47] [Warning] Pet tại vị trí 2 đang bị null.
 --------------------------------------------------
-[02:25:16] [Error] PetUIOpenButton: Bạn chưa gán PetUI Root trong Inspector.
-Stack Trace:
-UnityEngine.Debug:LogError (object,UnityEngine.Object)
-PetUIOpen:OpenPetUI () (at Assets/Scene UI Pet/script/PetUIOpen.cs:36)
-UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@bb329a87fcdc/Runtime/UGUI/EventSystem/EventSystem.cs:514)
-
---------------------------------------------------
-[02:25:17] [Error] PetUIOpenButton: Bạn chưa gán PetUI Root trong Inspector.
-Stack Trace:
-UnityEngine.Debug:LogError (object,UnityEngine.Object)
-PetUIOpen:OpenPetUI () (at Assets/Scene UI Pet/script/PetUIOpen.cs:36)
-UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@bb329a87fcdc/Runtime/UGUI/EventSystem/EventSystem.cs:514)
-
---------------------------------------------------
-[02:25:17] [Error] PetUIOpenButton: Bạn chưa gán PetUI Root trong Inspector.
-Stack Trace:
-UnityEngine.Debug:LogError (object,UnityEngine.Object)
-PetUIOpen:OpenPetUI () (at Assets/Scene UI Pet/script/PetUIOpen.cs:36)
-UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@bb329a87fcdc/Runtime/UGUI/EventSystem/EventSystem.cs:514)
-
---------------------------------------------------
-[02:26:47] [Warning] Có 2 Player trong Scene! Đã vô hiệu hóa script của Player bị trùng để an toàn.
---------------------------------------------------
-[02:26:47] [Warning] Có 2 Player trong Scene! Đã vô hiệu hóa script của Player bị trùng để an toàn.
---------------------------------------------------
-[02:26:53] [Warning] Pet tại vị trí 2 đang bị null.
---------------------------------------------------
-[02:26:53] [Warning] Pet tại vị trí 2 đang bị null.
---------------------------------------------------
-[02:27:15] [Warning] Có 2 Player trong Scene! Đã vô hiệu hóa script của Player bị trùng để an toàn.
---------------------------------------------------
-[02:27:15] [Warning] Có 2 Player trong Scene! Đã vô hiệu hóa script của Player bị trùng để an toàn.
+[03:21:47] [Warning] Pet tại vị trí 2 đang bị null.
 --------------------------------------------------

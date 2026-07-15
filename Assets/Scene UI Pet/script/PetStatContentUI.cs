@@ -1,5 +1,6 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PetStatContentUI : MonoBehaviour
 {
@@ -11,7 +12,11 @@ public class PetStatContentUI : MonoBehaviour
 
     [Header("General Info")]
     [SerializeField] private TMP_Text powerValueText;
-    [SerializeField] private TMP_Text typeValueText;
+
+    // Type không còn dùng TMP_Text.
+    // Thay bằng Image để hiển thị icon nguyên tố.
+    [SerializeField] private Image elementValueImage;
+
     [SerializeField] private TMP_Text rarityValueText;
     [SerializeField] private TMP_Text personalityValueText;
 
@@ -29,9 +34,11 @@ public class PetStatContentUI : MonoBehaviour
         SetText(speedValueText, FormatNumber(pet.Speed));
 
         SetText(powerValueText, FormatNumber(pet.Power));
-        SetText(typeValueText, GetElementName(pet.Element));
         SetText(rarityValueText, pet.Rarity.ToString());
         SetText(personalityValueText, pet.Personality);
+
+        // Hiển thị hình ảnh nguyên tố thay cho chữ.
+        SetImage(elementValueImage, pet.ElementIcon);
     }
 
     public void Clear()
@@ -42,9 +49,10 @@ public class PetStatContentUI : MonoBehaviour
         SetText(speedValueText, "-");
 
         SetText(powerValueText, "-");
-        SetText(typeValueText, "-");
         SetText(rarityValueText, "-");
         SetText(personalityValueText, "-");
+
+        SetImage(elementValueImage, null);
     }
 
     private static string FormatNumber(int value)
@@ -52,23 +60,21 @@ public class PetStatContentUI : MonoBehaviour
         return value.ToString("N0");
     }
 
-    private static string GetElementName(PetElement element)
-    {
-        return element switch
-        {
-            PetElement.Fire => "Fire",
-            PetElement.Water => "Water",
-            PetElement.Grass => "Grass",
-            PetElement.Electric => "Electric",
-            PetElement.Dark => "Dark",
-            PetElement.Light => "Light",
-            _ => "None"
-        };
-    }
-
     private static void SetText(TMP_Text target, string value)
     {
         if (target != null)
             target.text = value;
+    }
+
+    private static void SetImage(Image target, Sprite sprite)
+    {
+        if (target == null)
+            return;
+
+        target.sprite = sprite;
+        target.preserveAspect = true;
+
+        // Không có sprite thì ẩn Image để tránh ô trắng.
+        target.enabled = sprite != null;
     }
 }

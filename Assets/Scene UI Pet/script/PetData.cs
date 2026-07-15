@@ -7,8 +7,8 @@ public enum PetElement
     Water,
     Grass,
     Electric,
-    Dark,
-    Light
+    Light,
+    Dark
 }
 
 public enum PetRarity
@@ -34,6 +34,8 @@ public class PetData : ScriptableObject
     [Header("Hình ảnh")]
     [SerializeField] private Sprite listIcon;
     [SerializeField] private Sprite displayImage;
+
+    [Tooltip("Icon nguyên tố: Lửa, Nước, Mộc, Điện, Ánh sáng hoặc Bóng tối")]
     [SerializeField] private Sprite elementIcon;
 
     [Header("Phân loại")]
