@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fa3c59b908c17f468de2d04e00f9531, type: 3}
+  m_Name: WoodItem
+  m_EditorClassIdentifier: Assembly-CSharp::Kinnly.Item
+  id: 1001
+  name: "G\u1ED7"
+  description: "V\u1EADt li\u1EC7u c\u01A1 b\u1EA3n \u0111\u1EC3 x\xE2y d\u1EF1ng"
+  price: 5
+  image: {fileID: 3762640852321080547, guid: 81b323d3a43a79f4cad0b298e96c4791, type: 3}
+  isStackable: 1
+  isConsumable: 0
+  isBuildable: 0
+  building: {fileID: 0}
+  isTools: 0
+  isAxe: 0
+  isPickaxe: 0
+  farmingItemDelegate: {fileID: 0}

@@ -161,8 +161,7 @@ public class InteractiveTree : MonoBehaviour, IInteractable
                 
                 if (honeyItem != null)
                 {
-                    playerInventory.AddItem(honeyItem, 1);
-                    Debug.Log("<color=yellow>[Tree]</color> Đã thu hoạch 1 Mật Ong!");
+                    DropItem(honeyItem, 1);
                 }
                 
                 if (treeSpriteRenderer != null) 
@@ -192,8 +191,11 @@ public class InteractiveTree : MonoBehaviour, IInteractable
         
         if (woodItem != null)
         {
-            playerInventory.AddItem(woodItem, woodAmount);
-            Debug.Log($"<color=orange>[Tree]</color> Đã nhận được {woodAmount} Gỗ!");
+            // Thay vì bỏ thẳng vào túi, ta thả nó ra ngoài
+            for (int i = 0; i < woodAmount; i++)
+            {
+                DropItem(woodItem, 1);
+            }
         }
         
         currentState = TreeState.Chopped;
@@ -216,5 +218,40 @@ public class InteractiveTree : MonoBehaviour, IInteractable
         UpdateGraphics();
         
         Debug.Log("<color=gray>[Tree]</color> Đã dọn dẹp gốc cây.");
+    }
+
+    private void DropItem(Item item, int amount)
+    {
+        if (item == null) return;
+        
+        // Tạo 1 object rỗng
+        GameObject dropObj = new GameObject("Drop_" + item.name);
+        
+        // Vị trí xuất phát là ở chính giữa cây
+        dropObj.transform.position = transform.position + Vector3.up * 0.5f;
+        
+        // Hiện hình ảnh vật phẩm
+        SpriteRenderer sr = dropObj.AddComponent<SpriteRenderer>();
+        sr.sprite = item.image;
+        sr.sortingOrder = 10; 
+        
+        // Thêm collider để nhặt được (Click-to-Move sẽ nhận diện IInteractable)
+        BoxCollider2D col = dropObj.AddComponent<BoxCollider2D>();
+        col.isTrigger = true;
+        col.size = new Vector2(0.5f, 0.5f);
+        
+        // Đặt script nhặt đồ của Kinnly vào
+        Kinnly.ItemPickup pickup = dropObj.AddComponent<Kinnly.ItemPickup>();
+        pickup.Item = item;
+        pickup.Amount = amount;
+
+        // Layer để có thể click được
+        dropObj.layer = LayerMask.NameToLayer("Default"); 
+
+        // Hiệu ứng rơi rớt (Bắn ra xung quanh ngẫu nhiên)
+        Vector2 randomDropSpot = (Vector2)transform.position + new Vector2(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 0.5f));
+        
+        // Nhảy lên và rơi xuống điểm ngẫu nhiên
+        dropObj.transform.DOJump((Vector3)randomDropSpot, 0.5f, 1, 0.5f);
     }
 }
