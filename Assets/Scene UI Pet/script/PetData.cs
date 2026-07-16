@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public enum PetElement
 {
@@ -34,8 +35,6 @@ public class PetData : ScriptableObject
     [Header("Hình ảnh")]
     [SerializeField] private Sprite listIcon;
     [SerializeField] private Sprite displayImage;
-
-    [Tooltip("Icon nguyên tố: Lửa, Nước, Mộc, Điện, Ánh sáng hoặc Bóng tối")]
     [SerializeField] private Sprite elementIcon;
 
     [Header("Phân loại")]
@@ -49,6 +48,10 @@ public class PetData : ScriptableObject
     [SerializeField, Min(0)] private int defense;
     [SerializeField, Min(0)] private int speed;
     [SerializeField, Min(0)] private int power;
+
+    [Header("Kỹ năng của Pet")]
+    [Tooltip("Tối đa 4 kỹ năng. Số lượng do bạn tự quyết định.")]
+    [SerializeField] private List<PetSkillEntry> skills = new();
 
     public string PetId => petId;
     public string PetName => petName;
@@ -67,4 +70,6 @@ public class PetData : ScriptableObject
     public int Defense => defense;
     public int Speed => speed;
     public int Power => power;
+
+    public IReadOnlyList<PetSkillEntry> Skills => skills;
 }

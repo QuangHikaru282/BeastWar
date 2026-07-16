@@ -26,3 +26,8 @@ MonoBehaviour:
   defense: 300
   speed: 50
   power: 1000
+  skills:
+  - skillData: {fileID: 11400000, guid: 01801d725cab0104a8ff3eed1a066cb4, type: 2}
+    currentLevel: 5
+  - skillData: {fileID: 11400000, guid: e8da55d8f081ede4a81f0800837ff390, type: 2}
+    currentLevel: 5
