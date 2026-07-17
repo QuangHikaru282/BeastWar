@@ -14,8 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MoveData
   moveName: "T\u1EA5n c\xF4ng"
   moveType: 1
+  moveElement: 2
   icon: {fileID: 0}
   description: 
   power: 40
   vfxPrefab: {fileID: -2253911629886400664, guid: e84feb2b4d477d342ba68620e277125d, type: 3}
   vfxSpawnType: 2
+  maxLevel: 10
+  baseUpgradeCost: 100
