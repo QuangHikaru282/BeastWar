@@ -3,10 +3,10 @@ using UnityEngine;
 
 public enum BeastElement
 {
-    Normal,
-    Fire,
-    Water,
-    Grass
+    Normal, Fire, Water, Grass,
+    Electric, Ice, Ground, Rock,
+    Fighting, Poison, Flying, Psychic,
+    Dark, Steel, Dragon
 }
 
 [CreateAssetMenu(fileName = "NewBeastData", menuName = "BeastBall/BeastData")]
@@ -27,8 +27,8 @@ public class BeastData : ScriptableObject
     [Min(1)] public int speed = 40;
 
     [Header("Thu phục")]
-    [Range(0, 255)] public int catchRate = 45;
-    // catchRate: 255 = cực dễ bắt, 3 = cực khó bắt (như huyền thoại)
+    [Range(0f, 1f)] public float captureRate = 1.0f;
+    // captureRate: 1.0 = cực dễ bắt (thú thường), 0.45 = quý hiếm, 0.1 = huyền thoại
 
     [Header("Chiêu thức (tối đa 4)")]
     public MoveData[] moves = new MoveData[0];

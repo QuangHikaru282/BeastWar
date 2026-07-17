@@ -52,7 +52,7 @@ public class MainMenuController : MonoBehaviour
         {
             if (SceneTransitionManager.Instance != null)
             {
-                SceneTransitionManager.Instance.TransitionToScene(playTargetScene, playLoadingMessage);
+                SceneTransitionManager.Instance.TransitionToScene(playTargetScene);
             }
             else
             {
@@ -79,7 +79,7 @@ public class MainMenuController : MonoBehaviour
 
         if (SceneTransitionManager.Instance != null)
         {
-            SceneTransitionManager.Instance.TransitionToScene(savedScene, continueMessage);
+            SceneTransitionManager.Instance.TransitionToScene(savedScene);
         }
         else
         {

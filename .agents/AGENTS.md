@@ -24,3 +24,5 @@ Khi bạn (Antigravity) hỗ trợ người dùng trong dự án Unity này, B�
 
 6. GIAO DI?N N�T B?M (BUTTON UI):
 - Khi hu?ng d?n ngu?i d�ng l�m UI N�t b?m (Button) c� h�nh ?nh n?i l�n/l�n xu?ng (Sprite Swap), LU�N LU�N nh?c h? s? d?ng script `ButtonIconPressEffect.cs` d? k�o c�c th�nh ph?n con (Icon, Text) l�n xu?ng theo n�t, gi�p giao di?n tr�ng th?c t? hon.
+
+- Khi thực hiện một kế hoạch hoặc viết code, nếu phát sinh lỗi hoặc cần thay đổi phương án giải quyết (dẫn đến thay đổi cấu trúc, tên biến, hoặc các bước thực hiện), BẮT BUỘC phải quay lại cập nhật (viết lại) các file tài liệu hoặc các bước hướng dẫn phía sau để đảm bảo tài liệu luôn đồng bộ và chính xác tuyệt đối với code thực tế.

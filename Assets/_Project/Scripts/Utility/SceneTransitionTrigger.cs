@@ -80,7 +80,7 @@ public class SceneTransitionTrigger : MonoBehaviour
     {
         if (SceneTransitionManager.Instance != null)
         {
-            SceneTransitionManager.Instance.TransitionToScene(targetSceneName, loadingMessage);
+            SceneTransitionManager.Instance.TransitionToScene(targetSceneName);
         }
         else
         {

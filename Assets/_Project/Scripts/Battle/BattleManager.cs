@@ -45,7 +45,11 @@ public class BattleManager : MonoBehaviour
 
     private BattleState state = BattleState.PreBattle;
     private bool        waitingForPlayerAction;
-    private bool        fruitSelected = false;  // Cờ chờ người chơi chọn Quả
+    private bool        fruitSelected = false;  // Co cho nguoi choi chon Qua
+    private bool        playerFled = false;     // Co nguoi choi bo chay
+    private bool        captureSuccess = false; // Co bat thu thanh cong
+    private bool        wildBeastFled = false;  // Co quai hoang da bo di sau 3 lan quang
+    private bool        itemUsedThisTurn = false; // Nguoi choi da dung do luot nay
     private BeastUnit   chosenAttacker;
     private BeastUnit   chosenTarget;
     private RuntimeMoveData    chosenMove;
@@ -290,7 +294,18 @@ public class BattleManager : MonoBehaviour
                 }
             }
 
-            unit.SetExternalUI(nameTxtTMP, nameTxtLegacy, hpBar);
+            // Tìm LevelText
+            Transform levelTr = hudObj.transform.Find("LevelText");
+            TextMeshProUGUI levelTxtTMP = levelTr != null ? levelTr.GetComponent<TextMeshProUGUI>() : null;
+            UnityEngine.UI.Text levelTxtLegacy = levelTr != null ? levelTr.GetComponent<UnityEngine.UI.Text>() : null;
+
+            // Tìm ExpBar
+            ExpBarUI expBar = hudObj.GetComponentInChildren<ExpBarUI>();
+
+            // Tìm StatusIcon (UI trạng thái xấu dưới tên nhân vật)
+            StatusEffectUI statusUI = hudObj.GetComponentInChildren<StatusEffectUI>();
+
+            unit.SetExternalUI(nameTxtTMP, nameTxtLegacy, hpBar, expBar, levelTxtTMP, levelTxtLegacy, statusUI);
             Debug.Log($"[BattleManager] Đã tự động link UI cho {data.baseBeast.beastName} từ {hudName}");
         }
 
@@ -305,13 +320,54 @@ public class BattleManager : MonoBehaviour
         var alive = playerTeam.Where(b => b != null && b.IsAlive).ToList();
         if (alive.Count == 0) yield break;
 
-        waitingForPlayerAction = true;
-        BattleUIManager.Instance?.ActionPanel?.Show(alive[0]);
-        Debug.Log("--- BƯỚC 5: ĐẾN LƯỢT NGƯỜI CHƠI (Đang chờ bạn chọn chiêu trên màn hình...) ---");
+        // Reset co dau luot
+        playerFled = false;
+        captureSuccess = false;
+        wildBeastFled = false;
+        itemUsedThisTurn = false;
 
-        // Chờ player click chọn thú mình → click thú địch
-        while (waitingForPlayerAction)
+        waitingForPlayerAction = true;
+        itemUsedThisTurn = false;
+        BattleUIManager.Instance?.ActionPanel?.Show(alive[0]);
+        // Bat/tat nut icon hanh dong theo luot
+        BattleActionIconsUI.Instance?.SetInteractable(true);
+        Debug.Log("--- BUOC 5: DEN LUOT NGUOI CHOI (Dang cho ban chon chieu tren man hinh...) ---");
+
+        // Cho player click chon thu minh -> click thu dich (hoac dung do)
+        while (waitingForPlayerAction && !playerFled && !captureSuccess && !wildBeastFled)
             yield return null;
+
+        BattleActionIconsUI.Instance?.SetInteractable(false);
+
+        // Kiem tra cac truong hop dac biet
+        if (playerFled)
+        {
+            state = BattleState.BattleEnd;
+            ReturnToMap();
+            yield break;
+        }
+
+        if (captureSuccess)
+        {
+            state = BattleState.BattleEnd;
+            yield return new WaitForSeconds(1f);
+            BattleUIManager.Instance?.ShowBattleReward(0, 0, ReturnToMap);
+            yield break;
+        }
+
+        if (wildBeastFled)
+        {
+            state = BattleState.BattleEnd;
+            yield return new WaitForSeconds(1f);
+            ReturnToMap();
+            yield break;
+        }
+
+        if (itemUsedThisTurn)
+        {
+            // Dung do tieu 1 luot -> khong tan cong, nhay thang sang luot dich
+            yield break;
+        }
 
         Debug.Log($"--- BƯỚC 6: BẠN ĐÃ CHỌN CHIÊU XONG! Đang tung đòn... ---");
 
@@ -548,7 +604,7 @@ public class BattleManager : MonoBehaviour
 
         if (SceneTransitionManager.Instance != null)
         {
-            SceneTransitionManager.Instance.TransitionToScene(sceneToReturn, "Đang quay về...");
+            SceneTransitionManager.Instance.TransitionToScene(sceneToReturn);
         }
         else 
         {
@@ -643,9 +699,49 @@ public class BattleManager : MonoBehaviour
         Debug.Log($"[BattleManager] Baton Pass! {nextData.baseBeast.beastName} xuất kích.");
     }
 
-    /// <summary>Trả về BeastUnit đang sống trên sân của Player.</summary>
+    /// <summary>Tra ve BeastUnit dang song cua phe dich.</summary>
+    public BeastUnit GetActiveEnemyUnit()
+        => enemyTeam.FirstOrDefault(b => b != null && b.IsAlive);
+
+    /// <summary>Tra ve BeastUnit dang song tren san cua Player.</summary>
     public BeastUnit GetActivePlayerUnit()
         => playerTeam.FirstOrDefault(b => b != null && b.IsAlive);
+
+    // ─── SPECIAL ACTION API (goi boi BattleActionIconsUI) ────────────────────
+
+    /// <summary>Nguoi choi chon bo chay (100% thanh cong).</summary>
+    public void TryFlee()
+    {
+        if (state != BattleState.PlayerTurn) return;
+        playerFled = true;
+        waitingForPlayerAction = false;
+        Debug.Log("[BattleManager] Nguoi choi da bo chay!");
+    }
+
+    /// <summary>Bat thu hoang da thanh cong. Ket thuc tran.</summary>
+    public void OnCaptureBeastSuccess()
+    {
+        captureSuccess = true;
+        waitingForPlayerAction = false;
+        Debug.Log("[BattleManager] Bat thu thanh cong! Tran ket thuc.");
+    }
+
+    /// <summary>Quai hoang da tinh day va bo di sau 3 lan quang. Ket thuc tran.</summary>
+    public void OnWildBeastFled()
+    {
+        wildBeastFled = true;
+        waitingForPlayerAction = false;
+        Debug.Log("[BattleManager] Quai hoang da bo di!");
+    }
+
+    /// <summary>Nguoi choi dung do tieu 1 luot. Nhay sang luot dich.</summary>
+    public void OnPlayerUsedItem()
+    {
+        if (state != BattleState.PlayerTurn) return;
+        itemUsedThisTurn = true;
+        waitingForPlayerAction = false;
+        Debug.Log("[BattleManager] Nguoi choi dung do, tieu 1 luot.");
+    }
 
     // ─── HELPER ──────────────────────────────────────────────────────
 

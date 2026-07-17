@@ -17,11 +17,8 @@ public class PlayerMapController : MonoBehaviour
     private Vector2 moveInput;
     private bool canMove = true;
 
-    [Header("Click-to-Move")]
+    [Header("Tương tác")]
     public float interactionRange = 1.5f;
-    private bool isClickMoving = false;
-    private Vector2 clickTargetPos;
-    private IInteractable targetInteractable;
     private Kinnly.PlayerInventory inventory;
 
     private static readonly int AnimSpeed = Animator.StringToHash("speed");
@@ -41,21 +38,13 @@ public class PlayerMapController : MonoBehaviour
         if (!canMove) 
         { 
             moveInput = Vector2.zero; 
-            isClickMoving = false; 
             return; 
         }
 
         // 1. Nhận input WASD/Joystick
-        Vector2 manualInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
+        moveInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
 
-        // Nếu bấm phím di chuyển, lập tức hủy Click-to-Move
-        if (manualInput != Vector2.zero)
-        {
-            isClickMoving = false;
-            targetInteractable = null;
-        }
-
-        // 2. Nhận input Click chuột (Click-to-Move)
+        // 2. Nhận input Click chuột (Click để Tương tác)
         if (Input.GetMouseButtonDown(0)) // Left click
         {
             if (UnityEngine.EventSystems.EventSystem.current == null || !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
@@ -69,64 +58,19 @@ public class PlayerMapController : MonoBehaviour
                     IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
                     if (interactable != null)
                     {
-                        targetInteractable = interactable;
-                        clickTargetPos = hit.collider.bounds.center;
-                        isClickMoving = true;
+                        float distance = Vector2.Distance(transform.position, hit.collider.bounds.center);
+                        if (distance <= interactionRange)
+                        {
+                            // Đã đứng gần -> Tương tác
+                            interactable.Interact(inventory);
+                        }
+                        else
+                        {
+                            Debug.Log("Bạn cần tiến lại gần hơn để tương tác!");
+                        }
                     }
-                    else
-                    {
-                        targetInteractable = null;
-                        clickTargetPos = mouseWorldPos;
-                        isClickMoving = true;
-                    }
-                }
-                else
-                {
-                    targetInteractable = null;
-                    clickTargetPos = mouseWorldPos;
-                    isClickMoving = true;
                 }
             }
-        }
-
-        // 3. Tính toán moveInput thực tế
-        if (isClickMoving)
-        {
-            Vector2 currentPos = transform.position;
-            float distance = Vector2.Distance(currentPos, clickTargetPos);
-
-            if (targetInteractable != null)
-            {
-                if (distance <= interactionRange)
-                {
-                    // Đã tới gần mục tiêu -> Tương tác
-                    targetInteractable.Interact(inventory);
-                    isClickMoving = false;
-                    targetInteractable = null;
-                    moveInput = Vector2.zero;
-                }
-                else
-                {
-                    moveInput = (clickTargetPos - currentPos).normalized;
-                }
-            }
-            else
-            {
-                if (distance <= 0.1f)
-                {
-                    // Đã tới điểm click (đất trống)
-                    isClickMoving = false;
-                    moveInput = Vector2.zero;
-                }
-                else
-                {
-                    moveInput = (clickTargetPos - currentPos).normalized;
-                }
-            }
-        }
-        else
-        {
-            moveInput = manualInput;
         }
 
         // 4. Xử lý Animation

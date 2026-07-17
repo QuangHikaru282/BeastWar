@@ -59,7 +59,7 @@ public class LoginAndCharSelectManager : MonoBehaviour
         // Chạy Loading Cutscene chuyển cảnh
         if (SceneTransitionManager.Instance != null)
         {
-            SceneTransitionManager.Instance.TransitionToScene(targetScene, loadingMessage);
+            SceneTransitionManager.Instance.TransitionToScene(targetScene);
         }
         else
         {

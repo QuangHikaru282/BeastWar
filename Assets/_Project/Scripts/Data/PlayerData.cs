@@ -26,6 +26,9 @@ public class PlayerData : ScriptableObject
     [Header("Map đã mở khóa")]
     public List<string> unlockedMaps = new List<string>();
     
+    [Tooltip("ID của điểm sinh ra (Spawn Point) sẽ dùng khi tải Map mới")]
+    public string targetSpawnPointId = "";
+    
     [Header("Trainer đã đánh bại")]
     public List<string> defeatedTrainers = new List<string>();
 

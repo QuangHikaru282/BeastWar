@@ -18,6 +18,7 @@ public class ActionPanel : MonoBehaviour
     [SerializeField] private Button[] skillButtons = new Button[4];
     [SerializeField] private TextMeshProUGUI[] skillTextsTMP = new TextMeshProUGUI[4];
     [SerializeField] private Text[] skillTextsLegacy = new Text[4];
+    [SerializeField] private Image[] skillElementIcons = new Image[4]; // Icon hien thi he cua skill
 
     // Callback trả về lựa chọn cho BattleManager
     private Action<BeastUnit, BeastUnit, RuntimeMoveData, bool> onActionConfirmed;
@@ -52,6 +53,7 @@ public class ActionPanel : MonoBehaviour
             skillButtons = new Button[4];
             skillTextsTMP = new TextMeshProUGUI[4];
             skillTextsLegacy = new Text[4];
+            skillElementIcons = new Image[4];
             
             // Tìm các nút bên trong CombatButtons
             Button[] allBtns = skillPanel.GetComponentsInChildren<Button>(true);
@@ -72,6 +74,10 @@ public class ActionPanel : MonoBehaviour
                         skillTextsTMP[btnIndex] = b.GetComponentInChildren<TextMeshProUGUI>();
                         skillTextsLegacy[btnIndex] = b.GetComponentInChildren<Text>();
                     }
+
+                    Transform iconObj = b.transform.Find("ElementIcon");
+                    if (iconObj != null) skillElementIcons[btnIndex] = iconObj.GetComponent<Image>();
+
                     btnIndex++;
                 }
             }
@@ -127,6 +133,8 @@ public class ActionPanel : MonoBehaviour
         Debug.Log($"[ActionPanel] ShowSkillPanelForBeast called for {beast.Data.baseBeast.beastName}. moves count: {beast.Data.moves.Length}");
         skillPanel.SetActive(true);
 
+        var lib = Resources.Load<ElementIconLibrary>("ElementIconLibrary");
+
         for (int i = 0; i < skillButtons.Length; i++)
         {
             if (i < beast.Data.moves.Length && beast.Data.moves[i] != null)
@@ -139,6 +147,21 @@ public class ActionPanel : MonoBehaviour
                 
                 if (skillTextsTMP[i] != null) skillTextsTMP[i].text = moveName;
                 if (skillTextsLegacy[i] != null) skillTextsLegacy[i].text = moveName;
+
+                if (skillElementIcons[i] != null)
+                {
+                    if (lib != null && beast.Data.moves[i].baseMove != null)
+                    {
+                        var sprite = lib.GetIcon(beast.Data.moves[i].baseMove.moveElement);
+                        if (sprite != null)
+                        {
+                            skillElementIcons[i].sprite = sprite;
+                            skillElementIcons[i].gameObject.SetActive(true);
+                        }
+                        else skillElementIcons[i].gameObject.SetActive(false);
+                    }
+                    else skillElementIcons[i].gameObject.SetActive(false);
+                }
             }
             else
             {

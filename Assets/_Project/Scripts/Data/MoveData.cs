@@ -21,6 +21,7 @@ public class MoveData : ScriptableObject
     [Header("Thông tin")]
     public string moveName = "Tấn công";
     public MoveType moveType = MoveType.Melee;
+    public BeastElement moveElement = BeastElement.Normal;
     public Sprite icon;
     [TextArea(2, 4)] public string description = "";
 

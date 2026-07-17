@@ -17,6 +17,7 @@ public class BeastUnit : MonoBehaviour
     [SerializeField] private Image spriteImage;
     [SerializeField] private HPBarUI hpBar;
     [SerializeField] private RageBarUI rageBar;  // Thanh Nộ (gán trong Inspector)
+    [SerializeField] private ExpBarUI expBar;    // Thanh EXP (gán trong Inspector)
     [SerializeField] private TextMeshProUGUI nameTextTMP;
     [SerializeField] private Text nameTextLegacy;
 
@@ -25,11 +26,25 @@ public class BeastUnit : MonoBehaviour
     public bool IsAlive   => CurrentHP > 0;
     public bool IsPlayerTeam { get; private set; }
 
-    public void SetExternalUI(TextMeshProUGUI extNameTextTMP, Text extNameTextLegacy, HPBarUI extHpBar)
+    // ─── Status Effects ──────────────────────────────────────────────
+    public enum StatusEffect { None, Poisoned, Paralyzed, Stunned }
+    public StatusEffect CurrentStatus { get; private set; } = StatusEffect.None;
+
+    [Header("Status Effect UI (optional)")]
+    [SerializeField] private StatusEffectUI statusEffectUI;
+
+    [SerializeField] private TextMeshProUGUI levelTextTMP;
+    [SerializeField] private Text levelTextLegacy;
+
+    public void SetExternalUI(TextMeshProUGUI extNameTextTMP, Text extNameTextLegacy, HPBarUI extHpBar, ExpBarUI extExpBar = null, TextMeshProUGUI extLevelTextTMP = null, Text extLevelTextLegacy = null, StatusEffectUI extStatusUI = null)
     {
         if (extNameTextTMP != null) this.nameTextTMP = extNameTextTMP;
         if (extNameTextLegacy != null) this.nameTextLegacy = extNameTextLegacy;
         if (extHpBar != null) this.hpBar = extHpBar;
+        if (extExpBar != null) this.expBar = extExpBar;
+        if (extLevelTextTMP != null) this.levelTextTMP = extLevelTextTMP;
+        if (extLevelTextLegacy != null) this.levelTextLegacy = extLevelTextLegacy;
+        if (extStatusUI != null) this.statusEffectUI = extStatusUI;
     }
 
     // ─── Crit ────────────────────────────────────────────────────────
@@ -64,7 +79,7 @@ public class BeastUnit : MonoBehaviour
         {
             sr.sprite = isPlayerTeam ? (data.baseBeast.backSprite != null ? data.baseBeast.backSprite : data.baseBeast.frontSprite)
                                      : data.baseBeast.frontSprite;
-            if (!isPlayerTeam) sr.flipX = true; // Địch nhìn về bên trái
+            // Đã xóa sr.flipX = true; để tôn trọng hướng gốc của ảnh do user vẽ
         }
 
         // Tự động gán Animator Controller hoạt ảnh của thú nếu có
@@ -92,12 +107,23 @@ public class BeastUnit : MonoBehaviour
 
         if (nameTextTMP != null) nameTextTMP.text = data.baseBeast.beastName;
         if (nameTextLegacy != null) nameTextLegacy.text = data.baseBeast.beastName;
+
+        if (levelTextTMP != null) levelTextTMP.text = $"Lv.{data.currentLevel}";
+        if (levelTextLegacy != null) levelTextLegacy.text = $"Lv.{data.currentLevel}";
         
         hpBar?.Initialize(data.MaxHP);
+        hpBar?.UpdateHP(CurrentHP);
 
         // Reset Rage về 0 mỗi khi thú được khởi tạo vào sân
         CurrentRage = 0;
         rageBar?.Initialize(MaxRage);
+
+        // Khởi tạo thanh EXP tĩnh (chỉ hiển thị tiến độ của Level hiện tại)
+        expBar?.Initialize(data.GetExpToNextLevel(), data.currentExp, data.currentLevel);
+
+        // Reset trạng thái khi vừa lên sân
+        CurrentStatus = StatusEffect.None;
+        statusEffectUI?.Hide();
     }
 
     /// <summary>
@@ -212,6 +238,65 @@ public class BeastUnit : MonoBehaviour
         Debug.Log($"[RestTick] {Data.baseBeast.beastName} nghỉ ngơi, hồi {healAmount} HP. HP hiện tại: {CurrentHP}/{Data.MaxHP}");
     }
 
+    // ─── Status Effect API ───────────────────────────────────────────
+
+    /// <summary>Áp trạng thái xấu lên thú này (nếu chưa có trạng thái).</summary>
+    public void ApplyStatus(StatusEffect status)
+    {
+        if (CurrentStatus != StatusEffect.None) return; // Không chồng trạng thái
+        CurrentStatus = status;
+        statusEffectUI?.Show(status);
+        Debug.Log($"[Status] {Data.baseBeast.beastName} bị {status}!");
+    }
+
+    /// <summary>Xóa 1 trạng thái xấu cụ thể (hoặc tất cả nếu status = None).</summary>
+    public void ClearStatus(StatusEffect status = StatusEffect.None)
+    {
+        if (status == StatusEffect.None || CurrentStatus == status)
+        {
+            CurrentStatus = StatusEffect.None;
+            statusEffectUI?.Hide();
+            Debug.Log($"[Status] {Data.baseBeast.beastName} đã khỏi trạng thái xấu.");
+        }
+    }
+
+    /// <summary>Áp trạng thái Choáng (Stun). Không override trạng thái khác.</summary>
+    public void ApplyStun()
+    {
+        // Stun là trạng thái tạm, ghi đè lên trạng thái None để biết đang bị choáng
+        CurrentStatus = StatusEffect.Stunned;
+        statusEffectUI?.Show(StatusEffect.Stunned);
+        Debug.Log($"[Status] {Data.baseBeast.beastName} bị Choáng!");
+    }
+
+    /// <summary>Xử lý hiệu ứng trạng thái ở đầu lượt. Trả về true nếu thú bị bỏ lượt.</summary>
+    public bool ProcessStatusEffectTick()
+    {
+        switch (CurrentStatus)
+        {
+            case StatusEffect.Poisoned:
+                int poisonDmg = Mathf.Max(1, Mathf.RoundToInt(Data.MaxHP * 0.08f));
+                CurrentHP = Mathf.Max(0, CurrentHP - poisonDmg);
+                hpBar?.UpdateHP(CurrentHP);
+                DamagePopup.Create(transform.position + Vector3.up * 0.5f, poisonDmg, false);
+                Debug.Log($"[Status] {Data.baseBeast.beastName} mất {poisonDmg} HP vì độc.");
+                if (CurrentHP <= 0) Die();
+                return false; // Độc không bỏ lượt
+
+            case StatusEffect.Paralyzed:
+                bool skipTurn = UnityEngine.Random.value < 0.3f; // 30% bỏ lượt
+                if (skipTurn) Debug.Log($"[Status] {Data.baseBeast.beastName} bị tê liệt, bỏ lượt!");
+                return skipTurn;
+
+            case StatusEffect.Stunned:
+                // Stun được quản lý bởi BattleCaptureHandler (đếm số lượt)
+                return true; // Luôn bỏ lượt khi bị choáng
+
+            default:
+                return false;
+        }
+    }
+
     /// <summary>
     /// Hồi máu cho thú. Dùng khi sử dụng chiêu thức buff / hồi máu (MoveType.Self).
     /// </summary>
@@ -242,10 +327,20 @@ public class BeastUnit : MonoBehaviour
     /// <summary>Tính sát thương gây ra cho target theo chiêu thức.</summary>
     public int CalculateDamage(BeastUnit target, RuntimeMoveData move)
     {
-        // TÌM RuntimeMoveData tương ứng (vì param move truyền vào có thể là MoveData gốc hoặc dùng tạm).
-        // Tạm thời nếu param là MoveData gốc, ta phải có power. Trong thiết kế mới, move có power gốc.
-        // Tốt nhất: CalculateDamage(BeastUnit target, RuntimeMoveData move)
         int raw = Mathf.RoundToInt(Data.Attack * move.power / 50f) - target.Data.Defense;
+        raw = Mathf.Max(1, raw);
+
+        // Áp dụng hệ số khắc hệ
+        var typeChart = Resources.Load<ElementTypeChart>("ElementTypeChart");
+        if (typeChart != null)
+        {
+            float multiplier = typeChart.GetMultiplier(move.baseMove.moveElement, target.Data.baseBeast.element);
+            raw = Mathf.RoundToInt(raw * multiplier);
+            
+            if (multiplier > 1.1f) Debug.Log($"Đòn đánh SIÊU HIỆU QUẢ! (x{multiplier})");
+            else if (multiplier < 0.9f) Debug.Log($"Đòn đánh KHÔNG HIỆU QUẢ LẮM... (x{multiplier})");
+        }
+
         return Mathf.Max(1, raw);
     }
 
@@ -253,8 +348,17 @@ public class BeastUnit : MonoBehaviour
     public int CalculateBaseDamage(BeastUnit target)
     {
         int raw = Data.Attack - target.Data.Defense;
-        // Tăng damage lên tối thiểu 50 để đánh nhanh thắng nhanh (test luồng)
-        return Mathf.Max(50, raw);
+        raw = Mathf.Max(50, raw); // Tăng damage lên tối thiểu 50 để đánh nhanh thắng nhanh (test luồng)
+
+        var typeChart = Resources.Load<ElementTypeChart>("ElementTypeChart");
+        if (typeChart != null)
+        {
+            // Tấn công thường mặc định hệ Normal
+            float multiplier = typeChart.GetMultiplier(BeastElement.Normal, target.Data.baseBeast.element);
+            raw = Mathf.RoundToInt(raw * multiplier);
+        }
+
+        return Mathf.Max(1, raw);
     }
 
     private void OnMouseDown()

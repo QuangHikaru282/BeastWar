@@ -42,6 +42,14 @@ public class FishingMinigame : MonoBehaviour
     [SerializeField] private float catchMultiplier = 10f; //Higher means catch fish faster x
     [SerializeField] private float catchingForce; //How much force to push the catchingbar up by
     
+    [Header("Wild Beast Encounters")]
+    [Tooltip("Tỷ lệ % câu lên một con Thú (0 - 100)")]
+    [SerializeField] private float beastEncounterChance = 15f; 
+    [Tooltip("Danh sách các Thú hệ nước có thể câu được")]
+    [SerializeField] private System.Collections.Generic.List<BeastData> possibleWaterBeasts;
+    [Tooltip("Dữ liệu truyền sang BattleScene")]
+    [SerializeField] private BattleTransferData battleTransferData;
+    
     private void Start() {
 	    catchingBarRB = catchingbar.GetComponent<Rigidbody2D>(); //Get reference to the Rigidbody on the catchingbar
 	    catchingBarLoc = catchingbar.GetComponent<RectTransform>().localPosition; //Use this to reset the catchingbars position to the bottom of the "water"
@@ -92,6 +100,16 @@ public class FishingMinigame : MonoBehaviour
     //Called to cast our line
     private void CastLine() {
 	    lineCast = true;
+        
+        // Di chuyển bóng thoại đến vị trí của người chơi
+        GameObject playerObj = GameObject.FindWithTag("Player");
+        if (playerObj != null)
+        {
+            // Đặt Z = -5 để đảm bảo bóng thoại luôn nổi lên trên tất cả mọi thứ (không bị cây cối hay nhân vật che lấp)
+            thoughtBubbles.transform.position = playerObj.transform.position + new Vector3(0, 1.5f, -5f);
+            Debug.Log("[Fishing] Đã quăng cần! Chờ cá cắn câu... (Nhìn trên đầu nhân vật)");
+        }
+
 	    thoughtBubbles.SetActive(true);
 	    StartCoroutine(WaitForNibble(10));
     }
@@ -149,6 +167,49 @@ public class FishingMinigame : MonoBehaviour
 
     //Called when the catchpercentage hits 100
     public void FishCaught() {
+	    reelingFish = false; //No longer reeling in a fish
+	    //Reset the thought bubbles
+	    thoughtBubbles.SetActive(false);
+	    thoughtBubbles.GetComponent<Animator>().SetTrigger("Reset");
+	    minigameCanvas.SetActive(false); //Disable the fishing canvas
+	    catchingbar.transform.localPosition = catchingBarLoc; //Reset the catching bars position
+
+        // --- KIỂM TRA TỶ LỆ CÂU LÊN THÚ HOANG DÃ ---
+        if (possibleWaterBeasts != null && possibleWaterBeasts.Count > 0 && Random.Range(0f, 100f) <= beastEncounterChance)
+        {
+            BeastData randomBeast = possibleWaterBeasts[Random.Range(0, possibleWaterBeasts.Count)];
+            Debug.Log($"[Fishing] Đã câu được một con thú: {randomBeast.beastName}!");
+
+            if (battleTransferData != null)
+            {
+                // Truyền đội địch và ID quái sang BattleScene
+                System.Collections.Generic.List<RuntimeBeastData> runtimeTeam = new System.Collections.Generic.List<RuntimeBeastData>();
+                runtimeTeam.Add(new RuntimeBeastData(randomBeast, 1)); // Mặc định level 1
+
+                battleTransferData.SetEnemyTeam(runtimeTeam);
+                battleTransferData.originScene = BattleTransferData.OriginScene.Map;
+                battleTransferData.isTrainerBattle = false;
+                battleTransferData.isSingleBattle = false;
+                battleTransferData.lastEncounteredBeastId = ""; // Không có trên map để xóa
+
+                // Lưu lại vị trí người chơi
+                GameObject playerObj = GameObject.FindWithTag("Player");
+                if (playerObj != null)
+                {
+                    battleTransferData.lastPlayerPosition = playerObj.transform.position;
+                    battleTransferData.returnToLastPosition = true;
+                }
+
+                GameSceneManager.GoToBattle();
+            }
+            else
+            {
+                Debug.LogWarning("[Fishing] Chưa gán BattleTransferData vào FishingMinigame!");
+            }
+            return; // Dừng lại, không xử lý câu cá nữa
+        }
+        // ------------------------------------------
+
 	    if (currentFishOnLine == null) { //This picks a new fish if the old one is lost by chance
 		    currentFishOnLine = FishManager.GetRandomFish();
 	    }
@@ -160,13 +221,6 @@ public class FishingMinigame : MonoBehaviour
         Vector3 spawnPos = player != null ? player.transform.position : transform.position;
         FishCatchEffect.Show(fishSprite, spawnPos, currentFishOnLine.name);
         // ----------------------
-
-	    reelingFish = false; //No longer reeling in a fish
-	    //Reset the thought bubbles
-	    thoughtBubbles.SetActive(false);
-	    thoughtBubbles.GetComponent<Animator>().SetTrigger("Reset");
-	    minigameCanvas.SetActive(false); //Disable the fishing canvas
-	    catchingbar.transform.localPosition = catchingBarLoc; //Reset the catching bars position
     }
     
 

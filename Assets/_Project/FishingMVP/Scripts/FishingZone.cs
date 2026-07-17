@@ -11,6 +11,12 @@ public class FishingZone : MonoBehaviour
 
     private void Start()
     {
+        // Tự động tìm FishingMinigame nếu chưa được gán
+        if (fishingMinigame == null)
+        {
+            fishingMinigame = Object.FindFirstObjectByType<FishingMinigame>(FindObjectsInactive.Include);
+        }
+
         // Đảm bảo minigame luôn bị tắt khi game mới bắt đầu (chưa vào vùng)
         if (fishingMinigame != null)
         {
@@ -18,7 +24,7 @@ public class FishingZone : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("FishingZone: Bạn chưa kéo FishingSystem vào biến fishingMinigame!");
+            Debug.LogWarning("FishingZone: Không tìm thấy FishingMinigame trong scene!");
         }
     }
 

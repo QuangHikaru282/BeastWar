@@ -13,6 +13,10 @@ public class HPBarUI : MonoBehaviour
     [SerializeField] private Color colorMedium = new Color(1f,   0.8f,  0f);    // Vàng
     [SerializeField] private Color colorLow    = new Color(0.9f, 0.1f, 0.1f);   // Đỏ
 
+    [Header("HP Text (Tùy chọn)")]
+    [SerializeField] private TMPro.TextMeshProUGUI hpTextTMP;
+    [SerializeField] private Text hpTextLegacy;
+
     private float maxHP;
 
     private void Awake()
@@ -61,5 +65,10 @@ public class HPBarUI : MonoBehaviour
                          : colorLow;
             targetColorImage.DOColor(target, 0.35f);
         }
+
+        // Cập nhật text hiển thị số lượng máu (VD: 50/100)
+        string hpString = $"{Mathf.Max(0, current)}/{maxHP}";
+        if (hpTextTMP != null) hpTextTMP.text = hpString;
+        if (hpTextLegacy != null) hpTextLegacy.text = hpString;
     }
 }

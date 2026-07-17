@@ -97,8 +97,19 @@ public class SeamlessSceneManager : MonoBehaviour
         if (asyncLoad != null)
         {
             yield return asyncLoad;
+            
+            // Ẩn tất cả các object của Scene vừa tải ngầm (Trường phái 2: Tránh đè hình)
+            Scene loadedScene = SceneManager.GetSceneByName(sceneName);
+            if (loadedScene.isLoaded)
+            {
+                foreach (GameObject go in loadedScene.GetRootGameObjects())
+                {
+                    go.SetActive(false);
+                }
+            }
+
             currentlyLoadedChunks.Add(sceneName);
-            Debug.Log($"[Seamless] Đã tải xong khu vực: {sceneName}");
+            Debug.Log($"[Seamless] Đã tải xong khu vực: {sceneName} (Đã ẩn để chờ)");
         }
         else
         {

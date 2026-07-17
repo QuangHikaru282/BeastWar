@@ -31,7 +31,7 @@ public class GameSceneManager : MonoBehaviour
     public static void GoToMap()
     {
         if (SceneTransitionManager.Instance != null)
-            SceneTransitionManager.Instance.TransitionToScene(SCENE_MAP, "Đang vào làng...");
+            SceneTransitionManager.Instance.TransitionToScene(SCENE_MAP);
         else
             SceneManager.LoadScene(SCENE_MAP);
     }
@@ -39,7 +39,7 @@ public class GameSceneManager : MonoBehaviour
     public static void GoToHubTown()
     {
         if (SceneTransitionManager.Instance != null)
-            SceneTransitionManager.Instance.TransitionToScene(SCENE_HUBTOWN, "Đang vào HubTown...");
+            SceneTransitionManager.Instance.TransitionToScene(SCENE_HUBTOWN);
         else
             SceneManager.LoadScene(SCENE_HUBTOWN);
     }
@@ -47,29 +47,20 @@ public class GameSceneManager : MonoBehaviour
     public static void GoToFormation()
     {
         if (SceneTransitionManager.Instance != null)
-            SceneTransitionManager.Instance.TransitionToScene(SCENE_FORMATION, "Đang chuẩn bị đội hình...");
+            SceneTransitionManager.Instance.TransitionToScene(SCENE_FORMATION);
         else
             SceneManager.LoadScene(SCENE_FORMATION);
     }
 
     public static void GoToBattle()
     {
-        // Lưu lại TẤT CẢ các Scene hiện tại (Hỗ trợ Multi-Scene Editing)
-        string scenes = "";
-        for (int i = 0; i < SceneManager.sceneCount; i++)
+        // Đóng băng trạng thái: Chỉ lưu GameCore và Scene đang hoạt động (Active Scene)
+        // Tránh lưu nhầm các Scene đang được tải ngầm (như ForestScene) vì khi quay về nó sẽ bị hiện chồng lên nhau.
+        string activeSceneName = SceneManager.GetActiveScene().name;
+        string scenes = "GameCore";
+        if (activeSceneName != "GameCore")
         {
-            Scene s = SceneManager.GetSceneAt(i);
-            if (s.isLoaded && s.name != "DontDestroyOnLoad") // Bỏ qua DontDestroyOnLoad
-            {
-                if (scenes.Length > 0) scenes += ",";
-                scenes += s.name;
-            }
-        }
-        
-        // Nếu không lấy được, fallback về Active Scene
-        if (string.IsNullOrEmpty(scenes))
-        {
-            scenes = SceneManager.GetActiveScene().name;
+            scenes += "," + activeSceneName;
         }
 
         // Lưu lại chính xác số lượng kho đồ & thanh công cụ trước khi vào trận đấu
@@ -83,7 +74,7 @@ public class GameSceneManager : MonoBehaviour
         PlayerPrefs.Save();
 
         if (SceneTransitionManager.Instance != null)
-            SceneTransitionManager.Instance.TransitionToScene(SCENE_BATTLE, "Đang chuẩn bị chiến đấu...");
+            SceneTransitionManager.Instance.TransitionToScene(SCENE_BATTLE);
         else
             SceneManager.LoadScene(SCENE_BATTLE);
     }
@@ -91,7 +82,7 @@ public class GameSceneManager : MonoBehaviour
     public static void GoToHunting()
     {
         if (SceneTransitionManager.Instance != null)
-            SceneTransitionManager.Instance.TransitionToScene(SCENE_HUNTING, "Đang chuẩn bị săn bắt...");
+            SceneTransitionManager.Instance.TransitionToScene(SCENE_HUNTING);
         else
             SceneManager.LoadScene(SCENE_HUNTING);
     }
@@ -99,7 +90,7 @@ public class GameSceneManager : MonoBehaviour
     public static void GoToWorldMap()
     {
         if (SceneTransitionManager.Instance != null)
-            SceneTransitionManager.Instance.TransitionToScene(SCENE_WORLDMAP, "Đang mở bản đồ thế giới...");
+            SceneTransitionManager.Instance.TransitionToScene(SCENE_WORLDMAP);
         else
             SceneManager.LoadScene(SCENE_WORLDMAP);
     }
@@ -107,7 +98,7 @@ public class GameSceneManager : MonoBehaviour
     public static void GoToCityMap()
     {
         if (SceneTransitionManager.Instance != null)
-            SceneTransitionManager.Instance.TransitionToScene(SCENE_CITYMAP, "Đang di chuyển đến Thành Thị...");
+            SceneTransitionManager.Instance.TransitionToScene(SCENE_CITYMAP);
         else
             SceneManager.LoadScene(SCENE_CITYMAP);
     }

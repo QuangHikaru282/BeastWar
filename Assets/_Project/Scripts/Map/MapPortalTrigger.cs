@@ -14,6 +14,9 @@ public class MapPortalTrigger : MonoBehaviour
     [Tooltip("Tên Scene thật sự trong Build Settings")]
     [SerializeField] private string targetSceneName = "City";
 
+    [Tooltip("ID của vị trí Spawn tại Map mới (Ví dụ: FromForest)")]
+    [SerializeField] private string targetSpawnPointId = "FromForest";
+
     [Tooltip("ID của Nhiệm vụ cần hoàn thành ĐỂ MỞ KHÓA cổng này. Ví dụ: Rừng Xanh cần hoàn thành Quest 5 thì nhập số 5.")]
     public int requiredQuestIdToUnlock = 0;
 
@@ -41,10 +44,29 @@ public class MapPortalTrigger : MonoBehaviour
             {
                 Debug.Log($"[Portal] Đang di chuyển sang map: {targetMapName}...");
                 
-                // Chuyển cảnh
+                // 1. Khóa chuyển động của người chơi để không chạy lung tung trong lúc màn hình đen
+                PlayerMapController playerCtrl = collision.GetComponent<PlayerMapController>();
+                if (playerCtrl != null)
+                {
+                    playerCtrl.SetCanMove(false);
+                }
+
+                // 2. Ghi nhớ Spawn ID vào PlayerData (nếu có)
+                if (global::QuestManager.Instance != null && global::QuestManager.Instance.playerData != null)
+                {
+                    global::QuestManager.Instance.playerData.targetSpawnPointId = targetSpawnPointId;
+                }
+                else
+                {
+                    // Dự phòng nếu không có QuestManager
+                    PlayerData pData = Resources.Load<PlayerData>("PlayerData");
+                    if (pData != null) pData.targetSpawnPointId = targetSpawnPointId;
+                }
+                
+                // 3. Gọi Scene Transition (Chuyển cảnh làm mờ)
                 if (SceneTransitionManager.Instance != null)
                 {
-                    SceneTransitionManager.Instance.TransitionToScene(targetSceneName, $"Đang di chuyển đến {targetMapName}...");
+                    SceneTransitionManager.Instance.TransitionToScene(targetSceneName);
                 }
                 else
                 {
