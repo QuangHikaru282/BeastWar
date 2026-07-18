@@ -26,9 +26,21 @@ public class PetInfoUIManager : MonoBehaviour
     [Header("Tài nguyên")]
     public TextMeshProUGUI goldText; // Hiển thị số vàng hiện tại
 
+    [Header("Tiến hóa")]
+    public Button evolveButton;
+    public TextMeshProUGUI evolveReqText;
+
     private RuntimeBeastData selectedBeast;
     private List<GameObject> activeBeastButtons = new List<GameObject>();
     private List<GameObject> activeSkillSlots = new List<GameObject>();
+
+    private void Awake()
+    {
+        if (evolveButton != null)
+        {
+            evolveButton.onClick.AddListener(OnEvolveClicked);
+        }
+    }
 
     private void OnEnable()
     {
@@ -118,8 +130,71 @@ public class PetInfoUIManager : MonoBehaviour
         if (powerText != null) powerText.text = $"Lực chiến: {beast.CombatPower}";
         if (elementText != null) elementText.text = $"Hệ: {beast.baseBeast.element}";
 
+        // Cập nhật giao diện Tiến hóa
+        UpdateEvolveUI();
+
         // Tải danh sách kỹ năng bên phải
         LoadSkills(beast);
+    }
+
+    public void UpdateEvolveUI()
+    {
+        if (evolveButton == null) return;
+
+        if (selectedBeast == null || selectedBeast.baseBeast == null || selectedBeast.baseBeast.evolveTarget == null)
+        {
+            // Không có dạng tiến hóa
+            evolveButton.gameObject.SetActive(false);
+            if (evolveReqText != null) evolveReqText.text = "";
+            return;
+        }
+
+        evolveButton.gameObject.SetActive(true);
+
+        int reqLevel = selectedBeast.baseBeast.evolveLevel;
+        int reqGold = selectedBeast.baseBeast.evolveGoldCost;
+
+        bool hasLevel = selectedBeast.currentLevel >= reqLevel;
+        bool hasGold = playerData.gold >= reqGold;
+
+        if (evolveReqText != null)
+        {
+            evolveReqText.text = $"Tiến hóa: Lv.{reqLevel} + {reqGold} Vàng";
+            if (!hasLevel || !hasGold)
+            {
+                evolveReqText.color = Color.red; // Đổi màu đỏ nếu thiếu điều kiện
+            }
+            else
+            {
+                evolveReqText.color = Color.white; // Màu bình thường
+            }
+        }
+
+        evolveButton.interactable = (hasLevel && hasGold);
+    }
+
+    public void OnEvolveClicked()
+    {
+        if (selectedBeast == null || selectedBeast.baseBeast == null || selectedBeast.baseBeast.evolveTarget == null) return;
+        
+        int reqGold = selectedBeast.baseBeast.evolveGoldCost;
+        if (playerData.gold >= reqGold && selectedBeast.currentLevel >= selectedBeast.baseBeast.evolveLevel)
+        {
+            // Trừ tiền
+            playerData.gold -= reqGold;
+            
+            // Thực hiện tiến hóa
+            if (selectedBeast.Evolve())
+            {
+                Debug.Log($"[Evolve] Tiến hóa thành công thành {selectedBeast.baseBeast.beastName}!");
+                playerData.Save();
+
+                // Cập nhật lại UI tiền, list thú bên trái và thông tin thú giữa màn hình
+                RefreshGoldUI();
+                LoadBeastList();
+                SelectBeast(selectedBeast); 
+            }
+        }
     }
 
     private void LoadSkills(RuntimeBeastData beast)

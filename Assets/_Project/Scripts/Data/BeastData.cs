@@ -36,8 +36,14 @@ public class BeastData : ScriptableObject
     /// <summary>Lực chiến tính tự động từ các chỉ số.</summary>
     public int CombatPower => maxHP + attack * 2 + defense + speed;
 
-    // ─── PHẦN THƯỞNG ──────────────────────────────
+    // ─── TIẾN HÓA ───────────────────────────────
+    
+    [Header("Tiến hóa")]
+    public BeastData evolveTarget = null; // Thú sẽ tiến hóa thành. Bỏ trống nếu không thể tiến hóa.
+    public int evolveLevel = 0;           // Cấp độ yêu cầu (vd: 16)
+    public int evolveGoldCost = 1000;     // Lượng vàng yêu cầu
 
+    // ─── PHẦN THƯỞNG ──────────────────────────────
     [Header("Phần thưởng khi bị tiêu diệt")]
     public int rewardGold = 10;
     public int rewardExp = 50;

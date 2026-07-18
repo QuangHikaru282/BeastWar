@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,8 +12,8 @@ public class PetUIManager : MonoBehaviour
         Enhance
     }
 
-    [Header("Danh sách dữ liệu Pet")]
-    [SerializeField] private List<PetData> pets = new();
+    [Header("Dữ liệu Người chơi (Thay cho list tĩnh)")]
+    public PlayerData playerData;
 
     [Header("Danh sách Pet bên trái")]
     [SerializeField] private Transform petListContent;
@@ -50,6 +50,14 @@ public class PetUIManager : MonoBehaviour
     [SerializeField] private GameObject skillSelectedIndicator;
     [SerializeField] private GameObject statSelectedIndicator;
     [SerializeField] private GameObject enhanceSelectedIndicator;
+
+    [Header("Tiến Hóa (Enhance Tab)")]
+    [SerializeField] private Button evolveButton;
+    [SerializeField] private TMP_Text evolveCostText;
+    [SerializeField] private TMP_Text evolveLevelReqText;
+    [SerializeField] private Image evolveTargetImage;
+    [SerializeField] private TMP_Text evolveTargetNameText;
+    [SerializeField] private TMP_Text evolveWarningText;
 
     [Header("Đóng giao diện")]
     [SerializeField] private Button closeButton;
@@ -129,12 +137,12 @@ public class PetUIManager : MonoBehaviour
 
         createdSlots.Clear();
 
-        if (pets == null)
+        if (playerData == null || playerData.ownedBeasts == null)
             return;
 
-        foreach (PetData pet in pets)
+        foreach (RuntimeBeastData pet in playerData.ownedBeasts)
         {
-            if (pet == null)
+            if (pet == null || pet.baseBeast == null)
                 continue;
 
             PetSlotUI newSlot = Instantiate(
@@ -142,7 +150,7 @@ public class PetUIManager : MonoBehaviour
                 petListContent
             );
 
-            newSlot.name = $"PetSlot_{pet.PetName}";
+            newSlot.name = $"PetSlot_{pet.baseBeast.beastName}";
             newSlot.Setup(pet, SelectPet);
 
             createdSlots.Add(newSlot);
@@ -172,6 +180,9 @@ public class PetUIManager : MonoBehaviour
 
         if (closeButton != null)
             closeButton.onClick.AddListener(ClosePetUI);
+            
+        if (evolveButton != null)
+            evolveButton.onClick.AddListener(OnEvolveButtonClicked);
     }
 
     private void UnregisterButtons()
@@ -193,23 +204,26 @@ public class PetUIManager : MonoBehaviour
 
         if (closeButton != null)
             closeButton.onClick.RemoveListener(ClosePetUI);
+            
+        if (evolveButton != null)
+            evolveButton.onClick.RemoveListener(OnEvolveButtonClicked);
     }
 
     #endregion
 
     #region Chọn Pet
 
-    private void SelectPet(PetData pet)
+    private void SelectPet(RuntimeBeastData pet)
     {
-        if (pet == null || pets == null)
+        if (pet == null || playerData == null || playerData.ownedBeasts == null)
             return;
 
-        int index = pets.IndexOf(pet);
+        int index = playerData.ownedBeasts.IndexOf(pet);
 
         if (index < 0)
         {
             Debug.LogWarning(
-                $"Không tìm thấy pet {pet.PetName} trong danh sách.",
+                $"Không tìm thấy pet {pet.baseBeast.beastName} trong danh sách.",
                 this
             );
             return;
@@ -220,13 +234,13 @@ public class PetUIManager : MonoBehaviour
 
     private void SelectPetByIndex(int index)
     {
-        if (pets == null || pets.Count == 0)
+        if (playerData == null || playerData.ownedBeasts == null || playerData.ownedBeasts.Count == 0)
         {
             ClearDisplay();
             return;
         }
 
-        if (index < 0 || index >= pets.Count)
+        if (index < 0 || index >= playerData.ownedBeasts.Count)
         {
             Debug.LogWarning(
                 $"PetUIManager: Chỉ số pet {index} không hợp lệ.",
@@ -235,7 +249,7 @@ public class PetUIManager : MonoBehaviour
             return;
         }
 
-        PetData selectedPet = pets[index];
+        RuntimeBeastData selectedPet = playerData.ownedBeasts[index];
 
         if (selectedPet == null)
         {
@@ -261,7 +275,12 @@ public class PetUIManager : MonoBehaviour
         // Cập nhật 4 ô Skill cố định.
         // SkillContentUI sẽ tự ẩn những ô không có skill.
         if (skillContentUI != null)
-            skillContentUI.Display(selectedPet);
+            skillContentUI.Display(selectedPet, playerData, OnSkillUpgradedCallback);
+    }
+
+    private void OnSkillUpgradedCallback()
+    {
+        // Khi skill được nâng cấp, có thể cần update lại 1 số thứ, tạm thời để trống
     }
 
     private void SelectPreviousPet()
@@ -296,22 +315,22 @@ public class PetUIManager : MonoBehaviour
         int direction
     )
     {
-        if (pets == null || pets.Count == 0)
+        if (playerData == null || playerData.ownedBeasts == null || playerData.ownedBeasts.Count == 0)
             return -1;
 
         int index = startIndex;
 
-        for (int i = 0; i < pets.Count; i++)
+        for (int i = 0; i < playerData.ownedBeasts.Count; i++)
         {
             index += direction;
 
-            if (index >= pets.Count)
+            if (index >= playerData.ownedBeasts.Count)
                 index = 0;
 
             if (index < 0)
-                index = pets.Count - 1;
+                index = playerData.ownedBeasts.Count - 1;
 
-            if (pets[index] != null)
+            if (playerData.ownedBeasts[index] != null)
                 return index;
         }
 
@@ -322,25 +341,27 @@ public class PetUIManager : MonoBehaviour
 
     #region Hiển thị Pet
 
-    private void UpdateMainDisplay(PetData pet)
+    private void UpdateMainDisplay(RuntimeBeastData pet)
     {
-        if (pet == null)
+        if (pet == null || pet.baseBeast == null)
         {
             ClearDisplay();
             return;
         }
 
         if (petNameText != null)
-            petNameText.text = pet.PetName;
+            petNameText.text = pet.baseBeast.beastName;
 
         if (petLevelText != null)
-            petLevelText.text = $"Lv. {pet.Level}";
+            petLevelText.text = $"Lv. {pet.currentLevel}";
 
-        SetImage(petDisplayImage, pet.DisplayImage);
-        SetImage(elementIcon, pet.ElementIcon);
+        SetImage(petDisplayImage, pet.baseBeast.frontSprite);
+        
+        // Element icon: disable temporarily since we don't use sprites for elements
+        if (elementIcon != null) elementIcon.gameObject.SetActive(false);
     }
 
-    private void UpdateSlotSelection(PetData selectedPet)
+    private void UpdateSlotSelection(RuntimeBeastData selectedPet)
     {
         foreach (PetSlotUI slot in createdSlots)
         {
@@ -352,15 +373,15 @@ public class PetUIManager : MonoBehaviour
         }
     }
 
-    private PetData GetSelectedPet()
+    private RuntimeBeastData GetSelectedPet()
     {
-        if (pets == null)
+        if (playerData == null || playerData.ownedBeasts == null)
             return null;
 
-        if (selectedIndex < 0 || selectedIndex >= pets.Count)
+        if (selectedIndex < 0 || selectedIndex >= playerData.ownedBeasts.Count)
             return null;
 
-        return pets[selectedIndex];
+        return playerData.ownedBeasts[selectedIndex];
     }
 
     #endregion
@@ -419,10 +440,10 @@ public class PetUIManager : MonoBehaviour
         // Khi mở tab Skill, cập nhật lại đúng skill của pet hiện tại.
         if (tab == PetTab.Skill && skillContentUI != null)
         {
-            PetData selectedPet = GetSelectedPet();
+            RuntimeBeastData selectedPet = GetSelectedPet();
 
             if (selectedPet != null)
-                skillContentUI.Display(selectedPet);
+                skillContentUI.Display(selectedPet, playerData, OnSkillUpgradedCallback);
             else
                 skillContentUI.Clear();
         }
@@ -430,12 +451,108 @@ public class PetUIManager : MonoBehaviour
         // Khi mở tab Stats, cập nhật lại chỉ số.
         if (tab == PetTab.Stats && petStatContentUI != null)
         {
-            PetData selectedPet = GetSelectedPet();
+            RuntimeBeastData selectedPet = GetSelectedPet();
 
             if (selectedPet != null)
                 petStatContentUI.Display(selectedPet);
             else
                 petStatContentUI.Clear();
+        }
+
+        // Khi mở tab Enhance, cập nhật thông tin tiến hóa
+        if (tab == PetTab.Enhance)
+        {
+            RefreshEnhanceTab();
+        }
+    }
+
+    private void RefreshEnhanceTab()
+    {
+        RuntimeBeastData selectedPet = GetSelectedPet();
+
+        if (selectedPet == null || selectedPet.baseBeast == null)
+        {
+            if (evolveWarningText != null) evolveWarningText.text = "Không có thông tin thú.";
+            if (evolveButton != null) evolveButton.interactable = false;
+            return;
+        }
+
+        BeastData evolveTarget = selectedPet.baseBeast.evolveTarget;
+
+        if (evolveTarget == null)
+        {
+            if (evolveTargetNameText != null) evolveTargetNameText.text = "Đã tối đa";
+            if (evolveTargetImage != null)
+            {
+                evolveTargetImage.sprite = selectedPet.baseBeast.frontSprite; // Hiển thị lại ảnh cũ
+                evolveTargetImage.enabled = evolveTargetImage.sprite != null;
+            }
+            if (evolveCostText != null) evolveCostText.text = "-";
+            if (evolveLevelReqText != null) evolveLevelReqText.text = "-";
+            if (evolveWarningText != null) evolveWarningText.text = "Thú này không thể tiến hóa thêm.";
+            if (evolveButton != null) evolveButton.interactable = false;
+            return;
+        }
+
+        if (evolveTargetNameText != null) evolveTargetNameText.text = evolveTarget.beastName;
+        if (evolveTargetImage != null)
+        {
+            evolveTargetImage.sprite = evolveTarget.frontSprite;
+            evolveTargetImage.enabled = evolveTargetImage.sprite != null;
+        }
+
+        int reqLevel = selectedPet.baseBeast.evolveLevel;
+        int reqGold = selectedPet.baseBeast.evolveGoldCost;
+
+        if (evolveCostText != null) evolveCostText.text = reqGold.ToString("N0");
+        if (evolveLevelReqText != null) evolveLevelReqText.text = $"Yêu cầu: Lv. {reqLevel}";
+
+        bool canEvolve = selectedPet.currentLevel >= reqLevel && playerData != null && playerData.gold >= reqGold;
+
+        if (evolveWarningText != null)
+        {
+            if (selectedPet.currentLevel < reqLevel)
+                evolveWarningText.text = "Chưa đủ cấp độ!";
+            else if (playerData == null || playerData.gold < reqGold)
+                evolveWarningText.text = "Không đủ Vàng!";
+            else
+                evolveWarningText.text = "Có thể tiến hóa!";
+        }
+
+        if (evolveButton != null)
+            evolveButton.interactable = canEvolve;
+    }
+
+    private void OnEvolveButtonClicked()
+    {
+        RuntimeBeastData selectedPet = GetSelectedPet();
+
+        if (selectedPet == null || selectedPet.baseBeast == null || playerData == null)
+            return;
+
+        BeastData evolveTarget = selectedPet.baseBeast.evolveTarget;
+        if (evolveTarget == null) return;
+
+        int reqLevel = selectedPet.baseBeast.evolveLevel;
+        int reqGold = selectedPet.baseBeast.evolveGoldCost;
+
+        if (selectedPet.currentLevel >= reqLevel && playerData.gold >= reqGold)
+        {
+            // Trừ vàng
+            playerData.gold -= reqGold;
+            
+            // Tiến hóa
+            selectedPet.Evolve();
+            
+            // Lưu dữ liệu
+            playerData.Save();
+
+            // Cập nhật lại list và UI
+            BuildPetList();
+            SelectPetByIndex(selectedIndex); // Chọn lại con thú vừa tiến hóa
+            RefreshEnhanceTab();
+            
+            // Có thể chơi hiệu ứng ăn mừng ở đây
         }
     }
 
@@ -454,7 +571,7 @@ public class PetUIManager : MonoBehaviour
         if (!initialized)
             Initialize();
 
-        PetData selectedPet = GetSelectedPet();
+        RuntimeBeastData selectedPet = GetSelectedPet();
 
         if (selectedPet != null)
         {

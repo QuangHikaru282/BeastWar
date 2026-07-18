@@ -49,4 +49,34 @@ public class RuntimeBeastData
         // Công thức cơ bản: Cấp hiện tại * 100 (VD: Lv1 cần 100 EXP, Lv2 cần 200 EXP)
         return currentLevel * 100;
     }
+
+    /// <summary>Thực hiện tiến hóa cho thú.</summary>
+    public bool Evolve()
+    {
+        if (baseBeast == null || baseBeast.evolveTarget == null) return false;
+        
+        // Đổi baseBeast thành target tiến hóa
+        baseBeast = baseBeast.evolveTarget;
+
+        // Tiến hóa xong sẽ học thêm moves của dạng mới (nếu có)
+        // Hiện tại ta có thể hợp nhất chiêu thức hoặc chỉ đơn giản là giữ nguyên / cập nhật chiêu mới.
+        // Để đơn giản, ta giữ nguyên chiêu cũ, nếu thú mới có chiêu mới, ta thêm vào chỗ trống.
+        if (baseBeast.moves != null && baseBeast.moves.Length > 0)
+        {
+            var newMovesList = new List<RuntimeMoveData>(moves);
+            foreach (var m in baseBeast.moves)
+            {
+                if (m != null && !newMovesList.Exists(x => x != null && x.baseMove == m))
+                {
+                    if (newMovesList.Count < 4) // Tối đa 4 chiêu
+                    {
+                        newMovesList.Add(new RuntimeMoveData(m, 1));
+                    }
+                }
+            }
+            moves = newMovesList.ToArray();
+        }
+
+        return true;
+    }
 }

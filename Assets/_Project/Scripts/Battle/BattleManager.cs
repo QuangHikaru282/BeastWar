@@ -135,7 +135,7 @@ public class BattleManager : MonoBehaviour
         Debug.Log("--- BƯỚC 1: BẮT ĐẦU KHỞI TẠO TRẬN ĐẤU ---");
 
         // Lấy đội hình Player
-        var pFormation = playerData.currentFormation.Where(b => b != null).ToList();
+        var pFormation = playerData.currentFormation.Where(b => b != null && b.baseBeast != null).ToList();
 
         // Tự động lấy Beast trong túi nếu đội hình trống
         if (pFormation.Count == 0 && playerData.ownedBeasts != null && playerData.ownedBeasts.Count > 0)
@@ -175,7 +175,7 @@ public class BattleManager : MonoBehaviour
         }
 
         // Spawn đội Enemy (Chế độ lần lượt thế chỗ)
-        var eFormation = battleTransferData.wildEnemyTeam.Where(b => b != null).ToList();
+        var eFormation = battleTransferData.wildEnemyTeam.Where(b => b != null && b.baseBeast != null).ToList();
         
         pendingEnemyQueue.Clear();
         foreach (var enemyBeast in eFormation)

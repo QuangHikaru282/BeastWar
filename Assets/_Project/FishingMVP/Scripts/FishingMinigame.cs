@@ -178,6 +178,12 @@ public class FishingMinigame : MonoBehaviour
         if (possibleWaterBeasts != null && possibleWaterBeasts.Count > 0 && Random.Range(0f, 100f) <= beastEncounterChance)
         {
             BeastData randomBeast = possibleWaterBeasts[Random.Range(0, possibleWaterBeasts.Count)];
+            if (randomBeast == null)
+            {
+                Debug.LogWarning("[Fishing] randomBeast is null! Vui lòng kiểm tra lại cấu hình possibleWaterBeasts trong FishingMinigame.");
+                return;
+            }
+
             Debug.Log($"[Fishing] Đã câu được một con thú: {randomBeast.beastName}!");
 
             if (battleTransferData != null)
@@ -221,6 +227,31 @@ public class FishingMinigame : MonoBehaviour
         Vector3 spawnPos = player != null ? player.transform.position : transform.position;
         FishCatchEffect.Show(fishSprite, spawnPos, currentFishOnLine.name);
         // ----------------------
+
+        // --- Cập nhật nhiệm vụ ---
+        if (QuestManager.Instance != null)
+        {
+            QuestManager.Instance.OnFishCaught();
+            
+            // Thử lấy vật phẩm có tên giống con cá (ví dụ: Crab), hoặc rớt mặc định vật phẩm "Cá"
+            Kinnly.Item fishItem = QuestManager.Instance.GetItemByName(currentFishOnLine.name);
+            if (fishItem == null) fishItem = QuestManager.Instance.GetItemByName("Cá");
+            
+            if (fishItem != null && player != null)
+            {
+                Kinnly.PlayerInventory inv = player.GetComponent<Kinnly.PlayerInventory>();
+                if (inv != null)
+                {
+                    inv.AddItem(fishItem, 1);
+                    inv.SaveNow();
+                    Debug.Log($"[Fishing] Đã tự động thêm 1 {fishItem.name} vào kho đồ!");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"[Fishing] Không tìm thấy vật phẩm FishItem tên là '{currentFishOnLine.name}' hoặc 'Cá' để thêm vào kho!");
+            }
+        }
     }
     
 

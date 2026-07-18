@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,31 +17,33 @@ public class PetSlotUI : MonoBehaviour
     [SerializeField] private GameObject selectedBorder;
     [SerializeField] private Image elementIcon;
 
-    private PetData petData;
-    private Action<PetData> clickCallback;
+    private RuntimeBeastData petData;
+    private Action<RuntimeBeastData> clickCallback;
 
-    public PetData Data => petData;
+    public RuntimeBeastData Data => petData;
 
-    public void Setup(PetData data, Action<PetData> onClicked)
+    public void Setup(RuntimeBeastData data, Action<RuntimeBeastData> onClicked)
     {
         petData = data;
         clickCallback = onClicked;
 
-        if (petData == null)
+        if (petData == null || petData.baseBeast == null)
         {
-            Debug.LogWarning($"{name}: PetData đang bị null.");
+            Debug.LogWarning($"{name}: RuntimeBeastData đang bị null.");
             gameObject.SetActive(false);
             return;
         }
 
         if (petNameText != null)
-            petNameText.text = petData.PetName;
+            petNameText.text = petData.baseBeast.beastName;
 
         if (petLevelText != null)
-            petLevelText.text = $"Lv. {petData.Level}";
+            petLevelText.text = $"Lv. {petData.currentLevel}";
 
-        SetImage(petIcon, petData.ListIcon);
-        SetImage(elementIcon, petData.ElementIcon);
+        SetImage(petIcon, petData.baseBeast.frontSprite);
+        
+        // Element icon có thể thiết lập sau nếu có ElementIconLibrary. Tạm thời vô hiệu hóa nếu không có.
+        if (elementIcon != null) elementIcon.gameObject.SetActive(false);
 
         if (selectButton != null)
         {

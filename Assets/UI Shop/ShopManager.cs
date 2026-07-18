@@ -488,9 +488,13 @@ public class ShopManager : MonoBehaviour
                 AddGold(selectedItem.price);
                 // Xóa 1 item trong kho
                 playerInventory.RemoveItem(selectedInventoryItemToSell, 1);
-                
                 SetMessage("Đã bán " + selectedItem.itemName);
                 Debug.Log("BÁN THÀNH CÔNG: " + selectedItem.itemName + " thu được " + selectedItem.price + " G");
+
+                // Lưu lại thông tin trước khi reset
+                string soldItemID = selectedItem.itemID;
+                string soldItemName = selectedItem.itemName;
+                int soldItemPrice = selectedItem.price;
 
                 // Làm mới danh sách bán
                 CreateSellItemList();
@@ -498,13 +502,25 @@ public class ShopManager : MonoBehaviour
 
                 if (questUIManager != null)
                 {
-                    questUIManager.NotifyItemSold(selectedItem.itemID);
+                    questUIManager.NotifyItemSold(soldItemID);
                 }
 
                 // Cập nhật hệ thống nhiệm vụ mới (Quest 5: Bán hàng cho Shop)
-                if (global::QuestManager.Instance != null && global::QuestManager.Instance.playerData.currentMainQuestId == 5)
+                if (global::QuestManager.Instance != null)
                 {
-                    global::QuestManager.Instance.AdvanceQuest();
+                    if (global::QuestManager.Instance.playerData.currentMainQuestId == 5)
+                    {
+                        global::QuestManager.Instance.AdvanceQuest();
+                    }
+                    
+                    // Cập nhật Quest 19: Bán cá kiếm tiền
+                    string sellName = soldItemName.ToLower();
+                    if (sellName.Contains("cá") || sellName.Contains("fish") || sellName.Contains("crab") ||
+                        sellName.Contains("willy") || sellName.Contains("pam") || sellName.Contains("shane") || 
+                        sellName.Contains("krobus") || sellName.Contains("linus"))
+                    {
+                        global::QuestManager.Instance.OnFishSold(soldItemPrice);
+                    }
                 }
             }
         }

@@ -206,13 +206,15 @@ public class MainMenuController : MonoBehaviour
         if (SceneTransitionManager.Instance != null)
         {
             SceneTransitionManager.Instance.TransitionToScene(
-                playTargetScene,
-                playLoadingMessage
+                playTargetScene
             );
         }
         else
         {
-            SceneManager.LoadScene(playTargetScene);
+            GameObject runnerObj = new GameObject("TempSceneLoader");
+            DontDestroyOnLoad(runnerObj);
+            var runner = runnerObj.AddComponent<TempSceneLoaderCoroutine>();
+            runner.StartLoading(playTargetScene);
         }
     }
 
@@ -240,13 +242,15 @@ public class MainMenuController : MonoBehaviour
         if (SceneTransitionManager.Instance != null)
         {
             SceneTransitionManager.Instance.TransitionToScene(
-                savedScene,
-                continueMessage
+                savedScene
             );
         }
         else
         {
-            SceneManager.LoadScene(savedScene);
+            GameObject runnerObj = new GameObject("TempSceneLoader");
+            DontDestroyOnLoad(runnerObj);
+            var runner = runnerObj.AddComponent<TempSceneLoaderCoroutine>();
+            runner.StartLoading(savedScene);
         }
     }
 

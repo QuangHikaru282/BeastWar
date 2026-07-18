@@ -65,8 +65,10 @@ public class QuestManager : MonoBehaviour
     [Header("Tiến trình nội bộ")]
     public int beastsDefeatedInForest = 0; // Cho nhiệm vụ đánh 3 con
     public int trainersDefeated = 0;       // Cho nhiệm vụ đánh 3 trainer
+    public int goldEarnedFromFish = 0;     // Cho nhiệm vụ bán cá
+    public int goldEarnedFromWood = 0;     // Cho nhiệm vụ bán gỗ
     
-    // Mảng mô tả cho 17 nhiệm vụ (theo bản thiết kế)
+    // Mảng mô tả cho 20 nhiệm vụ (theo bản thiết kế mở rộng)
     private readonly string[] questDescriptions = new string[]
     {
         /* 0  */ "Gặp Trưởng Làng để nhận bạn đồng hành khởi đầu.",
@@ -86,7 +88,14 @@ public class QuestManager : MonoBehaviour
         /* 14 */ "Khiêu chiến Thú Vương đầu tiên cai quản Khu Rừng.",
         /* 15 */ "Lấy Huy Hiệu từ Thú Vương để mở cổng Hang Động Đá Đen.",
         /* 16 */ "Tích lũy 1000 Vàng và trả cho Trưởng làng để mở rộng Nông Trại.",
-        /* 17 */ "Hoàn thành giai đoạn Demo! Hãy tiếp tục rèn luyện."
+        /* 17 */ "Hoàn thành giai đoạn Demo! Hãy tiếp tục rèn luyện.",
+        /* 18 */ "Bắt đầu sự nghiệp Ngư phủ: Tìm đến vùng nước và câu 1 con cá.",
+        /* 19 */ "Mang cá câu được bán cho Shop để kiếm 100 Vàng.",
+        /* 20 */ "Đi qua Vùng hoang dã để khám phá vùng đất mới.",
+        /* 21 */ "Trở thành Tiều phu: Dùng Rìu chặt đổ một cây gỗ.",
+        /* 22 */ "Mang Gỗ thu thập được bán cho Cửa Hàng để kiếm 150 Vàng.",
+        /* 23 */ "Chiến đấu xuất sắc: Tăng cấp (Level Up) cho 1 thú trong đội hình.",
+        /* 24 */ "Tiến lên phía trước: Khám phá và đi tới Hang Động."
     };
 
     private void Awake()
@@ -130,6 +139,19 @@ public class QuestManager : MonoBehaviour
     {
         // Khôi phục các dụng cụ và vật phẩm đã mở khóa khi game vừa khởi động
         StartCoroutine(RestoreAfterFrame());
+    }
+
+    private void Update()
+    {
+        // Cheat code: Click chuột phải (chuột 1) để hoàn thành nhanh quest hiện tại
+        if (Input.GetMouseButtonDown(1))
+        {
+            if (playerData != null && playerData.currentMainQuestId < questDescriptions.Length)
+            {
+                Debug.Log($"[Cheat] Đã click chuột phải! Hoàn thành nhanh nhiệm vụ {playerData.currentMainQuestId}.");
+                AdvanceQuest();
+            }
+        }
     }
 
     /// <summary>
@@ -243,6 +265,8 @@ public class QuestManager : MonoBehaviour
         if (id == 6) desc += $" ({beastsDefeatedInForest}/3)";
         if (id == 7) desc += $" ({playerData.ownedBeasts.Count}/3)";
         if (id == 13) desc += $" ({trainersDefeated}/3)";
+        if (id == 19) desc += $" ({goldEarnedFromFish}/100)";
+        if (id == 22) desc += $" ({goldEarnedFromWood}/150)";
 
         return desc;
     }
@@ -300,6 +324,48 @@ public class QuestManager : MonoBehaviour
                 rewardGold = 100;
                 rewardExp = 200;
                 rewardItem = "";
+                break;
+                
+            case 18: // Nhiệm vụ 18: Câu cá
+                rewardGold = 50;
+                rewardExp = 150;
+                rewardItem = "";
+                break;
+                
+            case 19: // Nhiệm vụ 19: Bán cá
+                rewardGold = 200;
+                rewardExp = 300;
+                rewardItem = "Vé Bốc Thăm (Hiếm)";
+                break;
+                
+            case 20: // Nhiệm vụ 20: Đi qua Vùng hoang dã
+                rewardGold = 300;
+                rewardExp = 500;
+                rewardItem = "Vé Tàu Thủy";
+                break;
+
+            case 21: // Nhiệm vụ 21: Chặt gỗ
+                rewardGold = 50;
+                rewardExp = 150;
+                rewardItem = "";
+                break;
+
+            case 22: // Nhiệm vụ 22: Bán gỗ
+                rewardGold = 250;
+                rewardExp = 400;
+                rewardItem = "Bản đồ Kho báu";
+                break;
+
+            case 23: // Nhiệm vụ 23: Lên cấp
+                rewardGold = 100;
+                rewardExp = 200;
+                rewardItem = "Bánh Mì Ngọt";
+                break;
+
+            case 24: // Nhiệm vụ 24: Đi tới Hang Động
+                rewardGold = 500;
+                rewardExp = 600;
+                rewardItem = "Đèn Pin Siêu Sáng";
                 break;
 
             default:
@@ -360,6 +426,24 @@ public class QuestManager : MonoBehaviour
     {
         if (playerData == null) return;
         int id = playerData.currentMainQuestId;
+
+        // Bỏ qua nhiệm vụ 9 (chế tạo mồi) theo yêu cầu
+        if (id == 9)
+        {
+            playerData.currentMainQuestId = 10;
+            playerData.Save();
+            CheckQuestImmediate();
+            return;
+        }
+
+        // Bỏ qua nhiệm vụ 17 (Demo ending) để đi tiếp sang câu cá
+        if (id == 17)
+        {
+            playerData.currentMainQuestId = 18;
+            playerData.Save();
+            CheckQuestImmediate();
+            return;
+        }
 
         // Quest 7: Sở hữu 3 loài Thú khác nhau — có thể đã đủ từ trước
         if (id == 7 && playerData.ownedBeasts.Count >= 3)
@@ -528,6 +612,77 @@ public class QuestManager : MonoBehaviour
         {
             AdvanceQuest(); // Nhảy sang 15
             AdvanceQuest(); // Cho qua 15 luôn (nhận huy hiệu) để tới 16
+        }
+    }
+
+    /// <summary>Kiểm tra khi câu được cá.</summary>
+    public void OnFishCaught()
+    {
+        if (playerData.currentMainQuestId == 18)
+        {
+            AdvanceQuest();
+        }
+    }
+
+    /// <summary>Kiểm tra khi bán cá.</summary>
+    public void OnFishSold(int goldAmount)
+    {
+        if (playerData.currentMainQuestId == 19)
+        {
+            goldEarnedFromFish += goldAmount;
+            if (goldEarnedFromFish >= 100)
+            {
+                AdvanceQuest();
+            }
+        }
+    }
+
+    /// <summary>Kiểm tra khi đi qua Vùng hoang dã.</summary>
+    public void OnWildernessPassed()
+    {
+        if (playerData.currentMainQuestId == 20)
+        {
+            AdvanceQuest();
+        }
+    }
+
+    /// <summary>Kiểm tra khi chặt cây.</summary>
+    public void OnTreeChopped()
+    {
+        if (playerData.currentMainQuestId == 21)
+        {
+            AdvanceQuest();
+        }
+    }
+
+    /// <summary>Kiểm tra khi bán gỗ.</summary>
+    public void OnWoodSold(int goldAmount)
+    {
+        if (playerData.currentMainQuestId == 22)
+        {
+            goldEarnedFromWood += goldAmount;
+            if (goldEarnedFromWood >= 150)
+            {
+                AdvanceQuest();
+            }
+        }
+    }
+
+    /// <summary>Kiểm tra khi có thú trong đội hình tăng cấp.</summary>
+    public void OnBeastLevelUp()
+    {
+        if (playerData.currentMainQuestId == 23)
+        {
+            AdvanceQuest();
+        }
+    }
+
+    /// <summary>Kiểm tra khi người chơi đi tới Hang Động.</summary>
+    public void OnCaveReached()
+    {
+        if (playerData.currentMainQuestId == 24)
+        {
+            AdvanceQuest();
         }
     }
 }

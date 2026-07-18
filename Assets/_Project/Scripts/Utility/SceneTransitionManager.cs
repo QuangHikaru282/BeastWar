@@ -26,6 +26,10 @@ public class SceneTransitionManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            if (transform.parent != null)
+            {
+                transform.SetParent(null);
+            }
             DontDestroyOnLoad(gameObject);
 
             // Đảm bảo Canvas ẩn đi lúc khởi động game
@@ -77,11 +81,14 @@ public class SceneTransitionManager : MonoBehaviour
         }
         string primaryScene = scenesToLoad[0];
 
-        // Lưu lại chính xác số lượng kho đồ hiện tại trước khi chuyển cảnh
-        Kinnly.PlayerInventory currentInv = FindFirstObjectByType<Kinnly.PlayerInventory>();
-        if (currentInv != null)
+        // Lưu lại chính xác số lượng kho đồ hiện tại trước khi chuyển cảnh, trừ khi đang thoát khỏi Battle
+        if (!UnityEngine.SceneManagement.SceneManager.GetActiveScene().name.Contains("Battle"))
         {
-            currentInv.SaveNow();
+            Kinnly.PlayerInventory currentInv = FindFirstObjectByType<Kinnly.PlayerInventory>();
+            if (currentInv != null)
+            {
+                currentInv.SaveNow();
+            }
         }
 
         // Kiểm tra xem primaryScene đã được load chưa
@@ -189,6 +196,19 @@ public class SceneTransitionManager : MonoBehaviour
         if (primarySceneObj.IsValid())
         {
             SceneManager.SetActiveScene(primarySceneObj);
+        }
+
+        // KHÔI PHỤC VỊ TRÍ NGƯỜI CHƠI SAU TRẬN ĐÁNH (Thay thế cho AutoLoadAdditiveScene)
+        BattleTransferData battleData = Resources.Load<BattleTransferData>("BattleTransferData");
+        if (battleData != null && battleData.returnToLastPosition)
+        {
+            GameObject player = GameObject.FindWithTag("Player");
+            if (player != null)
+            {
+                player.transform.position = battleData.lastPlayerPosition;
+                battleData.returnToLastPosition = false;
+                Debug.Log($"[SceneTransitionManager] Đã khôi phục vị trí người chơi về: {battleData.lastPlayerPosition}");
+            }
         }
 
         // Fade in (làm sáng dần màn hình game, ẩn màn hình loading)

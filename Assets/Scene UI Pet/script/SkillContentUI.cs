@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class SkillContentUI : MonoBehaviour
 {
@@ -9,41 +9,45 @@ public class SkillContentUI : MonoBehaviour
     private SkillSlotUI[] skillSlots =
         new SkillSlotUI[MaximumSkillSlots];
 
-    private PetData currentPet;
+    private RuntimeBeastData currentPet;
+    private PlayerData playerData;
+
+    private System.Action onSkillUpgradedCallback;
 
     private void Awake()
     {
         HideAllSlots();
     }
 
-    public void Display(PetData pet)
+    public void Display(RuntimeBeastData pet, PlayerData pData, System.Action onSkillUpgraded)
     {
         currentPet = pet;
+        playerData = pData;
+        onSkillUpgradedCallback = onSkillUpgraded;
 
         HideAllSlots();
 
-        if (currentPet == null || currentPet.Skills == null)
+        if (currentPet == null || currentPet.moves == null)
             return;
 
         int slotIndex = 0;
 
         for (int skillIndex = 0;
-             skillIndex < currentPet.Skills.Count;
+             skillIndex < currentPet.moves.Length;
              skillIndex++)
         {
-            PetSkillEntry skillEntry =
-                currentPet.Skills[skillIndex];
+            RuntimeMoveData skillEntry =
+                currentPet.moves[skillIndex];
 
-            if (skillEntry == null || !skillEntry.IsValid)
+            if (skillEntry == null || skillEntry.baseMove == null)
                 continue;
 
             if (slotIndex >= MaximumSkillSlots ||
                 slotIndex >= skillSlots.Length)
             {
                 Debug.LogWarning(
-                    $"{currentPet.PetName} có nhiều hơn 4 kỹ năng. " +
-                    "Chỉ 4 kỹ năng đầu tiên được hiển thị.",
-                    currentPet
+                    $"{currentPet.baseBeast.beastName} có nhiều hơn 4 kỹ năng. " +
+                    "Chỉ 4 kỹ năng đầu tiên được hiển thị."
                 );
 
                 break;
@@ -52,7 +56,7 @@ public class SkillContentUI : MonoBehaviour
             SkillSlotUI slot = skillSlots[slotIndex];
 
             if (slot != null)
-                slot.Setup(skillEntry);
+                slot.Setup(skillEntry, playerData, onSkillUpgraded);
 
             slotIndex++;
         }
@@ -67,7 +71,7 @@ public class SkillContentUI : MonoBehaviour
 
     public void Refresh()
     {
-        Display(currentPet);
+        Display(currentPet, playerData, onSkillUpgradedCallback);
     }
 
     public void Clear()

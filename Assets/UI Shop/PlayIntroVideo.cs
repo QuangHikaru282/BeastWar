@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.Video;
@@ -128,8 +128,20 @@ public class PlayIntroVideo : MonoBehaviour
             return;
         }
 
-        SceneManager.LoadSceneAsync(gameSceneName);
+        if (SceneTransitionManager.Instance != null)
+        {
+            SceneTransitionManager.Instance.TransitionToScene(gameSceneName);
+        }
+        else
+        {
+            // Tạo một GameObject tạm để chạy Coroutine và không bị huỷ khi chuyển cảnh
+            GameObject runnerObj = new GameObject("TempSceneLoader");
+            DontDestroyOnLoad(runnerObj);
+            var runner = runnerObj.AddComponent<TempSceneLoaderCoroutine>();
+            runner.StartLoading(gameSceneName);
+        }
     }
+
 
     public void BackToMainMenu()
     {
@@ -148,5 +160,33 @@ public class PlayIntroVideo : MonoBehaviour
         videoPlayer.prepareCompleted -= OnVideoPrepared;
         videoPlayer.loopPointReached -= OnVideoFinished;
         videoPlayer.errorReceived -= OnVideoError;
+    }
+}
+
+public class TempSceneLoaderCoroutine : MonoBehaviour
+{
+    public void StartLoading(string sceneNames)
+    {
+        StartCoroutine(LoadScenesSequentially(sceneNames));
+    }
+
+    private System.Collections.IEnumerator LoadScenesSequentially(string sceneNames)
+    {
+        string[] scenesToLoad = sceneNames.Split(',');
+        for (int i = 0; i < scenesToLoad.Length; i++)
+        {
+            string sName = scenesToLoad[i].Trim();
+            if (i == 0)
+            {
+                var asyncLoad = SceneManager.LoadSceneAsync(sName, LoadSceneMode.Single);
+                while (!asyncLoad.isDone) yield return null;
+            }
+            else
+            {
+                var asyncLoad = SceneManager.LoadSceneAsync(sName, LoadSceneMode.Additive);
+                while (!asyncLoad.isDone) yield return null;
+            }
+        }
+        Destroy(gameObject);
     }
 }

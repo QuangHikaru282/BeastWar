@@ -1,4 +1,4 @@
-﻿using TMPro;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,7 +18,9 @@ public class SkillSlotUI : MonoBehaviour
     [Tooltip("Không bắt buộc. Có thể để trống nếu UI chưa có text giá.")]
     [SerializeField] private TMP_Text upgradeCostText;
 
-    private PetSkillEntry currentSkill;
+    private RuntimeMoveData currentMove;
+    private PlayerData playerData;
+    private System.Action onUpgradeCallback;
 
     private void Awake()
     {
@@ -32,15 +34,18 @@ public class SkillSlotUI : MonoBehaviour
             upgradeButton.onClick.RemoveListener(HandleUpgradeButton);
     }
 
-    public void Setup(PetSkillEntry skillEntry)
+    public void Setup(RuntimeMoveData moveEntry, PlayerData pData, System.Action onUpgrade)
     {
-        if (skillEntry == null || !skillEntry.IsValid)
+        if (moveEntry == null || moveEntry.baseMove == null)
         {
             Hide();
             return;
         }
 
-        currentSkill = skillEntry;
+        currentMove = moveEntry;
+        playerData = pData;
+        onUpgradeCallback = onUpgrade;
+        
         gameObject.SetActive(true);
 
         RefreshUI();
@@ -48,24 +53,24 @@ public class SkillSlotUI : MonoBehaviour
 
     public void Hide()
     {
-        currentSkill = null;
+        currentMove = null;
         gameObject.SetActive(false);
     }
 
     private void RefreshUI()
     {
-        if (currentSkill == null || !currentSkill.IsValid)
+        if (currentMove == null || currentMove.baseMove == null)
         {
             Hide();
             return;
         }
 
-        SkillData data = currentSkill.SkillData;
+        MoveData data = currentMove.baseMove;
 
-        SetText(skillNameText, data.SkillName);
-        SetText(skillDescriptionText, data.Description);
+        SetText(skillNameText, data.moveName);
+        SetText(skillDescriptionText, data.description);
 
-        if (currentSkill.IsMaxLevel)
+        if (currentMove.currentLevel >= data.maxLevel)
         {
             SetText(skillLevelText, "MAX");
             SetText(upgradeCostText, "MAX");
@@ -77,32 +82,37 @@ public class SkillSlotUI : MonoBehaviour
         {
             SetText(
                 skillLevelText,
-                $"Lv. {currentSkill.CurrentLevel}/{currentSkill.MaxLevel}"
+                $"Lv. {currentMove.currentLevel}/{data.maxLevel}"
             );
 
+            int cost = currentMove.GetUpgradeCost();
             SetText(
                 upgradeCostText,
-                currentSkill.UpgradeCost.ToString("N0")
+                cost.ToString("N0")
             );
 
             if (upgradeButton != null)
-                upgradeButton.interactable = true;
+                upgradeButton.interactable = (playerData != null && playerData.gold >= cost);
         }
 
-        SetImage(skillIcon, data.SkillIcon);
+        SetImage(skillIcon, data.icon);
     }
 
     private void HandleUpgradeButton()
     {
-        if (currentSkill == null)
+        if (currentMove == null || playerData == null)
             return;
 
-        bool upgraded = currentSkill.TryUpgrade();
-
-        if (!upgraded)
-            return;
-
-        RefreshUI();
+        int cost = currentMove.GetUpgradeCost();
+        if (currentMove.currentLevel < currentMove.baseMove.maxLevel && playerData.gold >= cost)
+        {
+            playerData.gold -= cost;
+            currentMove.currentLevel++;
+            playerData.Save();
+            
+            RefreshUI();
+            onUpgradeCallback?.Invoke();
+        }
     }
 
     private static void SetText(TMP_Text target, string value)

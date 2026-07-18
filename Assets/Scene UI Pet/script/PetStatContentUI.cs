@@ -1,4 +1,4 @@
-﻿using TMPro;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,25 +20,26 @@ public class PetStatContentUI : MonoBehaviour
     [SerializeField] private TMP_Text rarityValueText;
     [SerializeField] private TMP_Text personalityValueText;
 
-    public void Display(PetData pet)
+    public void Display(RuntimeBeastData pet)
     {
-        if (pet == null)
+        if (pet == null || pet.baseBeast == null)
         {
             Clear();
             return;
         }
 
-        SetText(healthValueText, FormatNumber(pet.Health));
+        SetText(healthValueText, FormatNumber(pet.MaxHP));
         SetText(attackValueText, FormatNumber(pet.Attack));
         SetText(defenseValueText, FormatNumber(pet.Defense));
         SetText(speedValueText, FormatNumber(pet.Speed));
 
-        SetText(powerValueText, FormatNumber(pet.Power));
-        SetText(rarityValueText, pet.Rarity.ToString());
-        SetText(personalityValueText, pet.Personality);
+        SetText(powerValueText, FormatNumber(pet.CombatPower));
+        SetText(rarityValueText, pet.baseBeast.isRare ? "Hiếm" : "Thường");
+        SetText(personalityValueText, pet.baseBeast.element.ToString()); // Dùng Tên Hệ thay cho tính cách
 
         // Hiển thị hình ảnh nguyên tố thay cho chữ.
-        SetImage(elementValueImage, pet.ElementIcon);
+        // Tạm ẩn icon nguyên tố vì hệ thống hiện dùng Text/Enum
+        if (elementValueImage != null) elementValueImage.gameObject.SetActive(false);
     }
 
     public void Clear()

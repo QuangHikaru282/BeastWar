@@ -56,11 +56,14 @@ public class GameSceneManager : MonoBehaviour
     {
         // Đóng băng trạng thái: Chỉ lưu GameCore và Scene đang hoạt động (Active Scene)
         // Tránh lưu nhầm các Scene đang được tải ngầm (như ForestScene) vì khi quay về nó sẽ bị hiện chồng lên nhau.
-        string activeSceneName = SceneManager.GetActiveScene().name;
         string scenes = "GameCore";
-        if (activeSceneName != "GameCore")
+        for (int i = 0; i < SceneManager.sceneCount; i++)
         {
-            scenes += "," + activeSceneName;
+            Scene s = SceneManager.GetSceneAt(i);
+            if (s.isLoaded && s.name != "GameCore" && s.name != "DontDestroyOnLoad" && !s.name.Contains("Battle"))
+            {
+                scenes += "," + s.name;
+            }
         }
 
         // Lưu lại chính xác số lượng kho đồ & thanh công cụ trước khi vào trận đấu
