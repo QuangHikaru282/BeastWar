@@ -37,23 +37,34 @@ public class QuestManager : MonoBehaviour
         {
             foreach (var item in allGameItems)
             {
-                if (item != null && (item.name == itemName || item.name.Equals(cleanName, System.StringComparison.OrdinalIgnoreCase))) return item;
+                if (item != null)
+                {
+                    string assetName = ((UnityEngine.Object)item).name;
+                    if (item.name == itemName || item.name.Equals(cleanName, System.StringComparison.OrdinalIgnoreCase) ||
+                        assetName == itemName || assetName.Equals(cleanName, System.StringComparison.OrdinalIgnoreCase))
+                        return item;
+                }
             }
         }
 
-        // Tự động load TẤT CẢ các Item từ toàn bộ folder Resources (Bao gồm Nông sản Tomato_Fruit, Hạt giống, Mồi nhử, v.v...)
+        // Tự động load TẤT CẢ các Item từ toàn bộ folder Resources
         Kinnly.Item[] resItems = Resources.LoadAll<Kinnly.Item>("");
         if (resItems != null)
         {
             foreach (var item in resItems)
             {
-                if (item != null && (item.name == itemName || item.name.Equals(cleanName, System.StringComparison.OrdinalIgnoreCase)))
+                if (item != null)
                 {
-                    if (allGameItems != null && !allGameItems.Contains(item))
+                    string assetName = ((UnityEngine.Object)item).name;
+                    if (item.name == itemName || item.name.Equals(cleanName, System.StringComparison.OrdinalIgnoreCase) ||
+                        assetName == itemName || assetName.Equals(cleanName, System.StringComparison.OrdinalIgnoreCase))
                     {
-                        allGameItems.Add(item); // Giữ item trong RAM không bao giờ bị unload
+                        if (allGameItems != null && !allGameItems.Contains(item))
+                        {
+                            allGameItems.Add(item);
+                        }
+                        return item;
                     }
-                    return item;
                 }
             }
         }

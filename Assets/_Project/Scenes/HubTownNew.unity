@@ -69376,7 +69376,7 @@ Tilemap:
       - {fileID: 1168441397, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: 700178016, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: -717414383, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
-      m_AnimationSpeed: 3
+      m_AnimationSpeed: 3.0000002
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: 7, y: 3, z: 0}
@@ -69476,7 +69476,7 @@ Tilemap:
       - {fileID: -989134415111674395, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: -3644940872334523152, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: 4845831617191762501, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
-      m_AnimationSpeed: 3.0000002
+      m_AnimationSpeed: 3
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: 28, y: 7, z: 0}
@@ -69516,7 +69516,7 @@ Tilemap:
       - {fileID: 1168441397, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: 700178016, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: -717414383, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
-      m_AnimationSpeed: 3
+      m_AnimationSpeed: 3.0000002
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: -13, y: 23, z: 0}
@@ -69526,7 +69526,7 @@ Tilemap:
       - {fileID: 155882333, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: 1328193532, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: 494449804, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
-      m_AnimationSpeed: 3.0000002
+      m_AnimationSpeed: 3
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: 40, y: 23, z: 0}
@@ -69576,7 +69576,7 @@ Tilemap:
       - {fileID: -989134415111674395, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: -3644940872334523152, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: 4845831617191762501, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
-      m_AnimationSpeed: 3.0000002
+      m_AnimationSpeed: 3
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: 41, y: 24, z: 0}
@@ -188711,7 +188711,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!61 &1785089608
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -188746,7 +188746,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -8, y: 2.5}
+  m_Offset: {x: -8, y: 2}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -188756,7 +188756,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 17, y: 14}
+  m_Size: {x: 19, y: 15}
   m_EdgeRadius: 0
 --- !u!4 &1785089609
 Transform:

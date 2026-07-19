@@ -60,19 +60,8 @@ public class FishCatchEffect : MonoBehaviour
             yield return null;
         }
 
-        // 5. Tích hợp Fake Inventory (Giả vờ nhét cá vào balo)
-        Kinnly.PlayerInventory inventory = UnityEngine.Object.FindFirstObjectByType<Kinnly.PlayerInventory>();
-        if (inventory != null)
-        {
-            // Tạo một ScriptableObject Item giả ngay trên RAM
-            Kinnly.Item fakeFishItem = ScriptableObject.CreateInstance<Kinnly.Item>();
-            fakeFishItem.name = storedFishName;
-            fakeFishItem.image = storedFishSprite;
-            fakeFishItem.isStackable = true; // Cho phép cộng dồn
-
-            // Gọi hệ thống Kinnly để nhét vào UI
-            inventory.AddItem(fakeFishItem, 1);
-        }
+        // Item đã được thêm vào balo bởi FishingMinigame.cs ngay lúc câu xong.
+        // Không cần thêm lần 2 ở đây nữa.
 
         // Hiệu ứng hoàn tất -> Xóa bỏ khỏi Scene để giải phóng RAM
         Destroy(gameObject);
