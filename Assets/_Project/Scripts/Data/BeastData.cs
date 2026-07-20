@@ -1,24 +1,71 @@
-using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Nguyên tố dùng cho hệ thống chiến đấu.
+/// Giữ nguyên thứ tự để không ảnh hưởng dữ liệu cũ.
+/// </summary>
 public enum BeastElement
 {
-    Normal, Fire, Water, Grass,
-    Electric, Ice, Ground, Rock,
-    Fighting, Poison, Flying, Psychic,
-    Dark, Steel, Dragon
+    Normal,
+    Fire,
+    Water,
+    Grass,
+    Electric,
+    Ice,
+    Ground,
+    Rock,
+    Fighting,
+    Poison,
+    Flying,
+    Psychic,
+    Dark,
+    Steel,
+    Dragon
 }
 
-[CreateAssetMenu(fileName = "NewBeastData", menuName = "BeastBall/BeastData")]
+/// <summary>
+/// Nguyên tố dùng riêng để chọn panel Enhance.
+/// </summary>
+public enum EnhanceElement
+{
+    None = 0,
+    Metal = 1,
+    Water = 2,
+    Wood = 3,
+    Fire = 4,
+    Earth = 5,
+    Light = 6,
+    Dark = 7
+}
+
+[CreateAssetMenu(
+    fileName = "NewBeastData",
+    menuName = "BeastBall/BeastData"
+)]
 public class BeastData : ScriptableObject
 {
     [Header("Thông tin cơ bản")]
     public string beastName = "Unknown Beast";
+
+    [Tooltip("Nguyên tố dùng trong chiến đấu.")]
     public BeastElement element = BeastElement.Normal;
+
+    [Tooltip("Nguyên tố dùng để chọn panel Enhance.")]
+    public EnhanceElement enhanceElement = EnhanceElement.None;
+
     public bool isRare = false;
-    public Sprite frontSprite;   // Sprite hiển thị khi là địch (nhìn về phía player)
-    public Sprite backSprite;    // Sprite hiển thị khi là của mình (nhìn về phía địch)
-    public RuntimeAnimatorController animatorController; // Hoạt ảnh chiến đấu của thú
+
+    [Header("Hình ảnh")]
+    [Tooltip("Ảnh Pet nhìn về phía người chơi.")]
+    public Sprite frontSprite;
+
+    [Tooltip("Ảnh Pet nhìn về phía đối thủ.")]
+    public Sprite backSprite;
+
+    [Tooltip("Image 2: ảnh xem trước Pet sau tiến hóa.")]
+    public Sprite image2;
+
+    public RuntimeAnimatorController animatorController;
 
     [Header("Chỉ số chiến đấu")]
     [Min(1)] public int maxHP = 100;
@@ -27,25 +74,38 @@ public class BeastData : ScriptableObject
     [Min(1)] public int speed = 40;
 
     [Header("Thu phục")]
-    [Range(0f, 1f)] public float captureRate = 1.0f;
-    // captureRate: 1.0 = cực dễ bắt (thú thường), 0.45 = quý hiếm, 0.1 = huyền thoại
+    [Range(0f, 1f)]
+    public float captureRate = 1f;
 
-    [Header("Chiêu thức (tối đa 4)")]
+    [Header("Chiêu thức - tối đa 4")]
     public MoveData[] moves = new MoveData[0];
 
-    /// <summary>Lực chiến tính tự động từ các chỉ số.</summary>
-    public int CombatPower => maxHP + attack * 2 + defense + speed;
+    public int CombatPower =>
+        maxHP +
+        attack * 2 +
+        defense +
+        speed;
 
-    // ─── TIẾN HÓA ───────────────────────────────
-    
     [Header("Tiến hóa")]
-    public BeastData evolveTarget = null; // Thú sẽ tiến hóa thành. Bỏ trống nếu không thể tiến hóa.
-    public int evolveLevel = 0;           // Cấp độ yêu cầu (vd: 16)
-    public int evolveGoldCost = 1000;     // Lượng vàng yêu cầu
+    [Tooltip("Pet sẽ tiến hóa thành. Có thể để trống khi đang thiết kế UI.")]
+    public BeastData evolveTarget;
 
-    // ─── PHẦN THƯỞNG ──────────────────────────────
+    [Min(0)]
+    public int evolveLevel;
+
+    [Min(0)]
+    public int evolveGoldCost = 1000;
+
     [Header("Phần thưởng khi bị tiêu diệt")]
-    public int rewardGold = 10;
-    public int rewardExp = 50;
+    [Min(0)] public int rewardGold = 10;
+    [Min(0)] public int rewardExp = 50;
 
+    public Sprite EvolutionImage => image2;
+
+    public int GetAfterEvolutionStat(int currentValue)
+    {
+        return Mathf.RoundToInt(
+            Mathf.Max(0, currentValue) * 1.5f
+        );
+    }
 }
