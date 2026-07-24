@@ -12,14 +12,29 @@ public class ShopkeeperNPC : MonoBehaviour, IInteractable
 
     public void Interact(PlayerInventory playerInventory)
     {
-        if (shopManager != null)
+        if (shopManager == null)
         {
-            Debug.Log(greetingText);
-            shopManager.OpenShop();
+            shopManager = GetComponentInChildren<ShopManager>(true);
+            if (shopManager == null)
+                shopManager = FindFirstObjectByType<ShopManager>(FindObjectsInactive.Include);
+        }
+
+        if (DialogueManager.Instance != null)
+        {
+            DialogueManager.Instance.StartDialogue(
+                "Thương Gia",
+                string.IsNullOrEmpty(greetingText) ? "Chào mừng quý khách! Ngài cần tìm mua hay bán vật phẩm gì hôm nay?" : greetingText,
+                () => {
+                    if (shopManager != null)
+                    {
+                        shopManager.OpenShop();
+                    }
+                }
+            );
         }
         else
         {
-            Debug.LogWarning("Chưa gán ShopManager cho NPC Thương Gia!");
+            if (shopManager != null) shopManager.OpenShop();
         }
     }
 }

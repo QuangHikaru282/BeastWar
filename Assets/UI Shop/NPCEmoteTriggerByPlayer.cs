@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
@@ -158,7 +158,7 @@ public class NPCEmoteTriggerByPlayer : MonoBehaviour
         textMesh.fontSize = textSize;
         textMesh.color = textColor;
         textMesh.alignment = TextAlignmentOptions.Center;
-        textMesh.enableWordWrapping = false;
+        textMesh.textWrappingMode = TextWrappingModes.NoWrap;
 
         MeshRenderer textRenderer = textObject.GetComponent<MeshRenderer>();
         textRenderer.sortingLayerName = sortingLayerName;

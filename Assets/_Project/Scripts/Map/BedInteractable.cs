@@ -50,6 +50,11 @@ public class BedInteractable : MonoBehaviour, IInteractable
         // Mở khóa di chuyển
         if (playerCtrl != null) playerCtrl.SetCanMove(true);
         
+        if (DialogueManager.Instance != null)
+        {
+            DialogueManager.Instance.StartDialogue("Thông Báo", "Bạn đã ngủ một giấc thật sâu. Buổi sáng mới tốt lành!");
+        }
+        
         Debug.Log("<color=cyan>[Bed]</color> Buổi sáng tốt lành!");
     }
 }

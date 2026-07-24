@@ -32,6 +32,10 @@ namespace Kinnly
         bool isInteracting;
         float interactTime;
 
+        // Events — các hệ thống khác lắng nghe để hiện/ẩn hint UI
+        public static event System.Action<GameObject> OnInteractableEnter;
+        public static event System.Action OnInteractableExit;
+
         // Start is called before the first frame update
         private void Start()
         {
@@ -47,13 +51,18 @@ namespace Kinnly
             MouseControl();
             OnDrawOutline();
 
-            if (Input.GetKey(KeyCode.E) || Input.GetMouseButton(1))
+            if (Input.GetKeyDown(KeyCode.F))
             {
+                // Nếu đang trong cuộc thoại HOẶC thoại vừa mới kết thúc trong vòng 0.35s -> Bỏ qua phím F để không bị re-trigger thoại
+                if (DialogueManager.Instance != null && (DialogueManager.Instance.IsDialogueActive || Time.time - DialogueManager.Instance.LastEndDialogueTime < 0.35f))
+                {
+                    return;
+                }
+
                 if (isInteracting == false)
                 {
-                    Debug.Log($"<color=cyan>[PlayerInteract]</color> Đã nhận phím E hoặc Chuột phải! Đang kiểm tra vùng chạm (insideTrigger = {(insideTrigger != null ? insideTrigger.name : "null")})...");
                     Interact();
-                    interactTime = 0.15f;
+                    interactTime = 0.4f;
                 }
             }
 
@@ -201,6 +210,7 @@ namespace Kinnly
             if (collision.GetComponent<IInteractable>() != null)
             {
                 insideTrigger = collision.gameObject;
+                OnInteractableEnter?.Invoke(insideTrigger);
             }
         }
 
@@ -209,6 +219,7 @@ namespace Kinnly
             if (insideTrigger == null && collision.GetComponent<IInteractable>() != null)
             {
                 insideTrigger = collision.gameObject;
+                OnInteractableEnter?.Invoke(insideTrigger);
             }
         }
 
@@ -217,6 +228,7 @@ namespace Kinnly
             if (insideTrigger == collision.gameObject)
             {
                 insideTrigger = null;
+                OnInteractableExit?.Invoke();
             }
         }
 

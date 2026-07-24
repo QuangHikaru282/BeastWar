@@ -1,3 +1,4 @@
+#pragma warning disable 0414
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -235,9 +236,6 @@ public class MainMenuController : MonoBehaviour
                 "SavedScene",
                 playTargetScene
             );
-
-        string continueMessage =
-            "Đang tiếp tục hành trình...";
 
         if (SceneTransitionManager.Instance != null)
         {

@@ -169,10 +169,19 @@ public class StarterSelectionUI : MonoBehaviour
 
     private void ResetStarterSlots()
     {
-        foreach (StarterSlotData slot in starterSlots)
+        BeastData[] starters = new BeastData[] { starter1, starter2, starter3 };
+
+        for (int i = 0; i < starterSlots.Count; i++)
         {
+            StarterSlotData slot = starterSlots[i];
+            BeastData data = i < starters.Length ? starters[i] : null;
+
             if (slot.petImage != null)
             {
+                if (data != null && data.frontSprite != null)
+                {
+                    slot.petImage.sprite = data.frontSprite;
+                }
                 slot.petImage.gameObject.SetActive(false);
             }
 
@@ -259,6 +268,11 @@ public class StarterSelectionUI : MonoBehaviour
         // Lần bấm đầu tiên: hiện hình Pet
         if (!slot.petIsVisible)
         {
+            if (chosenBeast != null && chosenBeast.frontSprite != null)
+            {
+                slot.petImage.sprite = chosenBeast.frontSprite;
+            }
+
             slot.petImage.gameObject.SetActive(true);
             slot.petIsVisible = true;
 
@@ -353,6 +367,11 @@ public class StarterSelectionUI : MonoBehaviour
         }
 
         // 3. Đánh dấu trưởng làng đã cho quà
+        if (elderNPC == null)
+        {
+            elderNPC = FindFirstObjectByType<ElderNPC>();
+        }
+
         if (elderNPC != null)
         {
             elderNPC.hasGivenStarter = true;

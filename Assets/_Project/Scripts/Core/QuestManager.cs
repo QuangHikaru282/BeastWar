@@ -105,9 +105,38 @@ public class QuestManager : MonoBehaviour
         /* 20 */ "Đi qua Vùng hoang dã để khám phá vùng đất mới.",
         /* 21 */ "Trở thành Tiều phu: Dùng Rìu chặt đổ một cây gỗ.",
         /* 22 */ "Mang Gỗ thu thập được bán cho Cửa Hàng để kiếm 150 Vàng.",
-        /* 23 */ "Chiến đấu xuất sắc: Tăng cấp (Level Up) cho 1 thú trong đội hình.",
-        /* 24 */ "Tiến lên phía trước: Khám phá và đi tới Hang Động."
     };
+
+    // Mảng tiêu đề cho 20 nhiệm vụ
+    private readonly string[] questTitles = new string[]
+    {
+        /* 0  */ "Khởi Đầu Hành Trình",
+        /* 1  */ "Thu Phục Đồng Hành",
+        /* 2  */ "Gieo Hạt Đầu Tiên",
+        /* 3  */ "Tưới Nước Cho Cây",
+        /* 4  */ "Thu Hoạch Nông Sản",
+        /* 5  */ "Giao Thương Khởi Nghiệp",
+        /* 6  */ "Khám Phá Rừng Xanh",
+        /* 7  */ "Xây Dựng Đội Hình",
+        /* 8  */ "Thú Hệ Nước",
+        /* 9  */ "Chế Tạo Mồi Nhử",
+        /* 10 */ "Thú Hiếm Xuất Hiện",
+        /* 11 */ "Kẻ Thù Thách Đấu",
+        /* 12 */ "Tiến Vào Rừng Sâu",
+        /* 13 */ "Chiến Đấu Trainer",
+        /* 14 */ "Thách Thức Thú Vương",
+        /* 15 */ "Huy Hiệu Đầu Tiên",
+        /* 16 */ "Mở Rộng Nông Trại",
+        /* 17 */ "Hoàn Thành Bản Demo",
+        /* 18 */ "Sự Nghiệp Ngư Phủ",
+        /* 19 */ "Bán Cá Kiếm Tiền",
+        /* 20 */ "Khám Phá Vùng Đất Mới",
+        /* 21 */ "Trở Thành Tiều Phu",
+        /* 22 */ "Bán Gỗ Kiếm Tiền",
+        /* 23 */ "Thú Cưng Tăng Cấp",
+        /* 24 */ "Khám Phá Hang Động"
+    };
+
 
     private void Awake()
     {
@@ -255,6 +284,21 @@ public class QuestManager : MonoBehaviour
             if (tomatoSeedItem == null && (n.Contains("tomatoseed") || (n.Contains("tomato") && n.Contains("seed")))) tomatoSeedItem = item;
             if (waterCanItem == null && (n.Contains("watercan") || n.Contains("water") || n.Contains("can"))) waterCanItem = item;
         }
+    }
+
+    /// <summary>Trả về tiêu đề của Quest hiện tại.</summary>
+    public string GetCurrentQuestTitle()
+    {
+        if (playerData == null) return "Nhiệm vụ chính";
+
+        int id = playerData.currentMainQuestId;
+        
+        if (id >= questTitles.Length || id < 0)
+        {
+            return "Nhiệm vụ chính";
+        }
+
+        return questTitles[id];
     }
 
     /// <summary>Trả về mô tả của Quest hiện tại.</summary>
@@ -696,4 +740,113 @@ public class QuestManager : MonoBehaviour
             AdvanceQuest();
         }
     }
+
+    /// <summary>Lấy thông tin phần thưởng cho Quest ID tương ứng.</summary>
+    public QuestRewardInfo GetQuestRewardInfo(int questId)
+    {
+        int rewardGold = 0;
+        int rewardExp = 0;
+        string rewardItem = "";
+        Sprite rewardIcon = null;
+
+        switch (questId)
+        {
+            case 0:
+                rewardGold = 50;
+                rewardExp = 100;
+                rewardItem = "Cuốc & Hạt Giống";
+                if (hoeItem != null) rewardIcon = hoeItem.image;
+                break;
+            case 2:
+                rewardGold = 50;
+                rewardExp = 150;
+                rewardItem = "Bình Tưới Nước";
+                if (waterCanItem != null) rewardIcon = waterCanItem.image;
+                break;
+            case 4:
+                rewardGold = 100;
+                rewardExp = 200;
+                rewardItem = "";
+                break;
+            case 5:
+                rewardGold = 150;
+                rewardExp = 250;
+                rewardItem = "Thẻ Mở Cổng Rừng";
+                break;
+            case 9:
+                rewardGold = 100;
+                rewardExp = 200;
+                rewardItem = "";
+                break;
+            case 18:
+                rewardGold = 50;
+                rewardExp = 150;
+                rewardItem = "";
+                break;
+            case 19:
+                rewardGold = 200;
+                rewardExp = 300;
+                rewardItem = "Vé Bốc Thăm (Hiếm)";
+                break;
+            case 20:
+                rewardGold = 300;
+                rewardExp = 500;
+                rewardItem = "Vé Tàu Thủy";
+                break;
+            case 21:
+                rewardGold = 50;
+                rewardExp = 150;
+                rewardItem = "";
+                break;
+            case 22:
+                rewardGold = 250;
+                rewardExp = 400;
+                rewardItem = "Bản đồ Kho báu";
+                break;
+            case 23:
+                rewardGold = 100;
+                rewardExp = 200;
+                rewardItem = "Bánh Mì Ngọt";
+                break;
+            case 24:
+                rewardGold = 500;
+                rewardExp = 600;
+                rewardItem = "Đèn Pin Siêu Sáng";
+                break;
+            default:
+                rewardGold = 50;
+                rewardExp = 100;
+                rewardItem = "";
+                break;
+        }
+
+        if (rewardIcon == null && !string.IsNullOrEmpty(rewardItem))
+        {
+            var item = GetItemByName(rewardItem);
+            if (item != null)
+            {
+                rewardIcon = item.image;
+            }
+        }
+
+        return new QuestRewardInfo
+        {
+            gold = rewardGold,
+            exp = rewardExp,
+            itemName = rewardItem,
+            itemIcon = rewardIcon
+        };
+    }
 }
+
+/// <summary>
+/// Lớp cấu trúc chứa thông tin phần thưởng của nhiệm vụ.
+/// </summary>
+public class QuestRewardInfo
+{
+    public int gold;
+    public int exp;
+    public string itemName;
+    public Sprite itemIcon;
+}
+

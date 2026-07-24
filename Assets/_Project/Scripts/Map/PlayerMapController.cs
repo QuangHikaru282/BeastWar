@@ -17,6 +17,12 @@ public class PlayerMapController : MonoBehaviour
     private Vector2 moveInput;
     private bool canMove = true;
 
+    public bool CanMove
+    {
+        get => canMove;
+        set => canMove = value;
+    }
+
     [Header("Tương tác")]
     public float interactionRange = 1.5f;
     private Kinnly.PlayerInventory inventory;

@@ -7,18 +7,23 @@ public class ElderNPC : MonoBehaviour, IInteractable
     [Tooltip("Kéo GameObject StarterSelectionPanel vào đây")]
     public GameObject starterSelectionUI;
 
+    [Tooltip("Hình ảnh đại diện (Avatar) của Trưởng Làng")]
+    public Sprite npcAvatar;
+
+    [Header("Thoại Nhắc Nhở / Thường Ngày")]
+    [Tooltip("Các câu thoại ngẫu nhiên khi Trưởng Làng không có nhiệm vụ trực tiếp")]
+    [TextArea(2, 4)]
+    public string[] defaultDialogueLines = new string[]
+    {
+        "Chúc cháu lên đường bình an! Hãy chăm sóc tốt cho các bạn Pet của mình nhé.",
+        "Nếu cần thêm vật phẩm hay hạt giống, cháu hãy ghé Cửa Hàng của Thương Gia trong làng nhé!",
+        "Chăm chỉ rèn luyện và thám hiểm sẽ giúp đội hình của cháu ngày càng mạnh mẽ hơn."
+    };
+
     [Header("State")]
     public bool hasGivenStarter = false;
 
-    [Header("Tương tác bằng phím F")]
-    [Tooltip("Phím dùng để tương tác với NPC")]
-    [SerializeField] private KeyCode interactKey = KeyCode.F;
-
-    [Tooltip("Đối tượng thông báo 'Nhấn F' khi đứng gần NPC")]
-    [SerializeField] private GameObject interactPrompt;
-
-    private bool playerIsNearby;
-    private PlayerInventory nearbyPlayerInventory;
+    private int lastDialogueIndex = 0;
 
     private void Start()
     {
@@ -28,64 +33,27 @@ public class ElderNPC : MonoBehaviour, IInteractable
             starterSelectionUI.SetActive(false);
         }
 
-        // Ẩn thông báo nhấn F
-        if (interactPrompt != null)
-        {
-            interactPrompt.SetActive(false);
-        }
+        UpdateHasGivenStarterState();
     }
 
-    private void Update()
+    private void UpdateHasGivenStarterState()
     {
-        if (!playerIsNearby)
-            return;
+        if (hasGivenStarter) return;
 
-        if (Input.GetKeyDown(interactKey))
+        if (global::QuestManager.Instance != null && global::QuestManager.Instance.playerData != null)
         {
-            Interact(nearbyPlayerInventory);
-        }
-    }
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (!other.CompareTag("Player"))
-            return;
-
-        playerIsNearby = true;
-
-        nearbyPlayerInventory =
-            other.GetComponent<PlayerInventory>();
-
-        if (nearbyPlayerInventory == null)
-        {
-            nearbyPlayerInventory =
-                other.GetComponentInParent<PlayerInventory>();
-        }
-
-        if (interactPrompt != null)
-        {
-            interactPrompt.SetActive(true);
-        }
-
-        Debug.Log("Đã đến gần Trưởng làng. Nhấn F để tương tác.");
-    }
-
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        if (!other.CompareTag("Player"))
-            return;
-
-        playerIsNearby = false;
-        nearbyPlayerInventory = null;
-
-        if (interactPrompt != null)
-        {
-            interactPrompt.SetActive(false);
+            var pData = global::QuestManager.Instance.playerData;
+            if (pData.currentMainQuestId >= 1 || (pData.ownedBeasts != null && pData.ownedBeasts.Count > 0))
+            {
+                hasGivenStarter = true;
+            }
         }
     }
 
     public void Interact(PlayerInventory playerInventory)
     {
+        UpdateHasGivenStarterState();
+
         // 1. Giao Pet khởi đầu
         if (!hasGivenStarter)
         {
@@ -99,19 +67,33 @@ public class ElderNPC : MonoBehaviour, IInteractable
                 return;
             }
 
-            Debug.Log(
-                "Trưởng làng: Làng của chúng ta đang bị quái vật " +
-                "quấy phá. Cháu hãy nhận lấy một Pet khởi đầu và " +
-                "giúp ta giải quyết chúng nhé!"
-            );
-
-            starterSelectionUI.SetActive(true);
-            starterSelectionUI.transform.SetAsLastSibling();
-
-            // Khi bảng mở thì ẩn thông báo nhấn F
-            if (interactPrompt != null)
+            // Đảm bảo bảng chọn Pet bị ẩn trong khi Trưởng Làng đang thoại
+            if (starterSelectionUI != null)
             {
-                interactPrompt.SetActive(false);
+                starterSelectionUI.SetActive(false);
+            }
+
+            if (DialogueManager.Instance != null)
+            {
+                DialogueManager.Instance.StartDialogue(
+                    "Trưởng Làng",
+                    "Làng của chúng ta đang bị quái vật quấy phá. Cháu hãy nhận lấy một Pet khởi đầu và giúp ta giải quyết chúng nhé!",
+                    () => {
+                        if (starterSelectionUI != null)
+                        {
+                            starterSelectionUI.SetActive(true);
+                            starterSelectionUI.transform.SetAsLastSibling();
+                            InteractHintManager.Instance?.RegisterPanelOpen();
+                        }
+                    },
+                    npcAvatar
+                );
+            }
+            else
+            {
+                starterSelectionUI.SetActive(true);
+                starterSelectionUI.transform.SetAsLastSibling();
+                InteractHintManager.Instance?.RegisterPanelOpen();
             }
 
             Debug.Log("Đã mở bảng chọn Pet khởi đầu.");
@@ -134,33 +116,69 @@ public class ElderNPC : MonoBehaviour, IInteractable
             {
                 pData.gold -= 1000;
 
-                Debug.Log(
-                    "Trưởng làng: Tuyệt vời! Cháu đã mang về đủ " +
-                    "1000 vàng. Ta sẽ dùng số tiền này để mở rộng " +
-                    "Nông Trại cho cháu!"
-                );
+                if (DialogueManager.Instance != null)
+                {
+                    DialogueManager.Instance.StartDialogue(
+                        "Trưởng Làng",
+                        "Tuyệt vời! Cháu đã mang về đủ 1000 vàng. Ta sẽ dùng số tiền này để mở rộng Nông Trại cho cháu!",
+                        null,
+                        npcAvatar
+                    );
+                }
 
                 global::QuestManager.Instance.AdvanceQuest();
             }
             else
             {
-                Debug.Log(
-                    $"Trưởng làng: Cháu vẫn chưa đủ 1000 vàng. " +
-                    $"Hiện tại cháu mới có {pData.gold} vàng thôi. " +
-                    "Hãy cố gắng lên nhé!"
-                );
+                if (DialogueManager.Instance != null)
+                {
+                    DialogueManager.Instance.StartDialogue(
+                        "Trưởng Làng",
+                        $"Cháu vẫn chưa đủ 1000 vàng. Hiện tại cháu mới có {pData.gold} vàng thôi. Hãy cố gắng lên nhé!",
+                        null,
+                        npcAvatar
+                    );
+                }
             }
 
             return;
         }
 
-        // 3. Thoại bình thường
+        // 3. Thoại bình thường khi không có nhiệm vụ trực tiếp tại Trưởng Làng
         if (hasGivenStarter)
         {
-            Debug.Log(
-                "Trưởng làng: Cháu đã nhận bạn đồng hành rồi, " +
-                "chúc cháu lên đường bình an!"
-            );
+            var dialoguePages = new System.Collections.Generic.List<string>();
+
+            // Trang 1: Lời khuyên thường ngày
+            if (defaultDialogueLines != null && defaultDialogueLines.Length > 0)
+            {
+                dialoguePages.Add(defaultDialogueLines[lastDialogueIndex % defaultDialogueLines.Length]);
+                lastDialogueIndex++;
+            }
+            else
+            {
+                dialoguePages.Add("Chúc cháu lên đường bình an! Hãy chăm sóc tốt cho các bạn Pet của mình nhé.");
+            }
+
+            // Trang 2: Nhắc nhở tiến trình nhiệm vụ hiện tại
+            if (global::QuestManager.Instance != null)
+            {
+                string questDesc = global::QuestManager.Instance.GetCurrentQuestDescription();
+                if (!string.IsNullOrEmpty(questDesc))
+                {
+                    dialoguePages.Add($"Nhiệm vụ hiện tại của cháu:\n{questDesc}");
+                }
+            }
+
+            if (DialogueManager.Instance != null)
+            {
+                DialogueManager.Instance.StartDialogue(
+                    "Trưởng Làng",
+                    dialoguePages,
+                    null,
+                    npcAvatar
+                );
+            }
         }
     }
 }

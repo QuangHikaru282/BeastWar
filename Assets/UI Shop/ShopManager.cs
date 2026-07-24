@@ -93,11 +93,16 @@ public class ShopManager : MonoBehaviour
         }
     }
 
+    private int openFrameCount = -1;
+
     private void Update()
     {
-        if (IsOpen && EscapePressed())
+        if (IsOpen && Time.frameCount != openFrameCount)
         {
-            CloseShop();
+            if (EscapePressed() || Input.GetKeyDown(KeyCode.F))
+            {
+                CloseShop();
+            }
         }
     }
 
@@ -162,6 +167,7 @@ public class ShopManager : MonoBehaviour
 
     public void OpenShop()
     {
+        openFrameCount = Time.frameCount;
         Debug.Log($"<color=green>[ShopManager]</color> OpenShop() đang được gọi trên Object: <b>{gameObject.name}</b>, thuộc Scene: <b>{gameObject.scene.name}</b>");
 
         if (shopPanel == null)
@@ -171,7 +177,18 @@ public class ShopManager : MonoBehaviour
         }
 
         Debug.Log($"<color=yellow>[ShopManager]</color> Đang bật hiển thị cho bảng: <b>{shopPanel.name}</b>");
+        
+        // Đảm bảo tất cả Object cha (như PanelShop) được bật active
+        Transform parentTr = shopPanel.transform.parent;
+        while (parentTr != null && parentTr.GetComponent<Canvas>() == null)
+        {
+            parentTr.gameObject.SetActive(true);
+            parentTr = parentTr.parent;
+        }
+
         shopPanel.SetActive(true);
+
+        InteractHintManager.Instance?.RegisterPanelOpen();
 
         UpdateGoldText();
         CloseDetailPanel();
@@ -192,6 +209,8 @@ public class ShopManager : MonoBehaviour
         {
             shopPanel.SetActive(false);
         }
+
+        InteractHintManager.Instance?.RegisterPanelClose();
     }
 
     public void ToggleShop()

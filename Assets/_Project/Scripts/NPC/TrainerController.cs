@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class TrainerController : MonoBehaviour
+public class TrainerController : MonoBehaviour, Kinnly.IInteractable
 {
     [Header("Đội hình Trainer")]
     public List<BeastData> trainerTeam;
@@ -23,6 +23,31 @@ public class TrainerController : MonoBehaviour
 
     private bool isTriggered = false;
     private MonoBehaviour playerController;
+
+    public void Interact(Kinnly.PlayerInventory playerInventory)
+    {
+        if (alreadyDefeated)
+        {
+            if (DialogueManager.Instance != null)
+            {
+                DialogueManager.Instance.StartDialogue(
+                    "Nhà Huấn Luyện",
+                    "Ngươi quả thực rất mạnh mẽ! Ta sẽ rèn luyện thêm và phục thù sau!"
+                );
+            }
+            return;
+        }
+
+        if (!isTriggered)
+        {
+            isTriggered = true;
+            GameObject playerObj = playerInventory != null ? playerInventory.gameObject : GameObject.FindWithTag("Player");
+            if (playerObj != null)
+            {
+                StartCoroutine(TrainerEncounterRoutine(playerObj));
+            }
+        }
+    }
 
     private void Awake()
     {
@@ -86,7 +111,17 @@ public class TrainerController : MonoBehaviour
         }
 
         // 3. Hiện câu thoại thách đấu
-        if (dialogPanel != null && dialogText != null)
+        bool dialogueFinished = false;
+        if (DialogueManager.Instance != null)
+        {
+            DialogueManager.Instance.StartDialogue(
+                "Nhà Huấn Luyện",
+                string.IsNullOrEmpty(challengeText) ? "Ngươi đã lọt vào tầm mắt của ta! Hãy đấu một trận nào!" : challengeText,
+                () => { dialogueFinished = true; }
+            );
+            yield return new WaitUntil(() => dialogueFinished);
+        }
+        else if (dialogPanel != null && dialogText != null)
         {
             dialogText.text = challengeText;
             dialogPanel.SetActive(true);

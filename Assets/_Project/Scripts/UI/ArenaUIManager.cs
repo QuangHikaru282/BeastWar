@@ -27,10 +27,6 @@ public class ArenaUIManager : MonoBehaviour
 
     private void Start()
     {
-        if (openArenaButton == null) Debug.LogWarning("[Arena] CHÚ Ý: Chưa kéo nút mở Arena vào ô 'Open Arena Button'!");
-        if (playerData == null) Debug.LogWarning("[Arena] CHÚ Ý: Chưa kéo file PlayerData vào ô 'Player Data'!");
-        if (arenaPanel == null) Debug.LogWarning("[Arena] CHÚ Ý: Chưa kéo ArenaPanel vào ô 'Arena Panel'!");
-
         // Ẩn panel khi mới vào
         if (arenaPanel != null) arenaPanel.SetActive(false);
 
