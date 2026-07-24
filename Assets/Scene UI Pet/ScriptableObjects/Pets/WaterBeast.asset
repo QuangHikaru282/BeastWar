@@ -17,6 +17,7 @@ MonoBehaviour:
   level: 1
   listIcon: {fileID: 6894999169920593895, guid: 98d9078922ed68644b9c42400b71798b, type: 3}
   displayImage: {fileID: 6894999169920593895, guid: 98d9078922ed68644b9c42400b71798b, type: 3}
+  evolutionImage: {fileID: 6937817954938267909, guid: a8c29adbec47c9c42a1c1541b29670a2, type: 3}
   elementIcon: {fileID: 21300000, guid: e590c0230b4084c43899798dd3c9b18d, type: 3}
   element: 2
   rarity: 1
@@ -31,3 +32,6 @@ MonoBehaviour:
     currentLevel: 5
   - skillData: {fileID: 11400000, guid: e8da55d8f081ede4a81f0800837ff390, type: 2}
     currentLevel: 5
+  evolutionTarget: {fileID: 0}
+  evolveLevel: 10
+  evolveGoldCost: 1000

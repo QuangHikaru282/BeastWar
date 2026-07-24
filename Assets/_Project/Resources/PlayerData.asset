@@ -13,29 +13,14 @@ MonoBehaviour:
   m_Name: PlayerData
   m_EditorClassIdentifier: Assembly-CSharp::PlayerData
   ownedBeasts:
-  - baseBeast: {fileID: 11400000, guid: 2ce83e44d865b6e4ca52f33689ddb64b, type: 2}
-    currentLevel: 1
+  - baseBeast: {fileID: 11400000, guid: 3acbddf267f83e7469cba9feab372e46, type: 2}
+    currentLevel: 0
     currentExp: 0
-    moves:
-    - baseMove: {fileID: 11400000, guid: 322226bafacc60c49bfea3115697aa30, type: 2}
-      currentLevel: 1
-      power: 50
-    - baseMove: {fileID: 11400000, guid: 886039c2f8442594fa07da311d33c4e0, type: 2}
-      currentLevel: 1
-      power: 25
-  - baseBeast: {fileID: 11400000, guid: a73587bb90b13d447858c613b8878ede, type: 2}
-    currentLevel: 1
+    moves: []
+  - baseBeast: {fileID: 11400000, guid: 77ffd46e6580f2443b9d3138b5c99b5d, type: 2}
+    currentLevel: 0
     currentExp: 0
-    moves:
-    - baseMove: {fileID: 11400000, guid: 322226bafacc60c49bfea3115697aa30, type: 2}
-      currentLevel: 1
-      power: 25
-    - baseMove: {fileID: 11400000, guid: f801682ef75054c499bbb8f0f7ca71bf, type: 2}
-      currentLevel: 1
-      power: 50
-    - baseMove: {fileID: 11400000, guid: 886039c2f8442594fa07da311d33c4e0, type: 2}
-      currentLevel: 1
-      power: 10
+    moves: []
   currentFormation: []
   characterGender: Male
   currentMainQuestId: 0
