@@ -14,19 +14,26 @@ public class QuestMarker : MonoBehaviour
     public int targetQuestId = 0;
 
     [Header("Tùy chỉnh Marker (!/?)")]
-    [Tooltip("Khoảng cách Y nổi trên đầu đối tượng")]
-    public float offsetY = 1.6f;
+    [Tooltip("Khoảng cách Y nổi trên đầu đối tượng (Có thể chỉnh real-time trong Inspector)")]
+    public float offsetY = 1.8f;
 
-    [Tooltip("Màu sắc của dấu chấm than (Mặc định: Màu vàng)")]
-    public Color markerColor = new Color(1f, 0.85f, 0.1f, 1f);
+    [Tooltip("Màu sắc của dấu chấm than (Mặc định: Màu vàng kim)")]
+    public Color markerColor = new Color(1f, 0.88f, 0.1f, 1f);
 
     [Tooltip("Kích thước icon (World scale)")]
-    public float markerScale = 0.35f;
+    public float markerScale = 0.85f;
+
+    [Header("Tùy chỉnh Sorting Layer")]
+    [Tooltip("Sorting Layer Name (Mặc định: WalkBehind để nổi trên nhà cửa và NPC)")]
+    public string sortingLayerName = "WalkBehind";
+
+    [Tooltip("Order in Layer (Mặc định: 500 để nổi trên mọi sprite)")]
+    public int orderInLayer = 500;
 
     [Header("Hiệu ứng nảy (Bouncing)")]
     public bool enableBounce = true;
-    public float bounceHeight = 0.15f;
-    public float bounceSpeed = 4f;
+    public float bounceHeight = 0.25f;
+    public float bounceSpeed = 5f;
 
     private GameObject markerObject;
     private SpriteRenderer markerRenderer;
@@ -55,11 +62,32 @@ public class QuestMarker : MonoBehaviour
 
     private void Update()
     {
+        baseLocalPos = new Vector3(0, offsetY, 0);
+
+        if (markerRenderer != null)
+        {
+            if (markerRenderer.color != markerColor)
+            {
+                markerRenderer.color = markerColor;
+            }
+            if (!string.IsNullOrEmpty(sortingLayerName) && markerRenderer.sortingLayerName != sortingLayerName)
+            {
+                markerRenderer.sortingLayerName = sortingLayerName;
+            }
+            if (markerRenderer.sortingOrder != orderInLayer)
+            {
+                markerRenderer.sortingOrder = orderInLayer;
+            }
+        }
+
         if (markerObject != null && markerObject.activeSelf && enableBounce)
         {
-            // Hiệu ứng nhún nảy mượt mà
-            float newY = baseLocalPos.y + Mathf.Sin(Time.time * bounceSpeed) * bounceHeight;
-            markerObject.transform.localPosition = new Vector3(baseLocalPos.x, newY, baseLocalPos.z);
+            // Hiệu ứng nhún nảy mượt mà + nhẹ nhàng co giãn (Pulsing)
+            float bounce = Mathf.Sin(Time.time * bounceSpeed) * bounceHeight;
+            float pulse = 1f + Mathf.Sin(Time.time * bounceSpeed * 1.5f) * 0.08f;
+
+            markerObject.transform.localPosition = new Vector3(baseLocalPos.x, baseLocalPos.y + bounce, baseLocalPos.z);
+            markerObject.transform.localScale = Vector3.one * (markerScale * pulse);
         }
     }
 
@@ -97,47 +125,57 @@ public class QuestMarker : MonoBehaviour
         markerRenderer = markerObject.AddComponent<SpriteRenderer>();
         markerRenderer.sprite = GetOrCreateExclamationSprite();
         markerRenderer.color = markerColor;
-        markerRenderer.sortingOrder = 100; // Hiển thị phía trên sprite NPC
+        if (!string.IsNullOrEmpty(sortingLayerName))
+            markerRenderer.sortingLayerName = sortingLayerName;
+        markerRenderer.sortingOrder = orderInLayer;
     }
 
     private static Sprite GetOrCreateExclamationSprite()
     {
         if (cachedExclamationSprite != null) return cachedExclamationSprite;
 
-        // Tạo Texture Pixel Art hình dấu chấm than (!) màu trắng thuần khiết 16x16
-        int width = 16;
-        int height = 16;
-        Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
+        // Tạo Texture Pixel Art 32x32 sắc nét với ruột Trắng (để áp màu Marker Color) và Viền Đen Đậm
+        int size = 32;
+        Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
         tex.filterMode = FilterMode.Point;
 
         Color transparent = new Color(0, 0, 0, 0);
+        Color black = new Color(0.05f, 0.05f, 0.05f, 1f);
         Color white = Color.white;
+        Color highlight = new Color(1f, 1f, 1f, 1f);
 
-        // Xóa nền
-        for (int x = 0; x < width; x++)
-            for (int y = 0; y < height; y++)
+        for (int x = 0; x < size; x++)
+            for (int y = 0; y < size; y++)
                 tex.SetPixel(x, y, transparent);
 
-        // Vẽ thân dấu chấm than (!) (Cột dọc từ Y=6 đến Y=15)
-        for (int y = 6; y <= 15; y++)
+        // Hàm helper tô viền đen và ruột trắng
+        void FillRect(int minX, int minY, int maxX, int maxY, Color c)
         {
-            for (int x = 6; x <= 9; x++)
-            {
-                tex.SetPixel(x, y, white);
-            }
+            for (int x = minX; x <= maxX; x++)
+                for (int y = minY; y <= maxY; y++)
+                    tex.SetPixel(x, y, c);
         }
 
-        // Vẽ chấm tròn phía dưới (!) (Từ Y=1 đến Y=3)
-        for (int y = 1; y <= 3; y++)
-        {
-            for (int x = 6; x <= 9; x++)
-            {
-                tex.SetPixel(x, y, white);
-            }
-        }
+        // 1. Viền Đen ngoài cùng cho Thân Dấu Chấm Than (Y: 10->29, X: 11->20)
+        FillRect(11, 10, 20, 29, black);
+
+        // 2. Ruột Trắng cho Thân Dấu Chấm Than (Y: 11->28, X: 12->19)
+        FillRect(12, 11, 19, 28, white);
+
+        // 3. Highlight màu sáng cho Thân
+        FillRect(14, 13, 17, 27, highlight);
+
+        // 4. Viền Đen ngoài cùng cho Chấm Tròn Phía Dưới (Y: 2->8, X: 11->20)
+        FillRect(11, 2, 20, 8, black);
+
+        // 5. Ruột Trắng cho Chấm Tròn Phía Dưới (Y: 3->7, X: 12->19)
+        FillRect(12, 3, 19, 7, white);
+
+        // 6. Highlight màu sáng cho Chấm Tròn
+        FillRect(14, 4, 17, 6, highlight);
 
         tex.Apply();
-        cachedExclamationSprite = Sprite.Create(tex, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f), 16f);
+        cachedExclamationSprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 32f);
         return cachedExclamationSprite;
     }
 }
