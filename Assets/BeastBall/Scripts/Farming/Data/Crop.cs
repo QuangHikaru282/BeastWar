@@ -10,7 +10,7 @@ namespace BeastBall.Farming
     [CreateAssetMenu(fileName = "Crop", menuName = "BeastBall/Farming/Crop")]
     public class Crop : ScriptableObject, IDatabaseEntry
     {
-        public string Key => UniqueID;
+        public string Key => !string.IsNullOrEmpty(UniqueID) ? UniqueID : name;
 
         public string UniqueID = "";
         

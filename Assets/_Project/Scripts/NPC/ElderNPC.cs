@@ -100,7 +100,32 @@ public class ElderNPC : MonoBehaviour, IInteractable
             return;
         }
 
-        // 2. Kiểm tra Quest 16: thu thập 1000 vàng
+        // 2. Kiểm tra Quest 25: Gặp Trưởng Làng
+        if (hasGivenStarter && global::QuestManager.Instance != null && global::QuestManager.Instance.playerData != null)
+        {
+            int qId = global::QuestManager.Instance.playerData.currentMainQuestId;
+            if (qId == 25)
+            {
+                if (DialogueManager.Instance != null)
+                {
+                    DialogueManager.Instance.StartDialogue(
+                        "Trưởng Làng",
+                        "Chào cháu! Cháu đã học được cách câu cá rồi đấy. Ta tặng cháu 100 Vàng và Bóng Thu Phục để chuẩn bị thu phục các loài Thú mới ở Hồ Thần Bí!",
+                        () => {
+                            global::QuestManager.Instance.MarkCurrentQuestCompleted();
+                        },
+                        npcAvatar
+                    );
+                }
+                else
+                {
+                    global::QuestManager.Instance.MarkCurrentQuestCompleted();
+                }
+                return;
+            }
+        }
+
+        // 3. Kiểm tra Quest 16: thu thập 1000 vàng
         if (
             hasGivenStarter
             && global::QuestManager.Instance != null

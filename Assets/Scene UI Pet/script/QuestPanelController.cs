@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class QuestPanelController : MonoBehaviour
 {
@@ -29,6 +29,21 @@ public class QuestPanelController : MonoBehaviour
         }
 
         questPanel.SetActive(true);
+        questPanel.transform.SetAsLastSibling();
+
+        if (questPanel.transform.parent != null)
+        {
+            questPanel.transform.parent.gameObject.SetActive(true);
+            questPanel.transform.parent.SetAsLastSibling();
+        }
+
+        Canvas canvas = questPanel.GetComponentInParent<Canvas>();
+        if (canvas != null)
+        {
+            canvas.sortingOrder = 100;
+        }
+
+        InteractHintManager.Instance?.RegisterPanelOpen();
     }
 
     /// <summary>
@@ -46,5 +61,6 @@ public class QuestPanelController : MonoBehaviour
         }
 
         questPanel.SetActive(false);
+        InteractHintManager.Instance?.RegisterPanelClose();
     }
 }

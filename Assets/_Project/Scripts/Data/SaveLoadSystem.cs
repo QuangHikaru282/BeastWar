@@ -64,5 +64,46 @@ public static class SaveLoadSystem
             File.Delete(SaveFilePath);
             Debug.Log("[SaveLoadSystem] Đã xóa file save thành công!");
         }
+
+        if (File.Exists(TerrainSaveFilePath))
+        {
+            File.Delete(TerrainSaveFilePath);
+            Debug.Log("[SaveLoadSystem] Đã xóa file save Nông trại thành công!");
+        }
+    }
+
+    // ─── TERRAIN / FARMING SAVE SYSTEM ──────────────────────────────────
+    private const string TERRAIN_SAVE_FILE_NAME = "FarmingTerrainSave.json";
+    public static string TerrainSaveFilePath => Path.Combine(Application.persistentDataPath, TERRAIN_SAVE_FILE_NAME);
+
+    public static void SaveTerrainData(BeastBall.Farming.TerrainDataSave data)
+    {
+        try
+        {
+            string json = JsonUtility.ToJson(data, true);
+            File.WriteAllText(TerrainSaveFilePath, json);
+            Debug.Log($"[SaveLoadSystem] Đã lưu dữ liệu Nông trại thành công!");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[SaveLoadSystem] Lỗi khi lưu file Nông trại: {e.Message}");
+        }
+    }
+
+    public static BeastBall.Farming.TerrainDataSave? LoadTerrainData()
+    {
+        if (!File.Exists(TerrainSaveFilePath)) return null;
+
+        try
+        {
+            string json = File.ReadAllText(TerrainSaveFilePath);
+            BeastBall.Farming.TerrainDataSave data = JsonUtility.FromJson<BeastBall.Farming.TerrainDataSave>(json);
+            return data;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[SaveLoadSystem] Lỗi khi tải file Nông trại: {e.Message}");
+            return null;
+        }
     }
 }

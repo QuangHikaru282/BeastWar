@@ -39,7 +39,7 @@ namespace BeastBall.Farming
                 // Add the harvested product to the Player Inventory
                 playerInv.AddItem(product.Produce, product.ProductPerHarvest);
                 Debug.Log($"[BeastBall Farming] Harvested {product.ProductPerHarvest} {product.Produce.name} and added to inventory!");
-               
+                terrain.SaveCurrentTerrainData();
                 return true;
             }
 

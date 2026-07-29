@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 
 [DisallowMultipleComponent]
@@ -29,30 +29,47 @@ public sealed class PetUIOpen : MonoBehaviour
             openButton.onClick.RemoveListener(OpenPetUI);
     }
 
-    public void OpenPetUI()
+    private void AutoFindReferences()
     {
+        if (petUIManager == null)
+        {
+            petUIManager = FindFirstObjectByType<PetUIManager>(FindObjectsInactive.Include);
+        }
+
         if (petUIRoot == null)
         {
-            Debug.LogError(
-                "PetUIOpenButton: Bạn chưa gán PetUI Root trong Inspector.",
-                this
-            );
+            if (petUIManager != null)
+            {
+                petUIRoot = petUIManager.gameObject;
+            }
+            else
+            {
+                GameObject rootObj = GameObject.Find("PetPanel");
+                if (rootObj == null) rootObj = GameObject.Find("PetUI");
+                if (rootObj != null) petUIRoot = rootObj;
+            }
+        }
+    }
+
+    public void OpenPetUI()
+    {
+        AutoFindReferences();
+
+        if (petUIManager != null)
+        {
+            petUIManager.OpenPetUI();
             return;
         }
 
-        // Bật toàn bộ giao diện Pet.
-        petUIRoot.SetActive(true);
-
-        // Đưa PetUI lên trên các UI khác trong cùng Canvas.
-        petUIRoot.transform.SetAsLastSibling();
-
-        // Tạo danh sách và hiển thị pet đầu tiên nếu chưa khởi tạo.
-        if (petUIManager != null)
-            petUIManager.Initialize();
+        if (petUIRoot != null)
+        {
+            petUIRoot.SetActive(true);
+            petUIRoot.transform.SetAsLastSibling();
+            InteractHintManager.Instance?.RegisterPanelOpen();
+        }
         else
-            Debug.LogWarning(
-                "PetUIOpenButton: Chưa gán PetUIManager.",
-                this
-            );
+        {
+            Debug.LogError("PetUIOpenButton: Không tìm thấy PetUIManager hoặc PetUIRoot trong Scene.", this);
+        }
     }
 }

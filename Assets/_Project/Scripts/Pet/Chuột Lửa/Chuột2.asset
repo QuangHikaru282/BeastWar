@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b72f15b89a08de468adc0ad91b2dda1, type: 3}
+  m_Name: "Chu\u1ED9t2"
+  m_EditorClassIdentifier: Assembly-CSharp::BeastData
+  beastName: "Chu\u1ED9t v\u1EEBa"
+  element: 1
+  enhanceElement: 4
+  isRare: 0
+  frontSprite: {fileID: 4655308693944684383, guid: 979aacbed3f7eb5459fc2e46c356ad59, type: 3}
+  backSprite: {fileID: 3725778898389239156, guid: 6216b61683942584cbd804d5c457ab32, type: 3}
+  image2: {fileID: -7533778168190874368, guid: 98ca5b1a1de85c84caf8a7dec6ee6def, type: 3}
+  animatorController: {fileID: 0}
+  maxHP: 100
+  attack: 50
+  defense: 30
+  speed: 40
+  captureRate: 1
+  moves:
+  - {fileID: 11400000, guid: 886039c2f8442594fa07da311d33c4e0, type: 2}
+  - {fileID: 11400000, guid: f801682ef75054c499bbb8f0f7ca71bf, type: 2}
+  - {fileID: 11400000, guid: dbc19f0a7864018419a33911f5e9600a, type: 2}
+  evolveTarget: {fileID: 0}
+  evolveLevel: 5
+  evolveGoldCost: 100
+  rewardGold: 10
+  rewardExp: 50

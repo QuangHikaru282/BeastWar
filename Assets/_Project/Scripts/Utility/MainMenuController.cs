@@ -81,14 +81,23 @@ public class MainMenuController : MonoBehaviour
     }
 
     /// <summary>
-    /// Khi nhấn Play, chỉ mở bảng chọn nhân vật.
+    /// Khi nhấn Play, xóa toàn bộ dữ liệu cũ và khởi tạo game mới từ đầu.
     /// </summary>
     public void OnPlayPressed()
     {
         if (isStartingGame)
             return;
 
-        Debug.Log("MainMenu: Khởi tạo game mới...");
+        Debug.Log("MainMenu: Khởi tạo game mới... Xóa toàn bộ dữ liệu cũ!");
+
+        // Xóa toàn bộ file save chính và file save Nông trại
+        SaveLoadSystem.DeleteSave();
+
+        // Reset dữ liệu người chơi về ban đầu
+        if (playerData != null)
+        {
+            playerData.ResetData();
+        }
 
         if (loginAndCharSelectManager != null)
         {
@@ -100,6 +109,42 @@ public class MainMenuController : MonoBehaviour
                 "MainMenuController: Chưa gán LoginAndCharSelectManager."
             );
         }
+    }
+
+    private Coroutine trailerTimeoutCoroutine;
+
+    private void Update()
+    {
+        // Bấm phím bất kỳ hoặc click chuột để Bỏ Qua (Skip) Trailer bất cứ lúc nào
+        if (trailerPanel != null && trailerPanel.activeSelf)
+        {
+            if (Input.anyKeyDown || Input.GetMouseButtonDown(0))
+            {
+                Debug.Log("MainMenu: Người chơi bấm Bỏ Qua (Skip) Trailer!");
+                SkipTrailerAndStart();
+            }
+        }
+    }
+
+    private void SkipTrailerAndStart()
+    {
+        if (trailerTimeoutCoroutine != null)
+        {
+            StopCoroutine(trailerTimeoutCoroutine);
+            trailerTimeoutCoroutine = null;
+        }
+
+        if (trailerVideoPlayer != null)
+        {
+            trailerVideoPlayer.Stop();
+        }
+
+        if (trailerPanel != null)
+        {
+            trailerPanel.SetActive(false);
+        }
+
+        LoadPlayScene();
     }
 
     /// <summary>
@@ -115,34 +160,9 @@ public class MainMenuController : MonoBehaviour
         if (playButton != null)
             playButton.interactable = false;
 
-        // Nếu chưa gán VideoPlayer thì vẫn chuyển scene,
-        // tránh làm người chơi bị kẹt.
-        if (trailerVideoPlayer == null)
+        if (trailerVideoPlayer == null || trailerVideoPlayer.clip == null || trailerPanel == null)
         {
-            Debug.LogError(
-                "MainMenuController: Chưa gán Trailer Video Player."
-            );
-
-            LoadPlayScene();
-            return;
-        }
-
-        if (trailerVideoPlayer.clip == null)
-        {
-            Debug.LogError(
-                "MainMenuController: VideoPlayer chưa có Video Clip."
-            );
-
-            LoadPlayScene();
-            return;
-        }
-
-        if (trailerPanel == null)
-        {
-            Debug.LogError(
-                "MainMenuController: Chưa gán Trailer Panel."
-            );
-
+            Debug.LogWarning("MainMenuController: Video Player hoặc Panel chưa sẵn sàng -> Vào game ngay.");
             LoadPlayScene();
             return;
         }
@@ -150,7 +170,6 @@ public class MainMenuController : MonoBehaviour
         // Hiện Panel video.
         trailerPanel.SetActive(true);
 
-        // Tạm ẩn RawImage cho đến khi video chuẩn bị xong.
         if (trailerRawImage != null)
             trailerRawImage.enabled = false;
 
@@ -158,7 +177,28 @@ public class MainMenuController : MonoBehaviour
         trailerVideoPlayer.time = 0;
         trailerVideoPlayer.Prepare();
 
+        // Tự động chuyển Scene sau 10 giây nếu Video bị kẹt
+        if (trailerTimeoutCoroutine != null) StopCoroutine(trailerTimeoutCoroutine);
+        trailerTimeoutCoroutine = StartCoroutine(TrailerTimeoutTimer());
+
         Debug.Log("MainMenu: Đang chuẩn bị trailer...");
+    }
+
+    private System.Collections.IEnumerator TrailerTimeoutTimer()
+    {
+        float duration = 8f;
+        if (trailerVideoPlayer != null && trailerVideoPlayer.clip != null && trailerVideoPlayer.clip.length > 0)
+        {
+            duration = (float)trailerVideoPlayer.clip.length + 1f;
+        }
+
+        yield return new WaitForSeconds(duration);
+
+        if (trailerPanel != null && trailerPanel.activeSelf)
+        {
+            Debug.Log("MainMenu: Trailer hết thời lượng / tự động chuyển vào Game!");
+            SkipTrailerAndStart();
+        }
     }
 
     /// <summary>

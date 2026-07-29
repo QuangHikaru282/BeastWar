@@ -41,6 +41,28 @@ public class DamagePopup : MonoBehaviour
         return instance;
     }
 
+    public static DamagePopup CreateText(Vector3 worldPosition, string text, Color textColor, float fontSize = 6f)
+    {
+        GameObject go = new GameObject("TextPopup");
+        go.transform.position = worldPosition;
+        var tmp = go.AddComponent<TextMeshPro>();
+        tmp.text = text;
+        tmp.color = textColor;
+        tmp.fontSize = fontSize;
+        tmp.fontStyle = FontStyles.Bold;
+        tmp.alignment = TextAlignmentOptions.Center;
+        tmp.sortingOrder = 5000;
+
+        go.transform.localScale = Vector3.zero;
+        Sequence seq = DOTween.Sequence();
+        seq.Append(go.transform.DOScale(Vector3.one * 1.0f, 0.3f).SetEase(Ease.OutBack));
+        seq.Append(go.transform.DOMoveY(worldPosition.y + 1.8f, 1.2f).SetEase(Ease.OutCubic));
+        seq.Join(tmp.DOFade(0f, 1.2f).SetDelay(0.4f));
+        seq.OnComplete(() => Destroy(go));
+
+        return go.AddComponent<DamagePopup>();
+    }
+
     private void Init(int amount, bool isCritical, bool isHeal)
     {
         if (damageText == null)

@@ -301,6 +301,44 @@ public class BattleManager : MonoBehaviour
 
             // Tìm ExpBar
             ExpBarUI expBar = hudObj.GetComponentInChildren<ExpBarUI>();
+            if (expBar == null)
+            {
+                // Thử tìm bất kỳ Slider nào có tên chứa EXP hoặc Exp, hoặc Slider thứ 2
+                UnityEngine.UI.Slider[] sliders = hudObj.GetComponentsInChildren<UnityEngine.UI.Slider>(true);
+                UnityEngine.UI.Slider targetExpSlider = null;
+                foreach (var s in sliders)
+                {
+                    if (s.name.ToLower().Contains("exp") || s.gameObject.name.ToLower().Contains("exp"))
+                    {
+                        targetExpSlider = s;
+                        break;
+                    }
+                }
+                if (targetExpSlider == null && sliders.Length >= 2)
+                {
+                    targetExpSlider = sliders[1];
+                }
+
+                if (targetExpSlider != null)
+                {
+                    expBar = targetExpSlider.gameObject.AddComponent<ExpBarUI>();
+                    var fExp = typeof(ExpBarUI).GetField("expSlider", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (fExp != null) fExp.SetValue(expBar, targetExpSlider);
+
+                    var tmp = targetExpSlider.GetComponentInChildren<TextMeshProUGUI>(true) ?? targetExpSlider.transform.parent.GetComponentInChildren<TextMeshProUGUI>(true);
+                    if (tmp != null)
+                    {
+                        var fTMP = typeof(ExpBarUI).GetField("expTextTMP", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        if (fTMP != null) fTMP.SetValue(expBar, tmp);
+                    }
+                    var leg = targetExpSlider.GetComponentInChildren<UnityEngine.UI.Text>(true) ?? targetExpSlider.transform.parent.GetComponentInChildren<UnityEngine.UI.Text>(true);
+                    if (leg != null)
+                    {
+                        var fLeg = typeof(ExpBarUI).GetField("expTextLegacy", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        if (fLeg != null) fLeg.SetValue(expBar, leg);
+                    }
+                }
+            }
 
             // Tìm StatusIcon (UI trạng thái xấu dưới tên nhân vật)
             StatusEffectUI statusUI = hudObj.GetComponentInChildren<StatusEffectUI>();
@@ -530,9 +568,52 @@ public class BattleManager : MonoBehaviour
 
             if (totalExpToGive == 0) totalExpToGive = 100; // Mặc định nếu chưa set
 
-            if (LevelUpManager.Instance != null)
+            // Hiển thị câu thông báo chiến thắng lên khung chữ
+            if (BattleUIManager.Instance != null && BattleUIManager.Instance.ActionPanel != null)
             {
-                LevelUpManager.Instance.DistributeExpToFormation(totalExpToGive, playerData);
+                BattleUIManager.Instance.ActionPanel.SetGuide($"Chiến thắng! Nhận được {totalExpToGive} EXP và {totalGoldToGive} Vàng!");
+            }
+
+            // Chạy hiệu ứng thanh EXP tăng dần mượt mà trên UI
+            if (playerTeam != null && playerTeam.Count > 0 && playerTeam[0] != null)
+            {
+                var unit = playerTeam[0];
+                if (unit.Data != null)
+                {
+                    int startLvl = unit.Data.currentLevel;
+                    int startExp = unit.Data.currentExp;
+
+                    if (LevelUpManager.Instance != null)
+                    {
+                        LevelUpManager.Instance.DistributeExpToFormation(totalExpToGive, playerData);
+                    }
+
+                    ExpBarUI expBarUI = unit.GetComponent<ExpBarUI>() ?? unit.GetComponentInChildren<ExpBarUI>();
+                    if (expBarUI == null && GameObject.Find("PlayerBattleHud") != null)
+                    {
+                        expBarUI = GameObject.Find("PlayerBattleHud").GetComponentInChildren<ExpBarUI>();
+                    }
+
+                    if (expBarUI != null)
+                    {
+                        yield return StartCoroutine(expBarUI.AnimateExpIncrease(startExp, totalExpToGive, startLvl, (lvl) => lvl * 100, (newLvl) => {
+                            Vector3 spawnPos = unit.transform.position + Vector3.up * 1.5f;
+                            DamagePopup.CreateText(spawnPos, "LEVEL UP!", Color.yellow, 4f);
+                            unit.UpdateLevelText(newLvl);
+                        }));
+                    }
+                    else
+                    {
+                        yield return new WaitForSeconds(1.0f);
+                    }
+                }
+            }
+            else
+            {
+                if (LevelUpManager.Instance != null)
+                {
+                    LevelUpManager.Instance.DistributeExpToFormation(totalExpToGive, playerData);
+                }
             }
 
             // Cộng thêm Vàng khi thắng
@@ -540,36 +621,35 @@ public class BattleManager : MonoBehaviour
             Debug.Log($"[Battle] Nhận được {totalGoldToGive} Vàng! Tổng vàng: {playerData.gold}");
 
             // Nếu đây là trận đánh quái hoang dã hoặc Trainer thì lưu trạng thái
-            if (battleTransferData != null && !string.IsNullOrEmpty(battleTransferData.lastEncounteredBeastId))
+            if (battleTransferData != null && battleTransferData.isTrainerBattle)
             {
-                if (battleTransferData.isTrainerBattle)
+                if (!string.IsNullOrEmpty(battleTransferData.lastEncounteredBeastId) && !playerData.defeatedTrainers.Contains(battleTransferData.lastEncounteredBeastId))
                 {
-                    // Lưu vĩnh viễn vào PlayerData để Trainer không đánh lại nữa
-                    if (!playerData.defeatedTrainers.Contains(battleTransferData.lastEncounteredBeastId))
+                    playerData.defeatedTrainers.Add(battleTransferData.lastEncounteredBeastId);
+                    Debug.Log($"Đã đánh bại Trainer: {battleTransferData.lastEncounteredBeastId}");
+                    
+                    if (global::QuestManager.Instance != null)
                     {
-                        playerData.defeatedTrainers.Add(battleTransferData.lastEncounteredBeastId);
-                        Debug.Log($"Đã đánh bại Trainer: {battleTransferData.lastEncounteredBeastId}");
-                        
-                        if (global::QuestManager.Instance != null)
-                        {
-                            if (battleTransferData.lastEncounteredBeastId.Contains("Rival"))
-                                global::QuestManager.Instance.OnRivalDefeated();
-                            else if (battleTransferData.lastEncounteredBeastId.Contains("Boss"))
-                                global::QuestManager.Instance.OnBossDefeated();
-                            else
-                                global::QuestManager.Instance.OnTrainerDefeated();
-                        }
+                        if (battleTransferData.lastEncounteredBeastId.Contains("Rival"))
+                            global::QuestManager.Instance.OnRivalDefeated();
+                        else if (battleTransferData.lastEncounteredBeastId.Contains("Boss"))
+                            global::QuestManager.Instance.OnBossDefeated();
+                        else
+                            global::QuestManager.Instance.OnTrainerDefeated();
                     }
                 }
-                else
+            }
+            else
+            {
+                if (battleTransferData != null && !string.IsNullOrEmpty(battleTransferData.lastEncounteredBeastId))
                 {
                     if (!battleTransferData.stunnedBeastIds.Contains(battleTransferData.lastEncounteredBeastId))
                         battleTransferData.stunnedBeastIds.Add(battleTransferData.lastEncounteredBeastId);
-                        
-                    if (global::QuestManager.Instance != null)
-                    {
-                        global::QuestManager.Instance.OnWildBeastDefeated();
-                    }
+                }
+
+                if (global::QuestManager.Instance != null)
+                {
+                    global::QuestManager.Instance.OnWildBeastDefeated();
                 }
             }
         }
@@ -583,23 +663,13 @@ public class BattleManager : MonoBehaviour
 
         yield return new WaitForSeconds(1.5f);
 
-        if (playerWon)
-        {
-            BattleUIManager.Instance?.ShowBattleReward(totalGoldToGive, totalExpToGive, () => {
-                ReturnToMap();
-            });
-        }
-        else
-        {
-            ReturnToMap();
-        }
+        ReturnToMap();
     }
 
     private void ReturnToMap()
     {
         Debug.Log("--- BƯỚC 9: Quay về Bản Đồ! ---");
 
-        // Lấy lại tên Scene trước khi đánh (HUNG, HubTownNew, MapScene...)
         string sceneToReturn = PlayerPrefs.GetString("SceneBeforeBattle", GameSceneManager.SCENE_MAP);
 
         if (SceneTransitionManager.Instance != null)
@@ -608,32 +678,7 @@ public class BattleManager : MonoBehaviour
         }
         else 
         {
-            // Fallback nếu người chơi xóa/chưa kéo prefab Scene_Manager vào (SceneTransitionManager.Instance == null)
-            string[] scenes = sceneToReturn.Split(',');
-            string primaryScene = scenes[0];
-            
-            // Load scene chính
-            UnityEngine.SceneManagement.SceneManager.LoadScene(primaryScene, UnityEngine.SceneManagement.LoadSceneMode.Single);
-            
-            // Load các scene phụ nếu có
-            for (int i = 1; i < scenes.Length; i++)
-            {
-                string sceneNameSub = scenes[i];
-                bool isLoaded = false;
-                for (int j = 0; j < UnityEngine.SceneManagement.SceneManager.sceneCount; j++)
-                {
-                    if (UnityEngine.SceneManagement.SceneManager.GetSceneAt(j).name == sceneNameSub)
-                    {
-                        isLoaded = true;
-                        break;
-                    }
-                }
-                
-                if (!isLoaded)
-                {
-                    UnityEngine.SceneManagement.SceneManager.LoadScene(sceneNameSub, UnityEngine.SceneManagement.LoadSceneMode.Additive);
-                }
-            }
+            BattleActionIconsUI.LoadScenesSafely(sceneToReturn);
         }
     }
 
@@ -712,10 +757,11 @@ public class BattleManager : MonoBehaviour
     /// <summary>Nguoi choi chon bo chay (100% thanh cong).</summary>
     public void TryFlee()
     {
-        if (state != BattleState.PlayerTurn) return;
         playerFled = true;
         waitingForPlayerAction = false;
+        state = BattleState.BattleEnd;
         Debug.Log("[BattleManager] Nguoi choi da bo chay!");
+        ReturnToMap();
     }
 
     /// <summary>Bat thu hoang da thanh cong. Ket thuc tran.</summary>

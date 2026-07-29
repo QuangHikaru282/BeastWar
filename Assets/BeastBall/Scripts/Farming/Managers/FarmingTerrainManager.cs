@@ -44,7 +44,20 @@ namespace BeastBall.Farming
         private void Awake()
         {
             if (Instance == null) Instance = this;
-            else Destroy(gameObject);
+            else { Destroy(gameObject); return; }
+
+            if (CropDatabase == null)
+            {
+                CropDatabase = Resources.Load<CropDatabase>("CropDatabase");
+            }
+
+            // Tự động tải lại dữ liệu Nông trại ngay lập tức khi GameObject khởi tạo
+            var savedTerrain = SaveLoadSystem.LoadTerrainData();
+            if (savedTerrain.HasValue && savedTerrain.Value.GroundDatas != null && savedTerrain.Value.GroundDatas.Count > 0)
+            {
+                LoadData(savedTerrain.Value);
+                Debug.Log("[FarmingTerrainManager] Đã tự động khôi phục dữ liệu Nông trại trong Awake!");
+            }
 
             // Pre-warm the tilling visual effects pool
             if (TillingEffectPrefab != null)
@@ -56,6 +69,29 @@ namespace BeastBall.Farming
                     effect.Stop();
                     m_TillingEffectPool.Add(effect);
                 }
+            }
+        }
+
+        private void Start()
+        {
+        }
+
+        private void OnDisable()
+        {
+            SaveCurrentTerrainData();
+        }
+
+        private void OnDestroy()
+        {
+            SaveCurrentTerrainData();
+        }
+
+        public void SaveCurrentTerrainData()
+        {
+            if (m_GroundData != null && m_GroundData.Count > 0)
+            {
+                var data = SaveData();
+                SaveLoadSystem.SaveTerrainData(data);
             }
         }
 
@@ -268,7 +304,7 @@ namespace BeastBall.Farming
 
         public void LoadData(TerrainDataSave data)
         {
-            GroundTilemap.ClearAllTiles();
+            // Giữ nguyên các ô đất tròn nền ban đầu do Editor vẽ
             WaterTilemap.ClearAllTiles();
             CropTilemap.ClearAllTiles();
 
@@ -290,8 +326,19 @@ namespace BeastBall.Farming
             m_HarvestEffectPool.Clear();
 
             m_CropData.Clear();
+            if (CropDatabase == null)
+            {
+                CropDatabase = Resources.Load<CropDatabase>("CropDatabase");
+                if (CropDatabase == null)
+                {
+                    CropDatabase[] dbs = Resources.FindObjectsOfTypeAll<CropDatabase>();
+                    if (dbs != null && dbs.Length > 0) CropDatabase = dbs[0];
+                }
+            }
+
             if (CropDatabase != null)
             {
+                CropDatabase.Init();
                 for (int i = 0; i < data.CropDatas.Count; ++i)
                 {
                     var pos = data.CropDataPositions[i];

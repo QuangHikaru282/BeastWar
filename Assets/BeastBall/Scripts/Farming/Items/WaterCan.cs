@@ -17,6 +17,7 @@ namespace BeastBall.Farming
         public override bool Use(Vector3Int target)
         {
             FarmingTerrainManager.Instance.WaterAt(target);
+            FarmingTerrainManager.Instance.SaveCurrentTerrainData();
             return true;
         }
     }

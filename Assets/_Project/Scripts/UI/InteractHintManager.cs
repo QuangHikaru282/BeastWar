@@ -133,6 +133,35 @@ public class InteractHintManager : MonoBehaviour
     #region Public API
 
     /// <summary>
+    /// Kiểm tra xem có bất kỳ panel UI nào (Dialogue, Shop, QuestPanel...) đang mở hay không.
+    /// </summary>
+    public bool IsAnyPanelOpen
+    {
+        get
+        {
+            if (openPanelCount > 0) return true;
+            if (DialogueManager.Instance != null && DialogueManager.Instance.IsDialogueActive) return true;
+
+            var shopManager = FindFirstObjectByType<ShopManager>();
+            if (shopManager != null && shopManager.IsOpen) return true;
+
+            var questPanelController = FindFirstObjectByType<QuestPanelController>();
+            if (questPanelController != null)
+            {
+                var qp = questPanelController.transform.Find("QuestPanel");
+                if (qp != null && qp.gameObject.activeInHierarchy) return true;
+            }
+
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Kiểm tra xem nút F gợi ý tương tác có đang hiển thị trên màn hình hay không.
+    /// </summary>
+    public bool IsHintVisible => currentTarget != null && targetAlpha > 0.1f;
+
+    /// <summary>
     /// Gọi khi một panel UI (dialogue, shop, ...) mở ra.
     /// Nút F sẽ bị ẩn trong thời gian panel mở.
     /// </summary>
@@ -164,15 +193,12 @@ public class InteractHintManager : MonoBehaviour
         {
             isAnyPanelOpen = true;
         }
-        else
+
+        if (!isAnyPanelOpen)
         {
-            // Tự động khôi phục nếu không có thoại active
             var shopManager = FindFirstObjectByType<ShopManager>();
-            if (shopManager == null || !shopManager.IsOpen)
-            {
-                openPanelCount = 0;
-                isAnyPanelOpen = false;
-            }
+            if (shopManager != null && shopManager.IsOpen)
+                isAnyPanelOpen = true;
         }
 
         bool shouldShow = currentTarget != null && !isAnyPanelOpen;

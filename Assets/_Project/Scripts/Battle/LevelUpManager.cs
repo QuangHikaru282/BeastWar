@@ -48,10 +48,18 @@ public class LevelUpManager : MonoBehaviour
         Debug.Log($"[LevelUpManager] {beast.baseBeast.beastName} nhận được {expAmount} EXP. Hiện tại: {beast.currentExp}/{beast.GetExpToNextLevel()}");
 
         // Vòng lặp phòng trường hợp nhận được quá nhiều EXP, nhảy nhiều Level cùng lúc
-        while (beast.currentExp >= beast.GetExpToNextLevel())
+        while (true)
         {
-            beast.currentExp -= beast.GetExpToNextLevel();
-            LevelUp(beast);
+            int requiredExpForCurrentLevel = beast.GetExpToNextLevel();
+            if (beast.currentExp >= requiredExpForCurrentLevel)
+            {
+                beast.currentExp -= requiredExpForCurrentLevel;
+                LevelUp(beast);
+            }
+            else
+            {
+                break;
+            }
         }
     }
 

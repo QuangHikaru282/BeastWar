@@ -20,6 +20,7 @@ namespace BeastBall.Farming
         public override bool Use(Vector3Int target)
         {
             FarmingTerrainManager.Instance.PlantAt(target, PlantedCrop);
+            FarmingTerrainManager.Instance.SaveCurrentTerrainData();
             return true;
         }
     }

@@ -64,14 +64,12 @@ public class RewardUIManager : MonoBehaviour
         if (expText != null) expText.text = $"+{exp} EXP";
 
         SetupItemRow(itemRewardName, itemRewardIcon);
+        AutoBindContinueButtons();
 
         onContinueCallback = onContinue;
         rewardPanel.SetActive(true);
     }
 
-    /// <summary>
-    /// Hiển thị bảng thưởng khi hoàn thành nhiệm vụ.
-    /// </summary>
     public void ShowQuestReward(int gold, int exp, string itemRewardName, Action onContinue, Sprite itemRewardIcon = null)
     {
         if (rewardPanel == null) rewardPanel = gameObject;
@@ -81,9 +79,20 @@ public class RewardUIManager : MonoBehaviour
         if (expText != null) expText.text = $"+{exp} EXP";
 
         SetupItemRow(itemRewardName, itemRewardIcon);
+        AutoBindContinueButtons();
 
         onContinueCallback = onContinue;
         rewardPanel.SetActive(true);
+    }
+
+    private void AutoBindContinueButtons()
+    {
+        Button[] buttons = GetComponentsInChildren<Button>(true);
+        foreach (var btn in buttons)
+        {
+            btn.onClick.RemoveAllListeners();
+            btn.onClick.AddListener(OnContinueClicked);
+        }
     }
 
     /// <summary>

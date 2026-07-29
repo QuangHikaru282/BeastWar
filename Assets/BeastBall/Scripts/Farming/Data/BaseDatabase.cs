@@ -15,10 +15,25 @@ namespace BeastBall.Farming
 
         public T GetFromID(string uniqueID)
         {
-            if (m_LookupDictionnary != null && m_LookupDictionnary.TryGetValue(uniqueID, out var entry))
+            if (m_LookupDictionnary == null)
+            {
+                Init();
+            }
+
+            if (m_LookupDictionnary != null && !string.IsNullOrEmpty(uniqueID) && m_LookupDictionnary.TryGetValue(uniqueID, out var entry))
             {
                 return entry;
             }
+
+            if (Entries != null && !string.IsNullOrEmpty(uniqueID))
+            {
+                foreach (var e in Entries)
+                {
+                    if (e != null && (e.Key == uniqueID || (e is UnityEngine.Object obj && obj.name == uniqueID)))
+                        return e;
+                }
+            }
+
             return null;
         }
 

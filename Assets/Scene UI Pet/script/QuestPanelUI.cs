@@ -1,4 +1,4 @@
-﻿using TMPro;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -29,15 +29,132 @@ public class QuestPanelUI : MonoBehaviour
     [Tooltip("Image icon vật phẩm bên trong Item")]
     [SerializeField] private Image itemRewardIcon;
 
+    [Header("Nút Nhận Thưởng (Kéo thả Nút bấm vào đây)")]
+    [Tooltip("Nút bấm Nhận Thưởng bên trong QuestPanel")]
+    [SerializeField] private Button claimRewardButton;
+
     private QuestManager subscribedManager;
+
+    private void Awake()
+    {
+        AutoBindAllReferences();
+    }
+
+    private void AutoBindAllReferences()
+    {
+        TMP_Text[] texts = GetComponentsInChildren<TMP_Text>(true);
+        foreach (var txt in texts)
+        {
+            string n = txt.name;
+            string nl = n.ToLower();
+            if (questTitleText == null && (n == "QuestTitleText" || nl.Contains("title") || nl.Contains("tieude"))) questTitleText = txt;
+            if (questText == null && (n == "QuestText" || nl.Contains("desc") || nl.Contains("noidung"))) questText = txt;
+            if (goldRewardText == null && (nl.Contains("gold") || nl.Contains("vang"))) goldRewardText = txt;
+            if (expRewardText == null && (nl.Contains("exp") || nl.Contains("kinhnghiem"))) expRewardText = txt;
+        }
+
+        Transform itemTr = transform.Find("QuestUI/Item");
+        if (itemTr == null) itemTr = transform.Find("Item");
+        if (itemTr == null) itemTr = transform.Find("MainContent/Item");
+        if (itemTr != null)
+        {
+            itemObject = itemTr.gameObject;
+            if (itemRewardIcon == null)
+            {
+                Transform iconTr = itemTr.Find("Icon");
+                if (iconTr != null) itemRewardIcon = iconTr.GetComponent<Image>();
+                if (itemRewardIcon == null) itemRewardIcon = itemTr.GetComponentInChildren<Image>(true);
+            }
+            if (itemRewardText == null) itemRewardText = itemTr.GetComponentInChildren<TMP_Text>(true);
+        }
+
+        // Tự động tắt các Image icon bị trống sprite (tránh hiện ô vuông màu trắng)
+        Image[] images = GetComponentsInChildren<Image>(true);
+        foreach (var img in images)
+        {
+            if (img.sprite == null && (img.name.ToLower().Contains("icon") || img.name.ToLower().Contains("gold") || img.name.ToLower().Contains("exp")))
+            {
+                img.enabled = false;
+            }
+        }
+
+        AutoFindClaimButton();
+    }
+
+    private void AutoFindClaimButton()
+    {
+        if (claimRewardButton == null)
+        {
+            Button[] buttons = GetComponentsInChildren<Button>(true);
+            foreach (var btn in buttons)
+            {
+                string n = btn.name.ToLower();
+                // Bỏ qua nút ClosePanel
+                if (n.Contains("close")) continue;
+
+                if (n.Contains("claim") || n.Contains("reward") || n.Contains("nhan") || n.Contains("thuong") || n.Contains("item") || n.Contains("button"))
+                {
+                    claimRewardButton = btn;
+                    break;
+                }
+            }
+        }
+
+        if (claimRewardButton != null)
+        {
+            claimRewardButton.onClick.RemoveAllListeners();
+            claimRewardButton.onClick.AddListener(OnClaimRewardButtonClicked);
+        }
+    }
+
+    private void OnClaimRewardButtonClicked()
+    {
+        if (QuestManager.Instance != null)
+        {
+            // Tự động đóng QuestPanel để hiển thị Bảng Nhận Thưởng RewardUI
+            QuestPanelController controller = FindFirstObjectByType<QuestPanelController>();
+            if (controller != null)
+            {
+                controller.CloseQuestPanel();
+            }
+            else
+            {
+                if (transform.parent != null) transform.parent.gameObject.SetActive(false);
+                gameObject.SetActive(false);
+            }
+
+            QuestManager.Instance.AdvanceQuest();
+        }
+    }
 
     private void OnEnable()
     {
+        transform.SetAsLastSibling();
+        if (transform.parent != null)
+        {
+            transform.parent.SetAsLastSibling();
+        }
+
+        Canvas canvas = GetComponentInParent<Canvas>();
+        if (canvas != null)
+        {
+            canvas.sortingOrder = 100;
+        }
+
+        InteractHintManager.Instance?.RegisterPanelOpen();
+
+        AutoBindAllReferences();
         RefreshQuestUI();
+    }
+
+    private void OnDisable()
+    {
+        InteractHintManager.Instance?.RegisterPanelClose();
     }
 
     private void Start()
     {
+        AutoBindAllReferences();
         RefreshQuestUI();
     }
 
@@ -72,7 +189,7 @@ public class QuestPanelUI : MonoBehaviour
         int questId = manager.playerData.currentMainQuestId;
 
         // Đã hoàn thành tất cả nhiệm vụ.
-        if (questId < 0 || questId >= 25)
+        if (questId < 0 || questId >= manager.GetTotalQuestCount())
         {
             SetAllQuestsCompletedUI();
             return;
@@ -101,10 +218,19 @@ public class QuestPanelUI : MonoBehaviour
 
         if (expRewardText != null)
         {
-            expRewardText.text = $"{reward.exp} EXP";
+            bool hasExp = reward != null && reward.exp > 0;
+            expRewardText.text = hasExp ? $"{reward.exp} EXP" : string.Empty;
+            expRewardText.gameObject.SetActive(hasExp);
         }
 
         RefreshItemReward(reward);
+
+        if (claimRewardButton != null)
+        {
+            bool isReady = manager.IsCurrentQuestReadyToClaim();
+            claimRewardButton.gameObject.SetActive(isReady);
+            claimRewardButton.interactable = isReady;
+        }
     }
 
     private void RefreshItemReward(QuestRewardInfo reward)
@@ -113,42 +239,39 @@ public class QuestPanelUI : MonoBehaviour
             reward != null &&
             !string.IsNullOrWhiteSpace(reward.itemName);
 
-        /*
-         * Nếu nhiệm vụ không có vật phẩm thưởng,
-         * ẩn cả object Item.
-         */
         if (itemObject != null)
         {
             itemObject.SetActive(hasItem);
         }
 
-        if (!hasItem)
+        // Đảm bảo quét trực tiếp GameObject "Item" dưới QuestUI
+        Transform itemTr = itemObject != null ? itemObject.transform : transform.Find("QuestUI/Item");
+        if (itemTr == null) itemTr = transform.Find("Item");
+        if (itemTr == null)
         {
-            if (itemRewardText != null)
+            foreach (Transform t in GetComponentsInChildren<Transform>(true))
             {
-                itemRewardText.text = "";
+                if (t.name == "Item") { itemTr = t; break; }
             }
-
-            if (itemRewardIcon != null)
-            {
-                itemRewardIcon.sprite = null;
-                itemRewardIcon.enabled = false;
-            }
-
-            return;
         }
 
-        if (itemRewardText != null)
+        if (itemTr != null)
         {
-            itemRewardText.text = reward.itemName;
-        }
+            itemTr.gameObject.SetActive(hasItem);
 
-        if (itemRewardIcon != null)
-        {
-            itemRewardIcon.sprite = reward.itemIcon;
+            TMP_Text txt = itemRewardText != null ? itemRewardText : itemTr.GetComponentInChildren<TMP_Text>(true);
+            if (txt != null)
+            {
+                txt.text = hasItem ? reward.itemName : string.Empty;
+                txt.enabled = hasItem;
+            }
 
-            // Chỉ bật Image khi nhiệm vụ có icon.
-            itemRewardIcon.enabled = reward.itemIcon != null;
+            Image img = itemRewardIcon != null ? itemRewardIcon : itemTr.GetComponentInChildren<Image>(true);
+            if (img != null)
+            {
+                img.sprite = hasItem ? reward.itemIcon : null;
+                img.enabled = hasItem && reward.itemIcon != null;
+            }
         }
     }
 

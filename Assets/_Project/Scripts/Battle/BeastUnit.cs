@@ -119,11 +119,41 @@ public class BeastUnit : MonoBehaviour
         rageBar?.Initialize(MaxRage);
 
         // Khởi tạo thanh EXP tĩnh (chỉ hiển thị tiến độ của Level hiện tại)
-        expBar?.Initialize(data.GetExpToNextLevel(), data.currentExp, data.currentLevel);
+        UpdateExpBar();
 
         // Reset trạng thái khi vừa lên sân
         CurrentStatus = StatusEffect.None;
         statusEffectUI?.Hide();
+    }
+
+    public void UpdateExpBar()
+    {
+        if (Data != null && expBar != null)
+        {
+            expBar.Initialize(Data.GetExpToNextLevel(), Data.currentExp, Data.currentLevel);
+        }
+    }
+
+    public void UpdateLevelText(int level)
+    {
+        string lvlStr = $"Lv.{level}";
+        if (levelTextTMP != null) levelTextTMP.text = lvlStr;
+        if (levelTextLegacy != null) levelTextLegacy.text = lvlStr;
+
+        GameObject hud = GameObject.Find("PlayerBattleHud");
+        if (hud != null)
+        {
+            var tmps = hud.GetComponentsInChildren<TMP_Text>(true);
+            var texts = hud.GetComponentsInChildren<Text>(true);
+            foreach (var t in tmps)
+            {
+                if (t.name.ToLower().Contains("level") || t.text.StartsWith("Lv.")) t.text = lvlStr;
+            }
+            foreach (var t in texts)
+            {
+                if (t.name.ToLower().Contains("level") || t.text.StartsWith("Lv.")) t.text = lvlStr;
+            }
+        }
     }
 
     /// <summary>

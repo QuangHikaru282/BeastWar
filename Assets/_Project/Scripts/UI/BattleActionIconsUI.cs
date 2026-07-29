@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
@@ -44,27 +44,42 @@ public class BattleActionIconsUI : MonoBehaviour
 
     private void Start()
     {
-        // An nut Pokeball neu la tran Trainer
+        // Ẩn nút Pokeball nếu là trận Trainer
         if (battleTransferData != null && battleTransferData.isTrainerBattle)
         {
             if (pokeballBtn != null) pokeballBtn.gameObject.SetActive(false);
         }
 
-        // An panel xac nhan thoat
-        if (escapeConfirmPanel != null) escapeConfirmPanel.SetActive(false);
+        // Ẩn panel xác nhận thoát khi bắt đầu
+        if (escapeConfirmPanel != null)
+        {
+            escapeConfirmPanel.SetActive(false);
+        }
 
-        // Ket noi su kien
+        // Kết nối sự kiện cho các nút được gán thủ công trong Inspector
         if (pokeballBtn != null)
+        {
+            pokeballBtn.onClick.RemoveAllListeners();
             pokeballBtn.onClick.AddListener(OnPokeballClicked);
+        }
 
         if (escapeBtn != null)
+        {
+            escapeBtn.onClick.RemoveAllListeners();
             escapeBtn.onClick.AddListener(OnEscapeClicked);
+        }
 
         if (escapeConfirmYesBtn != null)
+        {
+            escapeConfirmYesBtn.onClick.RemoveAllListeners();
             escapeConfirmYesBtn.onClick.AddListener(OnEscapeConfirmed);
+        }
 
         if (escapeConfirmNoBtn != null)
+        {
+            escapeConfirmNoBtn.onClick.RemoveAllListeners();
             escapeConfirmNoBtn.onClick.AddListener(OnEscapeCancelled);
+        }
 
         // Tim BattleItemMenuUI tu BackpackBtn
         if (backpackBtn != null)
@@ -136,23 +151,61 @@ public class BattleActionIconsUI : MonoBehaviour
 
     // ─── Escape ──────────────────────────────────────────────────────
 
-    private void OnEscapeClicked()
+    public void OnEscapeClicked()
     {
         if (escapeConfirmPanel != null)
             escapeConfirmPanel.SetActive(true);
     }
 
+    public void OnClickYesEscape()
+    {
+        Debug.Log("[BattleActionIconsUI] Bấm nút YES thoát trận!");
+        if (escapeConfirmPanel != null)
+            escapeConfirmPanel.SetActive(false);
+
+        if (BattleManager.Instance != null)
+        {
+            BattleManager.Instance.TryFlee();
+        }
+        else
+        {
+            LoadScenesSafely(PlayerPrefs.GetString("SceneBeforeBattle", "GameCore"));
+        }
+    }
+
+    public static void LoadScenesSafely(string rawSceneString)
+    {
+        if (string.IsNullOrEmpty(rawSceneString)) rawSceneString = "GameCore";
+
+        string[] scenes = rawSceneString.Split(',');
+        string primaryScene = scenes[0].Trim();
+
+        UnityEngine.SceneManagement.SceneManager.LoadScene(primaryScene, UnityEngine.SceneManagement.LoadSceneMode.Single);
+
+        for (int i = 1; i < scenes.Length; i++)
+        {
+            string subScene = scenes[i].Trim();
+            if (!string.IsNullOrEmpty(subScene))
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene(subScene, UnityEngine.SceneManagement.LoadSceneMode.Additive);
+            }
+        }
+    }
+
     private void OnEscapeConfirmed()
+    {
+        OnClickYesEscape();
+    }
+
+    public void OnClickNoEscape()
     {
         if (escapeConfirmPanel != null)
             escapeConfirmPanel.SetActive(false);
-        BattleManager.Instance?.TryFlee();
     }
 
     private void OnEscapeCancelled()
     {
-        if (escapeConfirmPanel != null)
-            escapeConfirmPanel.SetActive(false);
+        OnClickNoEscape();
     }
 
     /// <summary>Tat/bat 3 nut (goi khi khong phai luot nguoi choi).</summary>

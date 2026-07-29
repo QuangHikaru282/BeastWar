@@ -19,6 +19,8 @@ namespace Kinnly
 
         [Header("Toggles")]
         public bool isStackable;
+        [Tooltip("Tích chọn nếu đây là vật phẩm đặc biệt (Cuốc, Bình nước...) không thể bán và không xuất hiện trong Shop")]
+        public bool isSpecialItem;
 
         [Space(10)]
         [Header("Consumable")]

@@ -140,8 +140,14 @@ public class DialogueManager : MonoBehaviour
         {
             dialoguePanel.SetActive(true);
             dialoguePanel.transform.SetAsLastSibling();
+
+            Canvas cv = dialoguePanel.GetComponentInParent<Canvas>();
+            if (cv != null) cv.sortingOrder = 9999;
         }
         InteractHintManager.Instance?.RegisterPanelOpen();
+
+        // Ẩn tất cả các UI khác khi đang nói chuyện
+        SetOtherUIActive(false);
 
         // 4. Khóa di chuyển của Player
         SetPlayerMovement(false);
@@ -209,6 +215,9 @@ public class DialogueManager : MonoBehaviour
         // Thông báo cho HintManager để hiện lại phím F trên NPC (nếu player còn đứng gần)
         InteractHintManager.Instance?.RegisterPanelClose();
 
+        // Hiện lại các UI khác đã ẩn khi hết hội thoại
+        SetOtherUIActive(true);
+
         // Mở lại di chuyển của Player
         SetPlayerMovement(true);
 
@@ -222,6 +231,57 @@ public class DialogueManager : MonoBehaviour
 
     // ────────────────────────────────────────────
     #region Private Helpers
+
+    private List<GameObject> hiddenUIElements = new List<GameObject>();
+
+    private void SetOtherUIActive(bool active)
+    {
+        if (!active)
+        {
+            hiddenUIElements.Clear();
+
+            // Lấy Canvas chứa Dialogue để làm mốc không ẩn
+            Canvas dialogueCanvas = dialoguePanel != null ? dialoguePanel.GetComponentInParent<Canvas>() : null;
+
+            // Tìm tất cả các Canvas trong scene
+            Canvas[] allCanvases = FindObjectsByType<Canvas>(FindObjectsSortMode.None);
+            foreach (var canvas in allCanvases)
+            {
+                if (canvas == null) continue;
+                if (dialogueCanvas != null && canvas == dialogueCanvas) continue;
+                if (canvas.gameObject == gameObject || canvas.transform.IsChildOf(transform)) continue;
+
+                if (canvas.gameObject.activeSelf)
+                {
+                    canvas.gameObject.SetActive(false);
+                    hiddenUIElements.Add(canvas.gameObject);
+                }
+            }
+
+            // Đồng thời kiểm tra các HUD button lẻ nếu chưa bị ẩn
+            string[] hudNames = new string[] { "OpenPetButton", "OpenPanelQuest", "QuestArrow", "TimePanel", "Mở Sảnh Đội", "Toolbar", "PlayerHUD", "PETUI", "QuestPanel" };
+            foreach (var name in hudNames)
+            {
+                GameObject obj = GameObject.Find(name);
+                if (obj != null && obj.activeSelf)
+                {
+                    obj.SetActive(false);
+                    if (!hiddenUIElements.Contains(obj)) hiddenUIElements.Add(obj);
+                }
+            }
+        }
+        else
+        {
+            foreach (var obj in hiddenUIElements)
+            {
+                if (obj != null)
+                {
+                    obj.SetActive(true);
+                }
+            }
+            hiddenUIElements.Clear();
+        }
+    }
 
     private IEnumerator TypeSentence(string sentence)
     {

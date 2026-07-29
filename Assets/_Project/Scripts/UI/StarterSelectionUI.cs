@@ -32,10 +32,21 @@ public class StarterSelectionUI : MonoBehaviour
     private bool hasInitialized;
     private bool hasChosenStarter;
 
+    private readonly List<GameObject> hiddenUIElements = new();
+
     private void OnEnable()
     {
         // Đưa bảng chọn Pet lên trên các UI khác
         transform.SetAsLastSibling();
+
+        Canvas canvas = GetComponentInParent<Canvas>();
+        if (canvas != null)
+        {
+            canvas.sortingOrder = 9999;
+        }
+
+        // Ẩn tất cả các UI khác khi đang chọn Pet khởi đầu
+        SetOtherUIActive(false);
 
         // Panel có thể bị tắt lúc bắt đầu,
         // vì vậy khởi tạo khi Panel được mở
@@ -50,6 +61,57 @@ public class StarterSelectionUI : MonoBehaviour
         }
 
         Debug.Log("Đã mở bảng chọn Pet khởi đầu.");
+    }
+
+    private void OnDisable()
+    {
+        // Hiện lại các UI khác khi bảng đóng
+        SetOtherUIActive(true);
+    }
+
+    private void SetOtherUIActive(bool active)
+    {
+        if (!active)
+        {
+            hiddenUIElements.Clear();
+            Canvas myCanvas = GetComponentInParent<Canvas>();
+
+            Canvas[] allCanvases = FindObjectsByType<Canvas>(FindObjectsSortMode.None);
+            foreach (var canvas in allCanvases)
+            {
+                if (canvas == null) continue;
+                if (myCanvas != null && canvas == myCanvas) continue;
+                if (canvas.gameObject == gameObject || canvas.transform.IsChildOf(transform)) continue;
+
+                if (canvas.gameObject.activeSelf)
+                {
+                    canvas.gameObject.SetActive(false);
+                    hiddenUIElements.Add(canvas.gameObject);
+                }
+            }
+
+            string[] hudNames = new string[] { "OpenPetButton", "OpenPanelQuest", "QuestArrow", "TimePanel", "Mở Sảnh Đội", "Toolbar", "PlayerHUD", "PETUI", "QuestPanel" };
+            foreach (var name in hudNames)
+            {
+                GameObject obj = GameObject.Find(name);
+                if (obj != null && obj.activeSelf)
+                {
+                    obj.SetActive(false);
+                    if (!hiddenUIElements.Contains(obj)) hiddenUIElements.Add(obj);
+                }
+            }
+        }
+        else
+        {
+            foreach (var obj in hiddenUIElements)
+            {
+                if (obj != null)
+                {
+                    obj.SetActive(true);
+                }
+            }
+            hiddenUIElements.Clear();
+        }
     }
 
     private void Update()
@@ -377,17 +439,10 @@ public class StarterSelectionUI : MonoBehaviour
             elderNPC.hasGivenStarter = true;
         }
 
-        // Hoàn thành nhiệm vụ 0 và phát phần thưởng
-        if (
-            global::QuestManager.Instance != null
-            && playerData.currentMainQuestId == 0
-        )
+        // Đánh dấu nhiệm vụ 0 đã hoàn thành mục tiêu (sẵn sàng bấm Nhận Thưởng trên Bảng Nhiệm Vụ)
+        if (global::QuestManager.Instance != null && playerData.currentMainQuestId == 0)
         {
-            global::QuestManager.Instance.AdvanceQuest();
-        }
-        else if (playerData.currentMainQuestId == 0)
-        {
-            playerData.currentMainQuestId = 1;
+            global::QuestManager.Instance.MarkCurrentQuestCompleted();
         }
 
         // Mở lại di chuyển của người chơi nếu cần

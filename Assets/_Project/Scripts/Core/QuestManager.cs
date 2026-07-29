@@ -11,6 +11,8 @@ public class QuestManager : MonoBehaviour
 {
     public static QuestManager Instance { get; private set; }
 
+    public static event Action OnQuestAdvanced;
+
     [Header("Data References")]
     [Tooltip("Kéo PlayerData vào đây")]
     public PlayerData playerData;
@@ -19,6 +21,7 @@ public class QuestManager : MonoBehaviour
     public Kinnly.Item hoeItem;
     public Kinnly.Item tomatoSeedItem;
     public Kinnly.Item waterCanItem;
+    public Kinnly.Item captureBallItem;
 
     [Header("Danh sách Item đăng ký (Kéo các Item khác vào đây nếu muốn giữ khi load scene)")]
     public List<Kinnly.Item> allGameItems = new List<Kinnly.Item>();
@@ -32,6 +35,7 @@ public class QuestManager : MonoBehaviour
         if (hoeItem != null && (hoeItem.name == itemName || hoeItem.name.Equals(cleanName, System.StringComparison.OrdinalIgnoreCase))) return hoeItem;
         if (tomatoSeedItem != null && (tomatoSeedItem.name == itemName || tomatoSeedItem.name.Equals(cleanName, System.StringComparison.OrdinalIgnoreCase))) return tomatoSeedItem;
         if (waterCanItem != null && (waterCanItem.name == itemName || waterCanItem.name.Equals(cleanName, System.StringComparison.OrdinalIgnoreCase))) return waterCanItem;
+        if (captureBallItem != null && (captureBallItem.name == itemName || captureBallItem.name.Equals(cleanName, System.StringComparison.OrdinalIgnoreCase))) return captureBallItem;
 
         if (allGameItems != null)
         {
@@ -83,7 +87,7 @@ public class QuestManager : MonoBehaviour
     private readonly string[] questDescriptions = new string[]
     {
         /* 0  */ "Gặp Trưởng Làng để nhận bạn đồng hành khởi đầu.",
-        /* 1  */ "Vào bãi cỏ, chiến đấu và thu phục 1 con Pet hoang dã.",
+        /* 1  */ "Tham gia trận đấu và đánh bại 1 con Pet hoang dã.",
         /* 2  */ "Dùng Cuốc cày 3 ô đất và gieo Hạt giống đầu tiên.",
         /* 3  */ "Dùng Bình tưới nước cho cây vừa gieo.",
         /* 4  */ "Chăm sóc và thu hoạch nông sản đầu tiên.",
@@ -105,13 +109,16 @@ public class QuestManager : MonoBehaviour
         /* 20 */ "Đi qua Vùng hoang dã để khám phá vùng đất mới.",
         /* 21 */ "Trở thành Tiều phu: Dùng Rìu chặt đổ một cây gỗ.",
         /* 22 */ "Mang Gỗ thu thập được bán cho Cửa Hàng để kiếm 150 Vàng.",
+        /* 23 */ "Thú Cưng Tăng Cấp: Tăng cấp cho bạn đồng hành.",
+        /* 24 */ "Khám Phá Hang Động: Đi tới Hang Động.",
+        /* 25 */ "Đến gặp Trưởng Làng để nhận hướng dẫn và chuẩn bị thu phục Thú."
     };
 
-    // Mảng tiêu đề cho 20 nhiệm vụ
+    // Mảng tiêu đề cho các nhiệm vụ
     private readonly string[] questTitles = new string[]
     {
         /* 0  */ "Khởi Đầu Hành Trình",
-        /* 1  */ "Thu Phục Đồng Hành",
+        /* 1  */ "Chiến Đấu Và Chiến Thắng",
         /* 2  */ "Gieo Hạt Đầu Tiên",
         /* 3  */ "Tưới Nước Cho Cây",
         /* 4  */ "Thu Hoạch Nông Sản",
@@ -134,7 +141,8 @@ public class QuestManager : MonoBehaviour
         /* 21 */ "Trở Thành Tiều Phu",
         /* 22 */ "Bán Gỗ Kiếm Tiền",
         /* 23 */ "Thú Cưng Tăng Cấp",
-        /* 24 */ "Khám Phá Hang Động"
+        /* 24 */ "Khám Phá Hang Động",
+        /* 25 */ "Gặp Trưởng Làng"
     };
 
 
@@ -220,15 +228,17 @@ public class QuestManager : MonoBehaviour
 
         int id = playerData.currentMainQuestId;
 
-        if (id >= 1)
+        // Chỉ trao/duy trì Cuốc & Hạt Giống từ Quest 2 trở đi (sau khi đã nhận thưởng Quest 1)
+        if (id >= 2)
         {
             if (hoeItem != null && !HasItemInInventory(playerInv, hoeItem))
                 playerInv.AddItem(hoeItem, 1);
 
-            if (id <= 2 && tomatoSeedItem != null && !HasItemInInventory(playerInv, tomatoSeedItem))
+            if (id == 2 && tomatoSeedItem != null && !HasItemInInventory(playerInv, tomatoSeedItem))
                 playerInv.AddItem(tomatoSeedItem, 5);
         }
 
+        // Chỉ trao/duy trì Bình Tưới Nước từ Quest 3 trở đi (sau khi đã nhận thưởng Quest 2)
         if (id >= 3)
         {
             if (waterCanItem != null && !HasItemInInventory(playerInv, waterCanItem))
@@ -243,22 +253,21 @@ public class QuestManager : MonoBehaviour
 
         int id = playerData.currentMainQuestId;
 
-        // Đã xong Quest 0 (Gặp Trưởng làng) -> Duy trì Dụng cụ Cuốc vĩnh cửu & 5 Hạt giống cho Quest gieo hạt
-        if (id >= 1)
+        // Đã hoàn thành và nhận thưởng Quest 1 -> Duy trì Dụng cụ Cuốc vĩnh cửu & Hạt giống cho Quest 2
+        if (id >= 2)
         {
             if (hoeItem != null && !HasItemInInventory(playerInv, hoeItem))
             {
                 playerInv.AddItem(hoeItem, 1);
             }
 
-            // Nếu đang ở Quest 1 hoặc 2 (chưa hoàn thành gieo hạt) mà bị mất Hạt giống -> Cấp lại 5 gói Hạt giống ngay
-            if (id <= 2 && tomatoSeedItem != null && !HasItemInInventory(playerInv, tomatoSeedItem))
+            if (id == 2 && tomatoSeedItem != null && !HasItemInInventory(playerInv, tomatoSeedItem))
             {
                 playerInv.AddItem(tomatoSeedItem, 5);
             }
         }
 
-        // Đã xong Quest 2 (Gieo hạt) -> Duy trì Dụng cụ Bình Tưới Nước vĩnh cửu
+        // Đã hoàn thành và nhận thưởng Quest 2 -> Duy trì Dụng cụ Bình Tưới Nước vĩnh cửu từ Quest 3 trở đi
         if (id >= 3)
         {
             if (waterCanItem != null && !HasItemInInventory(playerInv, waterCanItem))
@@ -271,6 +280,11 @@ public class QuestManager : MonoBehaviour
         playerInv.SaveNow();
     }
 
+    public int GetTotalQuestCount()
+    {
+        return questDescriptions != null ? questDescriptions.Length : 26;
+    }
+
     private void AutoFindItems()
     {
         if (hoeItem != null && tomatoSeedItem != null && waterCanItem != null) return;
@@ -281,8 +295,8 @@ public class QuestManager : MonoBehaviour
             if (item == null) continue;
             string n = item.name.ToLower();
             if (hoeItem == null && n.Contains("hoe")) hoeItem = item;
-            if (tomatoSeedItem == null && (n.Contains("tomatoseed") || (n.Contains("tomato") && n.Contains("seed")))) tomatoSeedItem = item;
-            if (waterCanItem == null && (n.Contains("watercan") || n.Contains("water") || n.Contains("can"))) waterCanItem = item;
+            if (tomatoSeedItem == null && n.Contains("tomato")) tomatoSeedItem = item;
+            if (waterCanItem == null && (n.Contains("water") || n.Contains("can"))) waterCanItem = item;
         }
     }
 
@@ -326,152 +340,203 @@ public class QuestManager : MonoBehaviour
         return desc;
     }
 
-    public void AdvanceQuest()
+    [Header("Trạng thái hoàn thành nhiệm vụ")]
+    public bool isCurrentQuestCompleted = false;
+
+    public void MarkCurrentQuestCompleted()
     {
-        if (playerData == null) return;
+        isCurrentQuestCompleted = true;
+        Debug.Log($"<color=cyan>[QuestManager]</color> Nhiệm vụ {playerData.currentMainQuestId} đã thỏa mãn mục tiêu! Nút Nhận Thưởng đã sẵn sàng.");
+        OnQuestAdvanced?.Invoke();
+    }
+
+    public bool IsCurrentQuestReadyToClaim()
+    {
+        if (playerData == null) return false;
+        int id = playerData.currentMainQuestId;
+
+        // Kiểm tra tự động theo dữ liệu thực tế của game
+        if (id == 0 && playerData.ownedBeasts != null && playerData.ownedBeasts.Count > 0) return true;
+        if (id == 1 && (isCurrentQuestCompleted || beastsDefeatedInForest >= 1)) return true;
+        if (id == 6 && beastsDefeatedInForest >= 3) return true;
+        if (id == 7 && playerData.ownedBeasts != null && playerData.ownedBeasts.Count >= 3) return true;
+        if (id == 13 && trainersDefeated >= 3) return true;
+        if (id == 19 && goldEarnedFromFish >= 100) return true;
+        if (id == 22 && goldEarnedFromWood >= 150) return true;
+
+        return isCurrentQuestCompleted;
+    }
+
+    public bool AdvanceQuest()
+    {
+        if (playerData == null) return false;
+
+        // CHỈ PHÉP NHẬN THƯỞNG KHI NHIỆM VỤ ĐÃ THỰC SỰ HOÀN THÀNH
+        if (!IsCurrentQuestReadyToClaim())
+        {
+            Debug.LogWarning($"<color=yellow>[QuestManager]</color> Chưa hoàn thành mục tiêu của Nhiệm vụ {playerData.currentMainQuestId}! Không thể nhận thưởng.");
+            return false;
+        }
+
         int completedQuestId = playerData.currentMainQuestId;
-        playerData.currentMainQuestId++;
-        playerData.Save();
-        Debug.Log($"[QuestManager] Nhiệm vụ thăng cấp! Hiện tại là Quest {playerData.currentMainQuestId}.");
 
+        // Trao phần thưởng và chuyển sang nhiệm vụ tiếp theo
         GiveRewardForQuest(completedQuestId);
-
-        // Kiểm tra ngay nếu quest mới cũng đã thỏa điều kiện sẵn
-        CheckQuestImmediate();
+        isCurrentQuestCompleted = false;
+        return true;
     }
 
     private void GiveRewardForQuest(int questId)
     {
         int rewardGold = 0;
         int rewardExp = 0;
-        string rewardItem = "";
         Sprite rewardIcon = null;
 
         switch (questId)
         {
             case 0: // Nhiệm vụ 0: Gặp Trưởng Làng
                 rewardGold = 50;
-                rewardExp = 100;
-                rewardItem = "Cuốc & Hạt Giống";
+                rewardExp = 0;
+                break;
+
+            case 1: // Nhiệm vụ 1: Chiến đấu và chiến thắng
+                rewardGold = 50;
+                rewardExp = 0;
                 if (hoeItem != null) rewardIcon = hoeItem.image;
                 break;
 
             case 2: // Nhiệm vụ 2: Cày đất & gieo hạt
                 rewardGold = 50;
-                rewardExp = 150;
-                rewardItem = "Bình Tưới Nước";
+                rewardExp = 0;
                 if (waterCanItem != null) rewardIcon = waterCanItem.image;
                 break;
 
             case 4: // Nhiệm vụ 4: Thu hoạch
                 rewardGold = 100;
-                rewardExp = 200;
-                rewardItem = "";
+                rewardExp = 0;
                 break;
 
             case 5: // Nhiệm vụ 5: Bán nông sản
                 rewardGold = 150;
-                rewardExp = 250;
-                rewardItem = "Thẻ Mở Cổng Rừng";
+                rewardExp = 0;
                 break;
 
             case 9: // Nhiệm vụ 9: Chế tạo mồi nhử tại xưởng
                 rewardGold = 100;
-                rewardExp = 200;
-                rewardItem = "";
+                rewardExp = 0;
                 break;
                 
             case 18: // Nhiệm vụ 18: Câu cá
                 rewardGold = 50;
-                rewardExp = 150;
-                rewardItem = "";
+                rewardExp = 0;
                 break;
                 
             case 19: // Nhiệm vụ 19: Bán cá
                 rewardGold = 200;
-                rewardExp = 300;
-                rewardItem = "Vé Bốc Thăm (Hiếm)";
+                rewardExp = 0;
                 break;
                 
             case 20: // Nhiệm vụ 20: Đi qua Vùng hoang dã
                 rewardGold = 300;
-                rewardExp = 500;
-                rewardItem = "Vé Tàu Thủy";
+                rewardExp = 0;
                 break;
 
             case 21: // Nhiệm vụ 21: Chặt gỗ
                 rewardGold = 50;
-                rewardExp = 150;
-                rewardItem = "";
+                rewardExp = 0;
                 break;
 
             case 22: // Nhiệm vụ 22: Bán gỗ
                 rewardGold = 250;
-                rewardExp = 400;
-                rewardItem = "Bản đồ Kho báu";
+                rewardExp = 0;
                 break;
 
             case 23: // Nhiệm vụ 23: Lên cấp
                 rewardGold = 100;
-                rewardExp = 200;
-                rewardItem = "Bánh Mì Ngọt";
+                rewardExp = 0;
                 break;
 
             case 24: // Nhiệm vụ 24: Đi tới Hang Động
                 rewardGold = 500;
-                rewardExp = 600;
-                rewardItem = "Đèn Pin Siêu Sáng";
+                rewardExp = 0;
                 break;
 
             default:
                 rewardGold = 50;
-                rewardExp = 100;
-                rewardItem = "";
+                rewardExp = 0;
                 break;
         }
 
-        // Tìm và hiển thị Bảng Nhận Thưởng (RewardUI_Panel)
-        RewardUIManager rewardUI = RewardUIManager.Instance;
-        if (rewardUI == null)
+        // 1. Cộng Vàng và EXP lập tức
+        if (playerData != null)
         {
-            rewardUI = FindFirstObjectByType<RewardUIManager>(FindObjectsInactive.Include);
+            playerData.gold += rewardGold;
+            if (LevelUpManager.Instance != null)
+            {
+                LevelUpManager.Instance.DistributeExpToFormation(rewardExp, playerData);
+            }
         }
 
-        if (rewardUI != null)
+        // 2. Trao/Duy trì vật phẩm thật vào kho/thanh công cụ lập tức
+        Kinnly.PlayerInventory playerInv = FindFirstObjectByType<Kinnly.PlayerInventory>();
+        if (playerInv != null)
         {
-            rewardUI.gameObject.SetActive(true);
-            
-            // CHỈ TRAO QUÀ VÀ CỘNG ĐỒ KHI NGƯỜI CHƠI BẤM NÚT "TIẾP TỤC" TRÊN BẢNG
-            rewardUI.ShowQuestReward(rewardGold, rewardExp, rewardItem, () => {
-                // 1. Cộng Vàng và EXP
-                if (playerData != null)
+            AutoFindItems();
+
+            if (questId == 1)
+            {
+                if (hoeItem != null && !HasItemInInventory(playerInv, hoeItem))
                 {
-                    playerData.gold += rewardGold;
-                    if (LevelUpManager.Instance != null)
-                    {
-                        LevelUpManager.Instance.DistributeExpToFormation(rewardExp, playerData);
-                    }
+                    playerInv.AddItem(hoeItem, 1); // Trao Cuốc
                 }
-
-                // 2. Trao/Duy trì vật phẩm thật vào kho/thanh công cụ
-                Kinnly.PlayerInventory playerInv = FindFirstObjectByType<Kinnly.PlayerInventory>();
-                if (playerInv != null)
+                if (tomatoSeedItem != null && !HasItemInInventory(playerInv, tomatoSeedItem))
                 {
-                    if (questId == 0 && tomatoSeedItem != null)
-                    {
-                        playerInv.AddItem(tomatoSeedItem, 5); // Trao 5 gói Hạt giống (tiêu hao khi gieo)
-                    }
-                    EnsureUnlockedItemsInInventory(playerInv); // Khôi phục/Trao Dụng cụ vĩnh cửu (Cuốc & Bình nước)
+                    playerInv.AddItem(tomatoSeedItem, 5); // Trao 5 gói Hạt giống
                 }
+            }
 
-                Debug.Log($"<color=green>[QuestManager]</color> Người chơi đã bấm Tiếp Tục và nhận phần thưởng Nhiệm vụ {questId}!");
-            }, rewardIcon);
+            if (questId == 2 && waterCanItem != null && !HasItemInInventory(playerInv, waterCanItem))
+            {
+                playerInv.AddItem(waterCanItem, 1); // Trao Bình tưới nước
+            }
+
+            if (questId == 25 && captureBallItem != null && !HasItemInInventory(playerInv, captureBallItem))
+            {
+                playerInv.AddItem(captureBallItem, 5); // Trao 5 Bóng Thu Phục
+            }
+
+            EnsureUnlockedItemsInInventory(playerInv); // Khôi phục/Trao Dụng cụ vĩnh cửu (Cuốc & Bình nước)
+            playerInv.SaveNow();
         }
-        else
+
+        // 3. Tiến tới nhiệm vụ tiếp theo và lưu dữ liệu ngay lập tức
+        if (playerData != null)
         {
-            // Fallback nếu không có UI thì cộng thẳng
-            if (playerData != null) playerData.gold += rewardGold;
+            if (questId == 5)
+            {
+                playerData.currentMainQuestId = 18; // Sau Quest 5 (Bán Shop) -> Nhảy sang Quest 18 (Câu Cá)
+            }
+            else if (questId == 18)
+            {
+                playerData.currentMainQuestId = 25; // Sau Quest 18 (Câu Cá) -> Nhảy sang Quest 25 (Gặp Trưởng Làng)
+            }
+            else if (questId == 25)
+            {
+                playerData.currentMainQuestId = 8; // Sau Quest 25 (Gặp Trưởng Làng) -> Nhảy sang Quest 8 (Thu phục Thú hệ Nước)
+            }
+            else
+            {
+                playerData.currentMainQuestId++;
+            }
+            playerData.Save();
+            Debug.Log($"<color=green>[QuestManager]</color> Đã nhận phần thưởng Nhiệm vụ {questId}! Thăng cấp lên Quest {playerData.currentMainQuestId}.");
         }
+
+        // 4. Báo cho hệ thống UI / Marker / Chỉ đường cập nhật
+        OnQuestAdvanced?.Invoke();
+
+        // 5. Kiểm tra nhiệm vụ tiếp theo lập tức
+        CheckQuestImmediate();
     }
 
     /// <summary>
@@ -563,34 +628,40 @@ public class QuestManager : MonoBehaviour
     {
         if (playerData.currentMainQuestId == 1)
         {
-            AdvanceQuest();
+            MarkCurrentQuestCompleted();
         }
         
         if (playerData.currentMainQuestId == 7 && playerData.ownedBeasts.Count >= 3)
         {
-            AdvanceQuest();
+            MarkCurrentQuestCompleted();
         }
 
         if (playerData.currentMainQuestId == 8 && beast != null && beast.baseBeast.element == BeastElement.Water)
         {
-            AdvanceQuest();
+            MarkCurrentQuestCompleted();
         }
 
         if (playerData.currentMainQuestId == 10 && beast != null && beast.baseBeast.isRare)
         {
-            AdvanceQuest();
+            MarkCurrentQuestCompleted();
         }
     }
 
     /// <summary>Kiểm tra khi người chơi đánh bại 1 thú hoang dã.</summary>
     public void OnWildBeastDefeated()
     {
-        if (playerData.currentMainQuestId == 6)
+        beastsDefeatedInForest++;
+
+        if (playerData != null && playerData.currentMainQuestId == 1)
         {
-            beastsDefeatedInForest++;
+            MarkCurrentQuestCompleted();
+        }
+
+        if (playerData != null && playerData.currentMainQuestId == 6)
+        {
             if (beastsDefeatedInForest >= 3)
             {
-                AdvanceQuest();
+                MarkCurrentQuestCompleted();
             }
         }
     }
@@ -600,7 +671,7 @@ public class QuestManager : MonoBehaviour
     {
         if (playerData.currentMainQuestId == 2)
         {
-            AdvanceQuest();
+            MarkCurrentQuestCompleted();
         }
     }
 
@@ -609,32 +680,32 @@ public class QuestManager : MonoBehaviour
     {
         if (playerData.currentMainQuestId == 3)
         {
-            AdvanceQuest();
+            MarkCurrentQuestCompleted();
         }
     }
 
     /// <summary>Kiểm tra khi thu hoạch.</summary>
     public void OnCropHarvested()
     {
-        if (playerData.currentMainQuestId == 4) AdvanceQuest();
+        if (playerData.currentMainQuestId == 4) MarkCurrentQuestCompleted();
     }
 
     /// <summary>Kiểm tra khi bán nông sản.</summary>
     public void OnItemsSold()
     {
-        if (playerData.currentMainQuestId == 5) AdvanceQuest();
+        if (playerData.currentMainQuestId == 5) MarkCurrentQuestCompleted();
     }
 
     /// <summary>Kiểm tra khi chế tạo mồi nhử.</summary>
     public void OnBaitCrafted()
     {
-        if (playerData.currentMainQuestId == 9) AdvanceQuest();
+        if (playerData.currentMainQuestId == 9) MarkCurrentQuestCompleted();
     }
 
     /// <summary>Kiểm tra khi gán thú hệ Nước cho nông trại.</summary>
     public void OnWaterBeastAssigned()
     {
-        if (playerData.currentMainQuestId == 12) AdvanceQuest();
+        if (playerData.currentMainQuestId == 12) MarkCurrentQuestCompleted();
     }
 
     /// <summary>Kiểm tra khi đánh bại Rival (đối thủ).</summary>
@@ -655,7 +726,7 @@ public class QuestManager : MonoBehaviour
             trainersDefeated++;
             if (trainersDefeated >= 3)
             {
-                AdvanceQuest();
+                MarkCurrentQuestCompleted();
             }
         }
     }
@@ -665,8 +736,7 @@ public class QuestManager : MonoBehaviour
     {
         if (playerData.currentMainQuestId == 14) 
         {
-            AdvanceQuest(); // Nhảy sang 15
-            AdvanceQuest(); // Cho qua 15 luôn (nhận huy hiệu) để tới 16
+            MarkCurrentQuestCompleted();
         }
     }
 
@@ -675,7 +745,7 @@ public class QuestManager : MonoBehaviour
     {
         if (playerData.currentMainQuestId == 18)
         {
-            AdvanceQuest();
+            MarkCurrentQuestCompleted();
         }
     }
 
@@ -687,7 +757,7 @@ public class QuestManager : MonoBehaviour
             goldEarnedFromFish += goldAmount;
             if (goldEarnedFromFish >= 100)
             {
-                AdvanceQuest();
+                MarkCurrentQuestCompleted();
             }
         }
     }
@@ -697,7 +767,7 @@ public class QuestManager : MonoBehaviour
     {
         if (playerData.currentMainQuestId == 20)
         {
-            AdvanceQuest();
+            MarkCurrentQuestCompleted();
         }
     }
 
@@ -706,7 +776,7 @@ public class QuestManager : MonoBehaviour
     {
         if (playerData.currentMainQuestId == 21)
         {
-            AdvanceQuest();
+            MarkCurrentQuestCompleted();
         }
     }
 
@@ -718,7 +788,7 @@ public class QuestManager : MonoBehaviour
             goldEarnedFromWood += goldAmount;
             if (goldEarnedFromWood >= 150)
             {
-                AdvanceQuest();
+                MarkCurrentQuestCompleted();
             }
         }
     }
@@ -728,7 +798,7 @@ public class QuestManager : MonoBehaviour
     {
         if (playerData.currentMainQuestId == 23)
         {
-            AdvanceQuest();
+            MarkCurrentQuestCompleted();
         }
     }
 
@@ -753,69 +823,80 @@ public class QuestManager : MonoBehaviour
         {
             case 0:
                 rewardGold = 50;
-                rewardExp = 100;
+                rewardExp = 0;
+                rewardItem = "";
+                break;
+            case 1:
+                rewardGold = 50;
+                rewardExp = 0;
                 rewardItem = "Cuốc & Hạt Giống";
                 if (hoeItem != null) rewardIcon = hoeItem.image;
                 break;
             case 2:
                 rewardGold = 50;
-                rewardExp = 150;
+                rewardExp = 0;
                 rewardItem = "Bình Tưới Nước";
                 if (waterCanItem != null) rewardIcon = waterCanItem.image;
                 break;
             case 4:
                 rewardGold = 100;
-                rewardExp = 200;
+                rewardExp = 0;
                 rewardItem = "";
                 break;
             case 5:
                 rewardGold = 150;
-                rewardExp = 250;
-                rewardItem = "Thẻ Mở Cổng Rừng";
+                rewardExp = 0;
+                rewardItem = "Cần Câu";
                 break;
             case 9:
                 rewardGold = 100;
-                rewardExp = 200;
+                rewardExp = 0;
                 rewardItem = "";
                 break;
             case 18:
                 rewardGold = 50;
-                rewardExp = 150;
+                rewardExp = 0;
                 rewardItem = "";
                 break;
             case 19:
                 rewardGold = 200;
-                rewardExp = 300;
+                rewardExp = 0;
                 rewardItem = "Vé Bốc Thăm (Hiếm)";
                 break;
             case 20:
                 rewardGold = 300;
-                rewardExp = 500;
+                rewardExp = 0;
                 rewardItem = "Vé Tàu Thủy";
                 break;
             case 21:
                 rewardGold = 50;
-                rewardExp = 150;
+                rewardExp = 0;
                 rewardItem = "";
                 break;
             case 22:
                 rewardGold = 250;
-                rewardExp = 400;
+                rewardExp = 0;
                 rewardItem = "Bản đồ Kho báu";
                 break;
             case 23:
                 rewardGold = 100;
-                rewardExp = 200;
+                rewardExp = 0;
                 rewardItem = "Bánh Mì Ngọt";
                 break;
             case 24:
                 rewardGold = 500;
-                rewardExp = 600;
+                rewardExp = 0;
                 rewardItem = "Đèn Pin Siêu Sáng";
+                break;
+            case 25:
+                rewardGold = 100;
+                rewardExp = 0;
+                rewardItem = captureBallItem != null ? captureBallItem.name : "Bóng Thu Phục";
+                if (captureBallItem != null) rewardIcon = captureBallItem.image;
                 break;
             default:
                 rewardGold = 50;
-                rewardExp = 100;
+                rewardExp = 0;
                 rewardItem = "";
                 break;
         }

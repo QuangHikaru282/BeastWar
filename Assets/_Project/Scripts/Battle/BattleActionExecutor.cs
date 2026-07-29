@@ -32,7 +32,12 @@ public class BattleActionExecutor : MonoBehaviour
         string moveName = move != null ? move.baseMove.moveName : "Tấn công thường";
         MoveType type = move != null ? move.baseMove.moveType : MoveType.Melee;
         
+        string battleLog = $"{attacker.Data.baseBeast.beastName} dùng {moveName}!";
         Debug.Log($"[Battle] {attacker.Data.baseBeast.beastName} dùng {moveName} ({type}) tấn công {target.Data.baseBeast.beastName}!");
+        if (BattleUIManager.Instance != null && BattleUIManager.Instance.ActionPanel != null)
+        {
+            BattleUIManager.Instance.ActionPanel.SetGuide(battleLog);
+        }
 
         Vector3 originalPos = attacker.transform.position;
 

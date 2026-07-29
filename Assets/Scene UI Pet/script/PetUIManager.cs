@@ -94,6 +94,8 @@ public class PetUIManager : MonoBehaviour
 
     [SerializeField] private bool hidePetUIAtStart = true;
 
+    private int originalSortingOrder = 0;
+
     private readonly List<PetSlotUI> createdSlots =
         new List<PetSlotUI>();
 
@@ -103,7 +105,101 @@ public class PetUIManager : MonoBehaviour
 
     private void Awake()
     {
+        AutoBindAllReferences();
         RegisterButtons();
+    }
+
+    private void AutoBindAllReferences()
+    {
+        // PlayerData
+        if (playerData == null)
+            playerData = Resources.Load<PlayerData>("PlayerData");
+
+        // petUIRoot = PetPanel (con trực tiếp của PetUI)
+        if (petUIRoot == null)
+        {
+            Transform t = transform.Find("PetPanel");
+            petUIRoot = (t != null) ? t.gameObject : null;
+        }
+
+        Transform root = (petUIRoot != null) ? petUIRoot.transform : transform;
+
+        // Component-based (hoạt động kể cả khi inactive)
+        if (petDisplayAreaUI == null)   petDisplayAreaUI   = root.GetComponentInChildren<PetDisplayAreaUI>(true);
+        if (petStatContentUI == null)   petStatContentUI   = root.GetComponentInChildren<PetStatContentUI>(true);
+        if (skillContentUI == null)     skillContentUI     = root.GetComponentInChildren<SkillContentUI>(true);
+        if (enhancePetContentUI == null) enhancePetContentUI = root.GetComponentInChildren<EnhancePetContentUI>(true);
+
+        // Tab GameObjects
+        if (skillContent == null && skillContentUI != null)         skillContent     = skillContentUI.gameObject;
+        if (petStatContent == null && petStatContentUI != null)     petStatContent   = petStatContentUI.gameObject;
+        if (enhancePetContent == null && enhancePetContentUI != null) enhancePetContent = enhancePetContentUI.gameObject;
+
+        // Scroll View -> petListContent
+        if (petListContent == null)
+        {
+            ScrollRect[] srs = root.GetComponentsInChildren<ScrollRect>(true);
+            foreach (var sr in srs)
+                if (sr.content != null) { petListContent = sr.content; break; }
+        }
+
+        // PetSlot prefab từ Resources
+        if (petSlotPrefab == null)
+        {
+            petSlotPrefab = Resources.Load<PetSlotUI>("PetSlot");
+            if (petSlotPrefab == null)
+            {
+                var all = Resources.LoadAll<PetSlotUI>("");
+                if (all != null && all.Length > 0) petSlotPrefab = all[0];
+            }
+        }
+
+        // Buttons theo tên chính xác trong Hierarchy
+        Button[] allBtns = root.GetComponentsInChildren<Button>(true);
+        foreach (var btn in allBtns)
+        {
+            string n = btn.name;
+            string nl = n.ToLower();
+            if (closeButton == null       && (n == "CloseButton"     || nl.Contains("close")))          closeButton       = btn;
+            if (previousPetButton == null && (n == "PreviousPetButton"|| nl.Contains("prev") || nl.Contains("left")))  previousPetButton = btn;
+            if (nextPetButton == null     && (n == "NextPetButton"    || nl.Contains("next") || nl.Contains("right"))) nextPetButton     = btn;
+            if (skillButton == null       && (n == "SkillButton"      || nl.Contains("skill")))          skillButton       = btn;
+            if (petStatButton == null     && (n == "PetStatButton"    || nl.Contains("stat") || nl.Contains("info")))  petStatButton     = btn;
+            if (enhancePetButton == null  && (n == "EnhancePetButton" || n == "EnhancePetButton (1)" || nl.Contains("enhance"))) enhancePetButton = btn;
+            if (evolveButton == null      && (nl.Contains("evolve")   || nl.Contains("tienhoa") || nl.Contains("upgrade"))) evolveButton = btn;
+        }
+
+        // openPetButton nằm ngoài PetPanel (anh em của PetUI)
+        if (openPetButton == null && transform.parent != null)
+        {
+            Transform t = transform.parent.Find("OpenPetButton");
+            if (t != null) openPetButton = t.GetComponent<Button>();
+        }
+
+        // petDisplayImage, petNameText, petLevelText từ PetTopInfo
+        Transform dispArea = root.Find("MainContent/PetDisplayArea");
+        if (dispArea != null)
+        {
+            // Luôn tìm đúng PetCharacterArea, sửa cả trường hợp Inspector bị gán nhầm vào PetDisplayArea nền
+            Transform charArea = dispArea.Find("PetCharacterArea");
+            if (charArea != null)
+            {
+                Image charImg = charArea.GetComponent<Image>();
+                if (charImg != null) petDisplayImage = charImg;
+            }
+
+            Transform topInfo = dispArea.Find("PetTopInfo");
+            if (topInfo != null)
+            {
+                TMP_Text[] txts = topInfo.GetComponentsInChildren<TMP_Text>(true);
+                foreach (var txt in txts)
+                {
+                    string nl = txt.name.ToLower();
+                    if (petNameText  == null && (nl.Contains("name") || nl.Contains("ten")))  petNameText  = txt;
+                    if (petLevelText == null && (nl.Contains("level")|| nl.Contains("lv")))   petLevelText = txt;
+                }
+            }
+        }
     }
 
     private void Start()
@@ -112,25 +208,6 @@ public class PetUIManager : MonoBehaviour
         {
             Debug.LogError(
                 "[PetUIManager] Chưa gán Pet UI Root.",
-                this
-            );
-            return;
-        }
-
-        /*
-         * PetUIManager không được nằm trong object bị tắt.
-         * Trong cấu trúc của bạn, Pet UI Root nên là PetPanel.
-         */
-        bool managerInsideRoot =
-            petUIRoot == gameObject ||
-            transform.IsChildOf(petUIRoot.transform);
-
-        if (managerInsideRoot)
-        {
-            Debug.LogError(
-                "[PetUIManager] PetUIManager đang nằm bên trong " +
-                "Pet UI Root. Hãy gắn PetUIManager lên object " +
-                "PetUI bên ngoài PetPanel.",
                 this
             );
             return;
@@ -612,15 +689,39 @@ public class PetUIManager : MonoBehaviour
             beastData.frontSprite
         );
 
-        /*
-         * BeastData chưa có Sprite riêng cho icon nguyên tố.
-         * Tạm thời ẩn elementIcon.
-         */
+        if (elementIcon == null && petUIRoot != null)
+        {
+            Transform topInfo = petUIRoot.transform.Find("MainContent/PetDisplayArea/PetTopInfo");
+            if (topInfo != null) elementIcon = topInfo.GetComponentInChildren<Image>(true);
+        }
+
         SetImage(elementIcon, null);
 
         if (elementIcon != null)
         {
+            elementIcon.enabled = false;
             elementIcon.gameObject.SetActive(false);
+        }
+
+        CleanEmptyWhiteImages(petUIRoot != null ? petUIRoot.transform : transform);
+    }
+
+    private void CleanEmptyWhiteImages(Transform parent)
+    {
+        if (parent == null) return;
+        Image[] images = parent.GetComponentsInChildren<Image>(true);
+        foreach (Image img in images)
+        {
+            if (img == petDisplayImage) continue;
+
+            if (img.sprite == null)
+            {
+                string n = img.name.ToLower();
+                if (n.Contains("icon") || n.Contains("element") || n.Contains("coin") || n.Contains("gold") || n.Contains("gem") || n.Contains("resource"))
+                {
+                    img.enabled = false;
+                }
+            }
         }
     }
 
@@ -1061,66 +1162,49 @@ public class PetUIManager : MonoBehaviour
 
     public void OpenPetUI()
     {
-        Debug.Log(
-            "[PetUIManager] Đã bấm nút mở Pet UI."
-        );
+        // Bật PetUI (object này) và PetPanel (petUIRoot)
+        gameObject.SetActive(true);
 
         if (petUIRoot == null)
         {
-            Debug.LogError(
-                "[PetUIManager] Chưa gán Pet UI Root.",
-                this
-            );
+            Debug.LogError("[PetUIManager] petUIRoot NULL! Hãy kéo PetPanel vào ô Pet UI Root.", this);
             return;
         }
 
         petUIRoot.SetActive(true);
         petUIRoot.transform.SetAsLastSibling();
 
-        if (!initialized)
+        Canvas cv = petUIRoot.GetComponentInParent<Canvas>();
+        if (cv != null)
         {
-            Initialize();
-            return;
+            // Lưu lại sortingOrder gốc rồi đẩy lên cao nhất
+            originalSortingOrder = cv.sortingOrder;
+            cv.sortingOrder = 9999;
         }
 
-        RuntimeBeastData selectedPet =
-            GetSelectedPet();
+        InteractHintManager.Instance?.RegisterPanelOpen();
 
-        if (selectedPet != null)
-        {
-            SelectPetByIndex(selectedIndex);
-        }
-        else
-        {
-            int firstPetIndex =
-                FindNextValidPetIndex(-1, 1);
-
-            if (firstPetIndex >= 0)
-            {
-                SelectPetByIndex(firstPetIndex);
-            }
-            else
-            {
-                ClearDisplay();
-            }
-        }
-
+        // Luôn gọi Initialize (lần đầu: chạy đầy đủ; các lần sau: skip)
+        Initialize();
+        // Luôn rebuild + refresh để chắc chắn hiển thị đúng
+        RebuildPetList();
         ShowTab(currentTab);
     }
 
     public void ClosePetUI()
     {
-        if (petUIRoot == null)
-        {
-            Debug.LogWarning(
-                "[PetUIManager] Chưa gán Pet UI Root.",
-                this
-            );
-            return;
-        }
+        // Tắt PetPanel
+        if (petUIRoot != null)
+            petUIRoot.SetActive(false);
 
-        // Chỉ tắt PetPanel.
-        petUIRoot.SetActive(false);
+        // Tắt luôn PetUI (object chứa manager) để không còn nền đen
+        gameObject.SetActive(false);
+
+        // Khôi phục sortingOrder về ban đầu
+        Canvas cv2 = petUIRoot?.GetComponentInParent<Canvas>();
+        if (cv2 != null) cv2.sortingOrder = originalSortingOrder;
+
+        InteractHintManager.Instance?.RegisterPanelClose();
     }
 
     #endregion

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 
 /// <summary>
@@ -37,18 +37,78 @@ public class BattleCaptureHandler : MonoBehaviour
         RefreshPokeballUI();
     }
 
+    private string GetTargetBallName()
+    {
+        if (global::QuestManager.Instance != null && global::QuestManager.Instance.captureBallItem != null)
+        {
+            return global::QuestManager.Instance.captureBallItem.name;
+        }
+        return pokeballItemName;
+    }
+
+    private bool IsMatchingBallItem(Kinnly.Item item, string targetName)
+    {
+        if (item == null) return false;
+        if (global::QuestManager.Instance != null && global::QuestManager.Instance.captureBallItem != null)
+        {
+            if (item == global::QuestManager.Instance.captureBallItem) return true;
+        }
+        return IsMatchingBallName(item.name, targetName);
+    }
+
+    private bool IsMatchingBallName(string name, string targetName)
+    {
+        if (string.IsNullOrEmpty(name)) return false;
+        if (name.Equals(targetName, System.StringComparison.OrdinalIgnoreCase)) return true;
+        string n = name.ToLower();
+        if (n.Contains("ball") || n.Contains("bóng") || n.Contains("pokeball") || n.Contains("thu phục")) return true;
+        return false;
+    }
+
     /// <summary>Tra ve so Pokeball con lai tu kho do Kinnly.</summary>
     public int GetPokeballCount()
     {
-        var playerData = FindFirstObjectByType<BattleManager>()?.GetComponent<MonoBehaviour>();
-        // Tim trong savedInventoryItems
+        string targetName = GetTargetBallName();
+
+        var playerInv = FindFirstObjectByType<Kinnly.PlayerInventory>();
+        if (playerInv != null)
+        {
+            int total = 0;
+            var slots = new System.Collections.Generic.List<GameObject>();
+            if (playerInv.InventorySlots != null) slots.AddRange(playerInv.InventorySlots);
+            if (playerInv.ToolbarSlots != null) slots.AddRange(playerInv.ToolbarSlots);
+
+            foreach (var slot in slots)
+            {
+                if (slot != null)
+                {
+                    var invItem = slot.GetComponentInChildren<Kinnly.InventoryItem>(true);
+                    if (invItem != null && invItem.Item != null)
+                    {
+                        if (IsMatchingBallItem(invItem.Item, targetName))
+                        {
+                            total += invItem.Amount;
+                        }
+                    }
+                }
+            }
+            if (total > 0) return total;
+        }
+
         var pd = Resources.FindObjectsOfTypeAll<PlayerData>();
         foreach (var data in pd)
         {
-            foreach (var item in data.savedInventoryItems)
+            if (data.savedInventoryItems != null)
             {
-                if (item.itemName == pokeballItemName)
-                    return item.amount;
+                int total = 0;
+                foreach (var item in data.savedInventoryItems)
+                {
+                    if (IsMatchingBallName(item.itemName, targetName))
+                    {
+                        total += item.amount;
+                    }
+                }
+                if (total > 0) return total;
             }
         }
         return 0;
@@ -56,22 +116,50 @@ public class BattleCaptureHandler : MonoBehaviour
 
     private void ConsumeOnePokeball()
     {
+        string targetName = GetTargetBallName();
+
+        var playerInv = FindFirstObjectByType<Kinnly.PlayerInventory>();
+        if (playerInv != null)
+        {
+            var slots = new System.Collections.Generic.List<GameObject>();
+            if (playerInv.InventorySlots != null) slots.AddRange(playerInv.InventorySlots);
+            if (playerInv.ToolbarSlots != null) slots.AddRange(playerInv.ToolbarSlots);
+
+            foreach (var slot in slots)
+            {
+                if (slot != null)
+                {
+                    var invItem = slot.GetComponentInChildren<Kinnly.InventoryItem>(true);
+                    if (invItem != null && invItem.Item != null && IsMatchingBallItem(invItem.Item, targetName))
+                    {
+                        playerInv.RemoveItem(invItem, 1);
+                        playerInv.SaveNow();
+                        RefreshPokeballUI();
+                        return;
+                    }
+                }
+            }
+        }
+
         var pd = Resources.FindObjectsOfTypeAll<PlayerData>();
         foreach (var data in pd)
         {
-            for (int i = 0; i < data.savedInventoryItems.Count; i++)
+            if (data.savedInventoryItems != null)
             {
-                var item = data.savedInventoryItems[i];
-                if (item.itemName == pokeballItemName && item.amount > 0)
+                for (int i = 0; i < data.savedInventoryItems.Count; i++)
                 {
-                    var updated = item;
-                    updated.amount--;
-                    data.savedInventoryItems[i] = updated;
-                    if (updated.amount <= 0)
-                        data.savedInventoryItems.RemoveAt(i);
-                    data.Save();
-                    RefreshPokeballUI();
-                    return;
+                    var item = data.savedInventoryItems[i];
+                    if (IsMatchingBallName(item.itemName, targetName) && item.amount > 0)
+                    {
+                        var updated = item;
+                        updated.amount--;
+                        data.savedInventoryItems[i] = updated;
+                        if (updated.amount <= 0)
+                            data.savedInventoryItems.RemoveAt(i);
+                        data.Save();
+                        RefreshPokeballUI();
+                        return;
+                    }
                 }
             }
         }

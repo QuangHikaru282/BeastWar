@@ -12,6 +12,7 @@ public class ActionPanel : MonoBehaviour
 {
     [Header("Text hướng dẫn")]
     [SerializeField] private TextMeshProUGUI guideText;
+    [SerializeField] private Text guideTextLegacy;
 
     [Header("UI Kĩ năng (Skill Panel)")]
     [SerializeField] private GameObject skillPanel;
@@ -36,10 +37,14 @@ public class ActionPanel : MonoBehaviour
         onActionConfirmed = callback;
 
         // Tự động tìm UI tĩnh của BattleSceneF nếu chưa được gán trong Inspector
-        if (guideText == null)
+        if (guideText == null && guideTextLegacy == null)
         {
             GameObject txtObj = GameObject.Find("DialogueText");
-            if (txtObj != null) guideText = txtObj.GetComponent<TextMeshProUGUI>();
+            if (txtObj != null)
+            {
+                guideText = txtObj.GetComponent<TextMeshProUGUI>();
+                guideTextLegacy = txtObj.GetComponent<Text>();
+            }
         }
 
         if (skillPanel == null)
@@ -195,8 +200,9 @@ public class ActionPanel : MonoBehaviour
         }
     }
 
-    private void SetGuide(string msg)
+    public void SetGuide(string msg)
     {
         if (guideText != null) guideText.text = msg;
+        if (guideTextLegacy != null) guideTextLegacy.text = msg;
     }
 }

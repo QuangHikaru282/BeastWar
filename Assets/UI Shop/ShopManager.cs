@@ -79,6 +79,7 @@ public class ShopManager : MonoBehaviour
             playerData = Resources.Load<PlayerData>("PlayerData");
         }
         
+        AutoFindDetailReferences();
         InitializeOwnedAmounts();
         SetupButtons();
 
@@ -90,6 +91,54 @@ public class ShopManager : MonoBehaviour
         if (detailPanel != null)
         {
             detailPanel.SetActive(false);
+        }
+    }
+
+    private void AutoFindDetailReferences()
+    {
+        Transform root = transform;
+        if (shopPanel != null) root = shopPanel.transform;
+
+        // Luôn luôn ưu tiên tự động tìm đúng ô 'icon' dưới detailspanel/detailfame
+        Transform iconTr = root.Find("detailspanel/detailfame/icon");
+        if (iconTr == null) iconTr = root.Find("detailspanel/detailfame/Icon");
+        if (iconTr == null) iconTr = root.Find("detailspanel/icon");
+        if (iconTr == null) iconTr = root.Find("detailspanel/Icon");
+
+        if (iconTr != null)
+        {
+            detailIcon = iconTr.GetComponent<Image>();
+        }
+        else
+        {
+            Transform detailPanelTr = root.Find("detailspanel");
+            if (detailPanelTr != null)
+            {
+                Image[] images = detailPanelTr.GetComponentsInChildren<Image>(true);
+                foreach (var img in images)
+                {
+                    if (img.gameObject.name.Equals("icon", System.StringComparison.OrdinalIgnoreCase))
+                    {
+                        detailIcon = img;
+                        break;
+                    }
+                }
+            }
+        }
+
+        Transform detailGO = root.Find("GameObject");
+        if (detailGO == null) detailGO = root;
+
+        if (detailGO != null)
+        {
+            if (detailName == null) detailName = detailGO.Find("DetailName")?.GetComponent<TMP_Text>();
+            if (detailType == null) detailType = detailGO.Find("DetailType")?.GetComponent<TMP_Text>();
+            if (durabilityText == null) durabilityText = detailGO.Find("DurabilityText")?.GetComponent<TMP_Text>();
+            if (descriptionText == null) descriptionText = detailGO.Find("DescriptionTitle")?.GetComponent<TMP_Text>();
+            if (detailPriceText == null) detailPriceText = detailGO.Find("PriceText")?.GetComponent<TMP_Text>();
+
+            if (buyButton == null) buyButton = detailGO.Find("ButtonBuy")?.GetComponent<Button>();
+            if (cancelButton == null) cancelButton = detailGO.Find("ButtonCancel")?.GetComponent<Button>();
         }
     }
 
@@ -187,6 +236,15 @@ public class ShopManager : MonoBehaviour
         }
 
         shopPanel.SetActive(true);
+
+        RectTransform shopRect = shopPanel.GetComponent<RectTransform>();
+        if (shopRect != null)
+        {
+            shopRect.anchorMin = new Vector2(0.5f, 0.5f);
+            shopRect.anchorMax = new Vector2(0.5f, 0.5f);
+            shopRect.pivot = new Vector2(0.5f, 0.5f);
+            shopRect.anchoredPosition = Vector2.zero;
+        }
 
         InteractHintManager.Instance?.RegisterPanelOpen();
 
@@ -312,10 +370,30 @@ public class ShopManager : MonoBehaviour
                 continue;
             }
 
+            string nameLower = item.itemName != null ? item.itemName.ToLower() : "";
+            if (nameLower.Contains("cuốc") || nameLower.Contains("hoe") ||
+                nameLower.Contains("bình nước") || nameLower.Contains("bình tưới") || nameLower.Contains("watercan") ||
+                nameLower.Contains("cần câu") || nameLower.Contains("rod") ||
+                nameLower.Contains("rìu") || nameLower.Contains("axe"))
+            {
+                continue;
+            }
+
             ShopItemUI newSlot = Instantiate(itemPrefab, content);
 
             newSlot.gameObject.SetActive(true);
             newSlot.Setup(item, this);
+
+            Button slotBtn = newSlot.GetComponent<Button>();
+            if (slotBtn == null) slotBtn = newSlot.GetComponentInChildren<Button>();
+            if (slotBtn != null)
+            {
+                ShopItemData captureData = item;
+                slotBtn.onClick.RemoveAllListeners();
+                slotBtn.onClick.AddListener(() => {
+                    SelectItem(captureData);
+                });
+            }
 
             visibleItemSlots.Add(newSlot);
         }
@@ -357,6 +435,12 @@ public class ShopManager : MonoBehaviour
                     Kinnly.InventoryItem invItem = slot.GetComponentInChildren<Kinnly.InventoryItem>();
                     if (invItem != null && invItem.Item != null)
                     {
+                        // Bỏ qua không cho bán các vật phẩm đặc biệt (Cuốc, Bình nước, Rìu, Cần câu...)
+                        if (IsSpecialOrKeyItem(invItem.Item))
+                        {
+                            continue;
+                        }
+
                         ShopItemData tempSellData = new ShopItemData
                         {
                             itemID = invItem.Item.name,
@@ -389,6 +473,26 @@ public class ShopManager : MonoBehaviour
         if (hoverSetup != null) hoverSetup.RefreshHoverEffects();
     }
 
+    public static bool IsSpecialOrKeyItem(Kinnly.Item item)
+    {
+        if (item == null) return false;
+
+        // 1. Kiểm tra cờ isSpecialItem hoặc isTools
+        if (item.isSpecialItem || item.isTools || item.isAxe || item.isPickaxe) return true;
+
+        // 2. Kiểm tra tên vật phẩm nhiệm vụ đặc biệt
+        string nameLower = item.name.ToLower();
+        if (nameLower.Contains("cuốc") || nameLower.Contains("hoe") ||
+            nameLower.Contains("bình nước") || nameLower.Contains("bình tưới") || nameLower.Contains("watercan") ||
+            nameLower.Contains("cần câu") || nameLower.Contains("rod") ||
+            nameLower.Contains("rìu") || nameLower.Contains("axe"))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
 
     public void SelectItem(ShopItemData item)
     {
@@ -418,9 +522,19 @@ public class ShopManager : MonoBehaviour
 
         if (detailIcon != null)
         {
-            detailIcon.sprite = selectedItem.icon;
-            detailIcon.enabled = selectedItem.icon != null;
-            detailIcon.preserveAspect = true;
+            Sprite targetSprite = selectedItem.icon;
+            if (targetSprite == null && selectedItem.kinnlyItem != null)
+            {
+                targetSprite = selectedItem.kinnlyItem.image;
+            }
+
+            if (targetSprite != null)
+            {
+                detailIcon.sprite = targetSprite;
+                detailIcon.color = Color.white; // Tự động bật Alpha = 255
+                detailIcon.enabled = true;
+                detailIcon.preserveAspect = true;
+            }
         }
 
         if (detailName != null)
@@ -527,11 +641,8 @@ public class ShopManager : MonoBehaviour
                 // Cập nhật hệ thống nhiệm vụ mới (Quest 5: Bán hàng cho Shop)
                 if (global::QuestManager.Instance != null)
                 {
-                    if (global::QuestManager.Instance.playerData.currentMainQuestId == 5)
-                    {
-                        global::QuestManager.Instance.AdvanceQuest();
-                    }
-                    
+                    global::QuestManager.Instance.OnItemsSold();
+
                     // Cập nhật Quest 19: Bán cá kiếm tiền
                     string sellName = soldItemName.ToLower();
                     if (sellName.Contains("cá") || sellName.Contains("fish") || sellName.Contains("crab") ||

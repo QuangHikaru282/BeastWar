@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b72f15b89a08de468adc0ad91b2dda1, type: 3}
+  m_Name: Hoa1
+  m_EditorClassIdentifier: Assembly-CSharp::BeastData
+  beastName: Co1
+  element: 3
+  enhanceElement: 3
+  isRare: 0
+  frontSprite: {fileID: 2741156384320721938, guid: 7a8fecf8c564d97478f59d01a62a1e85, type: 3}
+  backSprite: {fileID: 7887631313128731772, guid: 6f26dce200c58874a896d7c3e7b62098, type: 3}
+  image2: {fileID: 353202516107415169, guid: 6043047eef5e0a84d90138d79e512fc2, type: 3}
+  animatorController: {fileID: 0}
+  maxHP: 100
+  attack: 50
+  defense: 30
+  speed: 40
+  captureRate: 1
+  moves:
+  - {fileID: 11400000, guid: 886039c2f8442594fa07da311d33c4e0, type: 2}
+  evolveTarget: {fileID: 11400000, guid: 3ad7a1ef5c30d4841a7171644b4b2936, type: 2}
+  evolveLevel: 0
+  evolveGoldCost: 1000
+  rewardGold: 10
+  rewardExp: 50
