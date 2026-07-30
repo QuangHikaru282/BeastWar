@@ -315,6 +315,14 @@ public class QuestManager : MonoBehaviour
         return questTitles[id];
     }
 
+    /// <summary>Trả về tiêu đề của Quest theo ID.</summary>
+    public string GetQuestTitle(int id)
+    {
+        if (id < 0 || id >= questTitles.Length) return $"Nhiệm vụ {id}";
+        return questTitles[id];
+    }
+
+
     /// <summary>Trả về mô tả của Quest hiện tại.</summary>
     public string GetCurrentQuestDescription()
     {
