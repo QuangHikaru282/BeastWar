@@ -29,11 +29,19 @@ public class MoveData : ScriptableObject
     [Min(0)] public int power = 40;
     // Công thức tính sát thương: damage = Max(1, attacker.attack * power / 50 - defender.defense)
 
+    [Header("Hiệu ứng Bất lợi (Status Effect)")]
+    [Tooltip("Chọn hiệu ứng xấu sẽ gán cho đối thủ khi trúng chiêu")]
+    public BeastUnit.StatusEffect statusToApply = BeastUnit.StatusEffect.None;
+
+    [Tooltip("Tỉ lệ % gây ra hiệu ứng bất lợi (từ 0% đến 100%)")]
+    [Range(0f, 100f)] public float statusChance = 0f;
+
     [Header("Hiệu ứng (VFX)")]
     public GameObject vfxPrefab; // Prefab hiệu ứng sẽ tạo ra khi dùng chiêu
     public VfxSpawnType vfxSpawnType = VfxSpawnType.SpawnAtTarget;
 
     [Header("Nâng cấp")]
     public int maxLevel = 10;
-    public int baseUpgradeCost = 100; 
+    public int baseUpgradeCost = 100;
+ 
 }

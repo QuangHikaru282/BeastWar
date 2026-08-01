@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
@@ -11,6 +11,7 @@ public class StatusEffectUI : MonoBehaviour
     [SerializeField] private Sprite iconPoisoned;
     [SerializeField] private Sprite iconParalyzed;
     [SerializeField] private Sprite iconStunned;
+    [SerializeField] private Sprite iconBurned;
 
     [Header("References")]
     [SerializeField] private Image iconImage;
@@ -29,8 +30,10 @@ public class StatusEffectUI : MonoBehaviour
             BeastUnit.StatusEffect.Poisoned  => iconPoisoned,
             BeastUnit.StatusEffect.Paralyzed => iconParalyzed,
             BeastUnit.StatusEffect.Stunned   => iconStunned,
+            BeastUnit.StatusEffect.Burned    => iconBurned,
             _                                => null
         };
+
 
         if (target == null) { Hide(); return; }
         if (iconImage != null) iconImage.sprite = target;

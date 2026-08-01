@@ -20,6 +20,10 @@ public class PlayerData : ScriptableObject
     [Tooltip("Male hoặc Female")]
     public string characterGender = "Male";
 
+    [Header("Tên nhân vật")]
+    [Tooltip("Tên do người chơi đặt, hiển thị trong hội thoại")]
+    public string playerName = "Trainer";
+
     [Header("Tiến Trình Nhiệm Vụ Chính")]
     public int currentMainQuestId = 0; 
 

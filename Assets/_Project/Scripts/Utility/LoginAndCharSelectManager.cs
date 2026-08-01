@@ -58,13 +58,9 @@ public class LoginAndCharSelectManager : MonoBehaviour
         {
             charSelectPanel.SetActive(true);
         }
-        else
-        {
-            Debug.LogError(
-                "LoginAndCharSelectManager: Chưa gán Char Select Panel."
-            );
-        }
     }
+
+
 
     /// <summary>
     /// Khi người chơi bấm trực tiếp vào Male hoặc Female.

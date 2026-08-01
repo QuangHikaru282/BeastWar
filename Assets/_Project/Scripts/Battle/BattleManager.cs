@@ -189,8 +189,11 @@ public class BattleManager : MonoBehaviour
             var firstEnemy = pendingEnemyQueue.Dequeue();
             var unit = SpawnBeastUnit(firstEnemy, enemySpawnPoints[0], false);
             enemyTeam.Add(unit);
+            
             Debug.Log($"--- BƯỚC 3: ĐÃ TẠO QUÁI ĐỊCH ({firstEnemy.baseBeast.beastName}) ---");
         }
+
+
 
         // Khởi tạo EnemyAI nếu chưa gán
         if (enemyAI == null)
@@ -341,7 +344,8 @@ public class BattleManager : MonoBehaviour
             }
 
             // Tìm StatusIcon (UI trạng thái xấu dưới tên nhân vật)
-            StatusEffectUI statusUI = hudObj.GetComponentInChildren<StatusEffectUI>();
+            StatusEffectUI statusUI = hudObj.GetComponentInChildren<StatusEffectUI>(true);
+
 
             unit.SetExternalUI(nameTxtTMP, nameTxtLegacy, hpBar, expBar, levelTxtTMP, levelTxtLegacy, statusUI);
             Debug.Log($"[BattleManager] Đã tự động link UI cho {data.baseBeast.beastName} từ {hudName}");
@@ -358,7 +362,18 @@ public class BattleManager : MonoBehaviour
         var alive = playerTeam.Where(b => b != null && b.IsAlive).ToList();
         if (alive.Count == 0) yield break;
 
+        // Xử lý hiệu ứng Độc / Tê liệt / Choáng ở đầu lượt Player
+        foreach (var unit in alive)
+        {
+            if (unit != null && unit.IsAlive)
+            {
+                bool skip = unit.ProcessStatusEffectTick();
+                if (skip) yield break; // Bị liệt/choáng thì bỏ lượt
+            }
+        }
+
         // Reset co dau luot
+
         playerFled = false;
         captureSuccess = false;
         wildBeastFled = false;
@@ -438,7 +453,19 @@ public class BattleManager : MonoBehaviour
     {
         yield return new WaitForSeconds(0.5f);
 
+        // Xử lý hiệu ứng Độc / Tê liệt / Choáng ở đầu lượt Enemy
+        var enemyAlive = enemyTeam.Where(b => b != null && b.IsAlive).ToList();
+        foreach (var unit in enemyAlive)
+        {
+            if (unit != null && unit.IsAlive)
+            {
+                bool skip = unit.ProcessStatusEffectTick();
+                if (skip) yield break; // Bị liệt/choáng bỏ lượt
+            }
+        }
+
         bool valid = enemyAI.ChooseAction(enemyTeam, playerTeam,
+
                                           out BeastUnit attacker,
                                           out BeastUnit target,
                                           out RuntimeMoveData move);
