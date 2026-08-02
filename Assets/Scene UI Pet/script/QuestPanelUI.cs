@@ -40,6 +40,8 @@ public class QuestPanelUI : MonoBehaviour
         AutoBindAllReferences();
     }
 
+
+
     private void AutoBindAllReferences()
     {
         TMP_Text[] texts = GetComponentsInChildren<TMP_Text>(true);
@@ -160,13 +162,24 @@ public class QuestPanelUI : MonoBehaviour
 
     private void Update()
     {
-        /*
-         * Tạm thời cập nhật liên tục để các tiến trình như:
-         * 2/3 Beast, 50/100 Vàng... hiển thị ngay.
-         *
-         * Khi hệ thống hoàn chỉnh, có thể thay bằng event
-         * để tối ưu hiệu năng.
-         */
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            QuestPanelController controller = FindFirstObjectByType<QuestPanelController>();
+            if (controller != null)
+            {
+                controller.ToggleQuestPanel();
+            }
+            else
+            {
+                bool newState = !gameObject.activeSelf;
+                gameObject.SetActive(newState);
+                if (transform.parent != null && transform.parent != transform.root)
+                {
+                    transform.parent.gameObject.SetActive(newState);
+                }
+            }
+        }
+
         RefreshQuestUI();
     }
 

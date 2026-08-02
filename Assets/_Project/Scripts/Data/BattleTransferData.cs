@@ -28,9 +28,15 @@ public class BattleTransferData : ScriptableObject
     /// </summary>
     public bool isSingleBattle = false;
 
-    [Header("Chế độ đấu Trainer")]
+    [Header("Chế độ đấu Trainer & Gym Leader")]
     [Tooltip("Đánh với Trainer thì không được chạy trốn và không được bắt thú")]
     public bool isTrainerBattle = false;
+    
+    [Tooltip("Nêu đây là trận đấu Gym Leader")]
+    public bool isGymLeaderBattle = false;
+    
+    [Tooltip("ID của Huy hiệu Gym sẽ trao khi đánh bại Gym Leader này")]
+    public string rewardBadgeId = "BoulderBadge";
 
     [Header("Đội địch (gặp trên Map/Hunting)")]
     public List<RuntimeBeastData> wildEnemyTeam = new List<RuntimeBeastData>();

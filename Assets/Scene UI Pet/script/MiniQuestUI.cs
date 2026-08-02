@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class MiniQuestUI : MonoBehaviour
 {
@@ -9,17 +9,49 @@ public class MiniQuestUI : MonoBehaviour
     {
         CreateQuestList();
 
-        if (QuestManager.Instance != null)
-        {
-            QuestManager.Instance.OnQuestChanged += RefreshAll;
-        }
+        QuestManager.OnQuestChanged += RefreshAll;
     }
 
     private void OnDestroy()
     {
-        if (QuestManager.Instance != null)
+        QuestManager.OnQuestChanged -= RefreshAll;
+    }
+
+    private void Update()
+    {
+        // Nhấn phím M để ẩn / hiện khung MiniQuestPanel
+        if (Input.GetKeyDown(KeyCode.M))
         {
-            QuestManager.Instance.OnQuestChanged -= RefreshAll;
+            ToggleVisibility();
+        }
+
+        // Cập nhật trạng thái các item liên tục (Đang làm -> Nhận Thưởng / Đã xong)
+        RefreshItemStates();
+    }
+
+    private void RefreshItemStates()
+    {
+        if (content == null) return;
+        foreach (Transform child in content)
+        {
+            QuestItemUI item = child.GetComponent<QuestItemUI>();
+            if (item != null)
+            {
+                item.Refresh();
+            }
+        }
+    }
+
+    public void ToggleVisibility()
+    {
+        if (content != null && content.parent != null)
+        {
+            GameObject target = content.parent.gameObject;
+            target.SetActive(!target.activeSelf);
+        }
+        else
+        {
+            gameObject.SetActive(!gameObject.activeSelf);
         }
     }
 

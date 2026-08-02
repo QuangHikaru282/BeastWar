@@ -53,15 +53,16 @@ public class BattleCaptureHandler : MonoBehaviour
         {
             if (item == global::QuestManager.Instance.captureBallItem) return true;
         }
-        return IsMatchingBallName(item.name, targetName);
+        string assetName = ((UnityEngine.Object)item).name;
+        return IsMatchingBallName(item.name, targetName) || IsMatchingBallName(assetName, targetName);
     }
 
     private bool IsMatchingBallName(string name, string targetName)
     {
         if (string.IsNullOrEmpty(name)) return false;
         if (name.Equals(targetName, System.StringComparison.OrdinalIgnoreCase)) return true;
-        string n = name.ToLower();
-        if (n.Contains("ball") || n.Contains("bóng") || n.Contains("pokeball") || n.Contains("thu phục")) return true;
+        string n = name.ToLower().Trim();
+        if (n.Contains("ball") || n.Contains("bóng") || n.Contains("pokeball") || n.Contains("thu phục") || n.Contains("bóng thu phục") || n.Contains("captureball")) return true;
         return false;
     }
 
@@ -70,10 +71,10 @@ public class BattleCaptureHandler : MonoBehaviour
     {
         string targetName = GetTargetBallName();
 
+        int total = 0;
         var playerInv = FindFirstObjectByType<Kinnly.PlayerInventory>();
         if (playerInv != null)
         {
-            int total = 0;
             var slots = new System.Collections.Generic.List<GameObject>();
             if (playerInv.InventorySlots != null) slots.AddRange(playerInv.InventorySlots);
             if (playerInv.ToolbarSlots != null) slots.AddRange(playerInv.ToolbarSlots);
@@ -92,26 +93,42 @@ public class BattleCaptureHandler : MonoBehaviour
                     }
                 }
             }
-            if (total > 0) return total;
-        }
 
-        var pd = Resources.FindObjectsOfTypeAll<PlayerData>();
-        foreach (var data in pd)
-        {
-            if (data.savedInventoryItems != null)
+            // Quét bổ sung toàn bộ InventoryItem trên Scene nếu slot danh sách bị thiếu
+            var allInvItems = FindObjectsOfType<Kinnly.InventoryItem>(true);
+            if (allInvItems != null)
             {
-                int total = 0;
-                foreach (var item in data.savedInventoryItems)
+                foreach (var invItem in allInvItems)
                 {
-                    if (IsMatchingBallName(item.itemName, targetName))
+                    if (invItem != null && invItem.Item != null && IsMatchingBallItem(invItem.Item, targetName))
                     {
-                        total += item.amount;
+                        // Tránh đếm trùng nếu đã đếm trong loop trước
+                        total = Mathf.Max(total, invItem.Amount);
                     }
                 }
-                if (total > 0) return total;
             }
         }
-        return 0;
+
+        if (total <= 0)
+        {
+            var pdList = Resources.FindObjectsOfTypeAll<PlayerData>();
+            foreach (var data in pdList)
+            {
+                if (data.savedInventoryItems != null)
+                {
+                    foreach (var item in data.savedInventoryItems)
+                    {
+                        if (IsMatchingBallName(item.itemName, targetName))
+                        {
+                            total += item.amount;
+                        }
+                    }
+                    if (total > 0) break;
+                }
+            }
+        }
+
+        return total;
     }
 
     private void ConsumeOnePokeball()
@@ -195,13 +212,6 @@ public class BattleCaptureHandler : MonoBehaviour
         }
 
         // Tieu thu 1 Pokeball
-        int count = GetPokeballCount();
-        if (count <= 0)
-        {
-            Debug.Log("[Capture] Het Pokeball!");
-            return;
-        }
-
         ConsumeOnePokeball();
         throwsLeft--;
 

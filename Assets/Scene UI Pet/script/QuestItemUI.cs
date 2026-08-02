@@ -1,4 +1,4 @@
-﻿using TMPro;
+using TMPro;
 using UnityEngine;
 
 public class QuestItemUI : MonoBehaviour
@@ -27,20 +27,49 @@ public class QuestItemUI : MonoBehaviour
 
         int current = qm.playerData.currentMainQuestId;
 
+        bool isReady = qm.IsCurrentQuestReadyToClaim();
+
         if (questID < current)
         {
-            stateText.text = "Hoàn thành";
+            stateText.text = "Đã xong";
             stateText.color = Color.green;
         }
         else if (questID == current)
         {
-            stateText.text = "Đang làm";
-            stateText.color = Color.yellow;
+            if (isReady)
+            {
+                stateText.text = "Nhận Thưởng";
+                stateText.color = Color.cyan;
+            }
+            else
+            {
+                stateText.text = "Đang làm";
+                stateText.color = Color.yellow;
+            }
         }
         else
         {
             stateText.text = "Chưa mở";
             stateText.color = Color.gray;
+        }
+
+        UnityEngine.UI.Button btn = GetComponent<UnityEngine.UI.Button>();
+        if (btn == null) btn = gameObject.AddComponent<UnityEngine.UI.Button>();
+        btn.onClick.RemoveAllListeners();
+        btn.onClick.AddListener(OnItemClicked);
+    }
+
+    private void OnItemClicked()
+    {
+        if (QuestManager.Instance == null) return;
+
+        QuestManager qm = QuestManager.Instance;
+        int current = qm.playerData.currentMainQuestId;
+
+        // Khi bấm vào Nhiệm vụ đang làm mà đã hoàn thành mục tiêu (Hoặc bấm Nhận thưởng)
+        if (questID == current && qm.IsCurrentQuestReadyToClaim())
+        {
+            qm.AdvanceQuest();
         }
     }
 }

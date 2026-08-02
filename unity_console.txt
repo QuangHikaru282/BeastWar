@@ -1,57 +1,271 @@
---- Unity Editor Console Log Initiated at 8/1/2026 9:51:20 AM ---
-[09:53:53] [Warning] Animator.GotoState: State could not be found
+--- Unity Editor Console Log Initiated at 8/1/2026 3:33:25 PM ---
+[15:33:28] [Error] [QLDATN Tracker] Không thể tự cài đặt: Max. redirections exceeded.
+Stack Trace:
+UnityEngine.Debug:LogError (object)
+QLDATN.ProjectTracker.QLDATNAutoTrackerSetup:EnrollAndInstall () (at Assets/QLDATNTracker_PH48336.cs:113)
+UnityEditor.EditorApplication:Internal_CallDelayFunctions ()
+
 --------------------------------------------------
-[09:53:53] [Warning] Animator.GotoState: State could not be found
+[15:33:28] [Error] [QLDATN Tracker] Không thể tự cài đặt: Max. redirections exceeded.
+Stack Trace:
+UnityEngine.Debug:LogError (object)
+QLDATN.ProjectTracker.QLDATNAutoTrackerSetup:EnrollAndInstall () (at Assets/QLDATNTracker_PH48336.cs:113)
+UnityEditor.EditorApplication:Internal_CallDelayFunctions ()
+
 --------------------------------------------------
-[09:53:53] [Warning] Invalid Layer Index '-1'
+[15:33:28] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:53:53] [Warning] Invalid Layer Index '-1'
+[15:33:28] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:53:56] [Warning] Animator.GotoState: State could not be found
+[15:33:30] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:53:56] [Warning] Animator.GotoState: State could not be found
+[15:33:30] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:53:56] [Warning] Invalid Layer Index '-1'
+[15:33:32] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:53:56] [Warning] Invalid Layer Index '-1'
+[15:33:32] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:54:00] [Warning] Animator.GotoState: State could not be found
+[15:33:34] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:54:00] [Warning] Animator.GotoState: State could not be found
+[15:33:34] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:54:00] [Warning] Invalid Layer Index '-1'
+[15:33:35] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:54:00] [Warning] Invalid Layer Index '-1'
+[15:33:35] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:54:03] [Warning] Animator.GotoState: State could not be found
+[15:33:41] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:54:03] [Warning] Animator.GotoState: State could not be found
+[15:33:41] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:54:03] [Warning] Invalid Layer Index '-1'
+[15:33:43] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:54:03] [Warning] Invalid Layer Index '-1'
+[15:33:43] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:54:07] [Warning] Animator.GotoState: State could not be found
+[15:33:44] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:54:07] [Warning] Animator.GotoState: State could not be found
+[15:33:44] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:54:07] [Warning] Invalid Layer Index '-1'
+[15:33:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:54:07] [Warning] Invalid Layer Index '-1'
+[15:33:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:54:10] [Warning] Animator.GotoState: State could not be found
+[15:34:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:54:10] [Warning] Animator.GotoState: State could not be found
+[15:34:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:54:10] [Warning] Invalid Layer Index '-1'
+[15:34:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:54:10] [Warning] Invalid Layer Index '-1'
+[15:34:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:54:14] [Warning] Animator.GotoState: State could not be found
+[15:35:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:54:14] [Warning] Animator.GotoState: State could not be found
+[15:35:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------
-[09:54:14] [Warning] Invalid Layer Index '-1'
+[15:35:28] [Warning] Animator.GotoState: State could not be found
 --------------------------------------------------
-[09:54:14] [Warning] Invalid Layer Index '-1'
+[15:35:28] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:35:28] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:35:28] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:35:42] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:35:42] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:35:42] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:35:42] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:35:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:35:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:36:25] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:36:25] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:36:54] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:36:54] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:37:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:37:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:37:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:37:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:38:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:38:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:38:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:38:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:39:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:39:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:39:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:39:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:40:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:40:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:40:38] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:40:38] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:40:38] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:40:38] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:40:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:40:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:41:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:41:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:41:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:41:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:42:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:42:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:42:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:42:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:43:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:43:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:43:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:43:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:44:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:44:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:44:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:44:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:45:05] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:45:05] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:45:05] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:45:05] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:45:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:45:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:45:31] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:45:31] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:45:31] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:45:31] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:45:38] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:45:38] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:45:38] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:45:38] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:45:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:45:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:46:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:46:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:46:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:46:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:47:11] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:47:11] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:47:11] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:47:11] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:47:15] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:47:15] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:47:15] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:47:15] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:47:18] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:47:18] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:47:18] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:47:18] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:47:20] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:47:20] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:47:20] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:47:20] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:47:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:47:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:47:26] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:47:26] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:47:26] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:47:26] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:47:49] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:47:49] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:47:49] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:47:49] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:47:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:47:52] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:48:08] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:48:08] [Warning] Animator.GotoState: State could not be found
+--------------------------------------------------
+[15:48:08] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:48:08] [Warning] Invalid Layer Index '-1'
+--------------------------------------------------
+[15:48:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
+--------------------------------------------------
+[15:48:22] [Warning] [QLDATN Tracker] Không thể đồng bộ (HTTP 301): Redirect limit exceeded
 --------------------------------------------------

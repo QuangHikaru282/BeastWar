@@ -655,6 +655,13 @@ public class BattleManager : MonoBehaviour
                     playerData.defeatedTrainers.Add(battleTransferData.lastEncounteredBeastId);
                     Debug.Log($"Đã đánh bại Trainer: {battleTransferData.lastEncounteredBeastId}");
                     
+                    // Nếu đây là Gym Leader -> Trao Huy hiệu Gym
+                    if (battleTransferData.isGymLeaderBattle)
+                    {
+                        string badgeId = string.IsNullOrEmpty(battleTransferData.rewardBadgeId) ? "GymBadge" : battleTransferData.rewardBadgeId;
+                        playerData.AddGymBadge(badgeId);
+                    }
+
                     if (global::QuestManager.Instance != null)
                     {
                         if (battleTransferData.lastEncounteredBeastId.Contains("Rival"))

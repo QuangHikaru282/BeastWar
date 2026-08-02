@@ -13,6 +13,7 @@ public class SceneTransitionManager : MonoBehaviour
 
     [Header("UI References")]
     [SerializeField] private CanvasGroup transitionCanvasGroup;
+    [SerializeField] private LoadingPokeballUI loadingPokeballUI;
 
     [Header("Transition Settings")]
     [SerializeField] private float fadeDuration = 0.5f;
@@ -141,6 +142,8 @@ public class SceneTransitionManager : MonoBehaviour
 
             while (asyncLoad.progress < 0.9f)
             {
+                float progress = Mathf.Clamp01(asyncLoad.progress / 0.9f);
+                if (loadingPokeballUI != null) loadingPokeballUI.SetProgress(progress);
                 yield return null;
             }
 
@@ -148,9 +151,17 @@ public class SceneTransitionManager : MonoBehaviour
             float remainingTime = minShowTime - elapsed;
             if (remainingTime > 0)
             {
-                yield return new WaitForSeconds(remainingTime);
+                float timer = 0f;
+                while (timer < remainingTime)
+                {
+                    timer += Time.deltaTime;
+                    float progress = Mathf.Lerp(0.9f, 1.0f, timer / remainingTime);
+                    if (loadingPokeballUI != null) loadingPokeballUI.SetProgress(progress);
+                    yield return null;
+                }
             }
 
+            if (loadingPokeballUI != null) loadingPokeballUI.SetProgress(1.0f);
             asyncLoad.allowSceneActivation = true;
 
             while (!asyncLoad.isDone)

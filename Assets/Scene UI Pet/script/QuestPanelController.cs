@@ -70,6 +70,14 @@ public class QuestPanelController : MonoBehaviour
         UpdateButtonVisibility(false);
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            ToggleQuestPanel();
+        }
+    }
+
     /// <summary>
     /// Gắn hàm này vào nút mở bảng nhiệm vụ.
     /// </summary>
