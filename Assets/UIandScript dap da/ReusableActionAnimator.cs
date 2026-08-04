@@ -45,4 +45,4 @@ namespace Kinnly
             animator.SetTrigger(actionTrigger);
         }
     }
-}
+}   
