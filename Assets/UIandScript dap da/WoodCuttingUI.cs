@@ -91,6 +91,15 @@ namespace Kinnly
             indicatorPosition = 0f;
             SetIndicatorPosition();
         }
+        [Header("Panel huong dan")]
+        [SerializeField]
+        private GameObject guidePanel;
+
+        [Tooltip("Thoi gian khoa F sau khi vua mo bang")]
+        [SerializeField]
+        private float openInputDelay = 0.25f;
+
+        private float canChopAfterTime;
 
         private void Update()
         {
