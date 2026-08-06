@@ -354,5 +354,185 @@ namespace Kinnly
                 CurrentlySelectedInventoryItem = null;
             }
         }
+
+        // ===== CRAFTING SUPPORT - PHẦN MỚI =====
+        // Các hàm bên dưới chỉ hỗ trợ hệ thống chế tạo.
+        // Toàn bộ code Inventory cũ phía trên được giữ nguyên.
+
+        /// <summary>
+        /// Kiểm tra hai Item có phải cùng một loại hay không.
+        /// Ưu tiên cùng asset, sau đó ID, cuối cùng là tên.
+        /// </summary>
+        private bool IsSameItem(Item first, Item second)
+        {
+            if (first == null || second == null)
+            {
+                return false;
+            }
+
+            if (first == second)
+            {
+                return true;
+            }
+
+            if (first.id != 0 && second.id != 0)
+            {
+                return first.id == second.id;
+            }
+
+            return first.name == second.name;
+        }
+
+        /// <summary>
+        /// Lấy tất cả Item cùng tổng số lượng hiện có trong Inventory.
+        /// onlyWoodResources = true: chỉ lấy Item có isWoodResource.
+        /// </summary>
+        public Dictionary<Item, int> GetAllItemAmounts(bool onlyWoodResources = false)
+        {
+            Dictionary<Item, int> result = new Dictionary<Item, int>();
+
+            foreach (GameObject slot in inventorySlot)
+            {
+                if (slot == null)
+                {
+                    continue;
+                }
+
+                InventoryItem storedItem = slot.GetComponentInChildren<InventoryItem>();
+
+                if (storedItem == null || storedItem.Item == null || storedItem.Amount <= 0)
+                {
+                    continue;
+                }
+
+                Item item = storedItem.Item;
+
+                if (onlyWoodResources && !item.isWoodResource)
+                {
+                    continue;
+                }
+
+                Item existingKey = null;
+
+                foreach (Item key in result.Keys)
+                {
+                    if (IsSameItem(key, item))
+                    {
+                        existingKey = key;
+                        break;
+                    }
+                }
+
+                if (existingKey != null)
+                {
+                    result[existingKey] += storedItem.Amount;
+                }
+                else
+                {
+                    result.Add(item, storedItem.Amount);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Lấy tổng số lượng của một Item trong toàn bộ Inventory.
+        /// </summary>
+        public int GetItemAmount(Item item)
+        {
+            if (item == null)
+            {
+                return 0;
+            }
+
+            int totalAmount = 0;
+
+            foreach (GameObject slot in inventorySlot)
+            {
+                if (slot == null)
+                {
+                    continue;
+                }
+
+                InventoryItem storedItem = slot.GetComponentInChildren<InventoryItem>();
+
+                if (storedItem == null || storedItem.Item == null)
+                {
+                    continue;
+                }
+
+                if (IsSameItem(storedItem.Item, item))
+                {
+                    totalAmount += storedItem.Amount;
+                }
+            }
+
+            return totalAmount;
+        }
+
+        /// <summary>
+        /// Kiểm tra Inventory có đủ số lượng Item được yêu cầu hay không.
+        /// </summary>
+        public bool HasItem(Item item, int amount)
+        {
+            if (item == null || amount <= 0)
+            {
+                return false;
+            }
+
+            return GetItemAmount(item) >= amount;
+        }
+
+        /// <summary>
+        /// Trừ Item theo loại khỏi Inventory, kể cả khi Item nằm ở nhiều slot.
+        /// Hàm RemoveItem cũ phía trên vẫn được giữ nguyên.
+        /// </summary>
+        public bool TryRemoveItem(Item item, int amount)
+        {
+            if (item == null || amount <= 0)
+            {
+                return false;
+            }
+
+            if (!HasItem(item, amount))
+            {
+                return false;
+            }
+
+            int remainingAmount = amount;
+
+            foreach (GameObject slot in inventorySlot)
+            {
+                if (remainingAmount <= 0)
+                {
+                    break;
+                }
+
+                if (slot == null)
+                {
+                    continue;
+                }
+
+                InventoryItem storedItem = slot.GetComponentInChildren<InventoryItem>();
+
+                if (storedItem == null || storedItem.Item == null)
+                {
+                    continue;
+                }
+
+                if (!IsSameItem(storedItem.Item, item))
+                {
+                    continue;
+                }
+
+                int removeAmount = Mathf.Min(remainingAmount, storedItem.Amount);
+                storedItem.RemoveAmount(removeAmount);
+                remainingAmount -= removeAmount;
+            }
+
+            UpdateToolbar();
+            return remainingAmount <= 0;
+        }
     }
 }
