@@ -12,6 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 404afb7ce03c86d4c9f4d6de418c6a15, type: 3}
   m_Name: CraftingRecipe
   m_EditorClassIdentifier: Assembly-CSharp::Kinnly.CraftingRecipeData
-  ingredients: []
+  ingredients:
+  - item: {fileID: 0}
+    amount: 0
+  - item: {fileID: 0}
+    amount: 0
   resultItem: {fileID: 0}
   resultAmount: 1
