@@ -18,6 +18,13 @@ public class TrainerController : MonoBehaviour, Kinnly.IInteractable
     public GameObject dialogPanel; // Khung thoại trước khi đánh
     public TextMeshProUGUI dialogText;
     
+    [Header("Cấu hình Gym Leader")]
+    [Tooltip("Tích chọn nếu NPC này là Gym Leader")]
+    public bool isGymLeader = false;
+
+    [Tooltip("ID Huy hiệu Gym (Ví dụ: BoulderBadge, CascadeBadge, ThunderBadge)")]
+    public string gymBadgeId = "BoulderBadge";
+
     [TextArea]
     public string challengeText = "Ngươi đã lọt vào tầm mắt của ta! Hãy đấu một trận nào!";
 
@@ -149,8 +156,10 @@ public class TrainerController : MonoBehaviour, Kinnly.IInteractable
         battleTransferData.lastPlayerPosition = playerPos;
         battleTransferData.returnToLastPosition = true;
         
-        // Cờ đặc biệt: Trận đấu Trainer!
+        // Cờ đặc biệt: Trận đấu Trainer & Gym Leader
         battleTransferData.isTrainerBattle = true;
+        battleTransferData.isGymLeaderBattle = isGymLeader;
+        battleTransferData.rewardBadgeId = gymBadgeId;
         
         List<RuntimeBeastData> runtimeTeam = new List<RuntimeBeastData>();
         foreach (var beast in trainerTeam)

@@ -11,12 +11,12 @@ public class InteractiveTree : MonoBehaviour, IInteractable
     public TreeState currentState = TreeState.Normal;
     public bool hasHoney = false;
     public int honeyDaysLeft = 0;
-    
+
     [Header("Config")]
     public Item honeyItem;
     public Item woodItem;
     public int woodAmount = 3;
-    
+
     [Header("Graphics")]
     public SpriteRenderer treeSpriteRenderer;
     public GameObject honeyIndicator;

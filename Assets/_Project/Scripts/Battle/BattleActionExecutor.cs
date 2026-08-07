@@ -80,7 +80,8 @@ public class BattleActionExecutor : MonoBehaviour
         else
         {
             // TẤN CÔNG
-            int baseDamage = move != null ? attacker.CalculateDamage(target, move) : attacker.CalculateBaseDamage(target);
+            string effectivenessMsg = "";
+            int baseDamage = move != null ? attacker.CalculateDamage(target, move, out effectivenessMsg) : attacker.CalculateBaseDamage(target);
             bool isCrit = false;
             int finalDamage = baseDamage;
 
@@ -92,9 +93,32 @@ public class BattleActionExecutor : MonoBehaviour
 
             bool died = target.TakeDamageWithResult(finalDamage, isCrit);
 
+            // Nếu đòn đánh có hiệu ứng khắc hệ -> Hiện chữ lên DialogueText
+            if (!string.IsNullOrEmpty(effectivenessMsg))
+            {
+                if (BattleUIManager.Instance != null && BattleUIManager.Instance.ActionPanel != null)
+                {
+                    BattleUIManager.Instance.ActionPanel.SetGuide(effectivenessMsg);
+                }
+                yield return new WaitForSeconds(0.8f);
+            }
+
+            // Xử lý áp dụng Hiệu ứng Bất lợi (Status Effect) từ MoveData theo tỉ lệ %
+            if (!died && target.IsAlive && move != null && move.baseMove != null && move.baseMove.statusToApply != BeastUnit.StatusEffect.None)
+            {
+                float rand = UnityEngine.Random.Range(0f, 100f);
+                if (rand <= move.baseMove.statusChance)
+                {
+                    target.ApplyStatus(move.baseMove.statusToApply);
+                    Debug.Log($"[Status] {attacker.Data.baseBeast.beastName} đã gây hiệu ứng {move.baseMove.statusToApply} lên {target.Data.baseBeast.beastName} ({move.baseMove.statusChance}%)!");
+                }
+            }
+
             Debug.Log($"[Battle] {attacker.Data.baseBeast.beastName} gây {finalDamage} sát thương{(isCrit ? " (CRIT!" + ")": "")}! {target.Data.baseBeast.beastName} HP: {target.CurrentHP}");
 
             yield return new WaitForSeconds(0.2f);
+
+
 
             if (type == MoveType.Melee)
             {

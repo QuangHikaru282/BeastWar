@@ -51,13 +51,11 @@ public class PlayerMapController : MonoBehaviour
         moveInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
 
         // 2. Nhận input Click chuột (Click để Tương tác)
-        if (Input.GetMouseButtonDown(0)) // Left click
+        if (Input.GetMouseButtonDown(0))
         {
             if (UnityEngine.EventSystems.EventSystem.current == null || !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
             {
                 Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                
-                // Bắn Raycast kiểm tra có click trúng Object tương tác không
                 RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero);
                 if (hit.collider != null)
                 {
@@ -67,7 +65,6 @@ public class PlayerMapController : MonoBehaviour
                         float distance = Vector2.Distance(transform.position, hit.collider.bounds.center);
                         if (distance <= interactionRange)
                         {
-                            // Đã đứng gần -> Tương tác
                             interactable.Interact(inventory);
                         }
                         else

@@ -3851,6 +3851,7 @@ MonoBehaviour:
   nameText: {fileID: 2101677546}
   levelText: {fileID: 102492891}
   hpSlider: {fileID: 1589395327}
+  statusEffectUI: {fileID: 1530117070}
 --- !u!1 &1297551235
 GameObject:
   m_ObjectHideFlags: 0
@@ -4176,7 +4177,8 @@ MonoBehaviour:
   iconPoisoned: {fileID: -1815026435366676099, guid: e34760b071d504542ba8a6799b1f5bdc, type: 3}
   iconParalyzed: {fileID: 7448338502820775508, guid: 5320d0030ba8e484292d3ac4772d6769, type: 3}
   iconStunned: {fileID: -3755686207481405460, guid: 50c924394a8d95e4ea9ce7ccac2ecf55, type: 3}
-  iconImage: {fileID: 0}
+  iconBurned: {fileID: 21300000, guid: 6df10a4e972475b4cba92eade44e7dab, type: 3}
+  iconImage: {fileID: 1530117071}
 --- !u!114 &1530117071
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4191,7 +4193,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -4853,9 +4855,9 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1648434817}
-  - {fileID: 1560619873}
   - {fileID: 134250256}
+  - {fileID: 1560619873}
+  - {fileID: 1648434817}
   - {fileID: 147059766}
   m_Father: {fileID: 874584807}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5032,6 +5034,7 @@ MonoBehaviour:
   nameText: {fileID: 1166149988}
   levelText: {fileID: 279674488}
   hpSlider: {fileID: 1142284058}
+  statusEffectUI: {fileID: 1839122379}
 --- !u!114 &1727677076
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5400,25 +5403,25 @@ MonoBehaviour:
   guideTextLegacy: {fileID: 1584004651}
   skillPanel: {fileID: 0}
   skillButtons:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 134250253}
+  - {fileID: 1560619870}
+  - {fileID: 1648434818}
+  - {fileID: 147059767}
   skillTextsTMP:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   skillTextsLegacy:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 2109407408}
+  - {fileID: 253156636}
+  - {fileID: 1758120104}
+  - {fileID: 1679374785}
   skillElementIcons:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 1703086221}
+  - {fileID: 253701266}
+  - {fileID: 347855108}
+  - {fileID: 680613754}
 --- !u!1 &1758120102
 GameObject:
   m_ObjectHideFlags: 0
@@ -5880,7 +5883,8 @@ MonoBehaviour:
   iconPoisoned: {fileID: -1815026435366676099, guid: e34760b071d504542ba8a6799b1f5bdc, type: 3}
   iconParalyzed: {fileID: 7448338502820775508, guid: 5320d0030ba8e484292d3ac4772d6769, type: 3}
   iconStunned: {fileID: -3755686207481405460, guid: 50c924394a8d95e4ea9ce7ccac2ecf55, type: 3}
-  iconImage: {fileID: 0}
+  iconBurned: {fileID: 21300000, guid: 6df10a4e972475b4cba92eade44e7dab, type: 3}
+  iconImage: {fileID: 1839122380}
 --- !u!114 &1839122380
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5895,7 +5899,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:

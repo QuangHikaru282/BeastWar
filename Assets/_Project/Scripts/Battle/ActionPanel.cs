@@ -138,7 +138,9 @@ public class ActionPanel : MonoBehaviour
         Debug.Log($"[ActionPanel] ShowSkillPanelForBeast called for {beast.Data.baseBeast.beastName}. moves count: {beast.Data.moves.Length}");
         skillPanel.SetActive(true);
 
-        var lib = Resources.Load<ElementIconLibrary>("ElementIconLibrary");
+        var lib = Resources.Load<ElementIconLibrary>("ElementTypeChart/ElementIconLibrary");
+        if (lib == null) lib = Resources.Load<ElementIconLibrary>("ElementIconLibrary"); // fallback nếu di chuyển ra ngoài
+
 
         for (int i = 0; i < skillButtons.Length; i++)
         {
