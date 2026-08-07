@@ -10,6 +10,13 @@
 #
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
 #
+# QLDATN Tracker (Personal Tracker files)
+Assets/QLDATNTracker*
+Assets/**/QLDATNTracker*
+
+# Build Outputs / Test Builds
+Testcheo/
+
 .utmp/
 /[Ll]ibrary/
 /[Tt]emp/

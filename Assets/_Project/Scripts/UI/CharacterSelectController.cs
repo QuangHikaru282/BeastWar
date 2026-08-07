@@ -76,13 +76,16 @@ public class CharacterSelectController : MonoBehaviour
     [Tooltip("Nút mũi tên phải (D) — tùy chọn")]
     [SerializeField] private Button arrowRightButton;
 
-    // ─── Data ──────────────────────────────────────────────────────────
-    [Header("Data")]
+    // ─── Data & Intro ──────────────────────────────────────────────────
+    [Header("Data & Intro")]
     [Tooltip("Kéo file PlayerData asset vào đây")]
     [SerializeField] private PlayerData playerData;
 
     [Tooltip("Tên Scene GameCore / HubTownNew để chuyển vào")]
     [SerializeField] private string gameSceneName = "GameCore, HubTownNew";
+
+    [Tooltip("Kéo WorldIntroUI vào đây nếu muốn hiển thị bảng giới thiệu thế giới sau khi bấm Xác Nhận đặt tên")]
+    [SerializeField] private BeastWar.UI.WorldIntroUI worldIntroUI;
 
     // ─── Private ───────────────────────────────────────────────────────
     private int selectedIndex = 0;  // 0 = Nam, 1 = Nữ
@@ -310,8 +313,22 @@ public class CharacterSelectController : MonoBehaviour
 
         isSelecting = false;
 
-        // Chuyển sang game
-        LoadGame();
+        // Ẩn UI chọn nhân vật
+        if (charSelectPanel != null)
+            charSelectPanel.SetActive(false);
+
+        // Nếu có gán WorldIntroUI: hiển thị bảng giới thiệu thế giới trước khi chuyển scene
+        if (worldIntroUI != null)
+        {
+            worldIntroUI.OnIntroCompletedEvent.RemoveListener(LoadGame);
+            worldIntroUI.OnIntroCompletedEvent.AddListener(LoadGame);
+            worldIntroUI.StartIntro();
+        }
+        else
+        {
+            // Nếu không gán Intro, vào thẳng game
+            LoadGame();
+        }
     }
 
     private void LoadGame()
