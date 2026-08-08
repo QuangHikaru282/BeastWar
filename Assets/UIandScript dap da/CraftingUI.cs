@@ -2,11 +2,24 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 namespace Kinnly
 {
     public class CraftingUI : MonoBehaviour
     {
+        public event Action CraftingOpened;
+        public event Action RecipeListOpened;
+        public event Action<CraftingRecipeData> RecipeSelected;
+        public event Action CraftSucceeded;
+
+        public bool CanCraft
+        {
+            get
+            {
+                return craftButton != null && craftButton.interactable;
+            }
+        }
         [System.Serializable]
         private class SelectedMaterial
         {
@@ -137,6 +150,7 @@ namespace Kinnly
             RefreshMaterials();
             RefreshSelectedSlots();
             UpdateResult();
+            CraftingOpened?.Invoke();
         }
 
         public void CloseCrafting()
@@ -175,6 +189,7 @@ namespace Kinnly
 
             recipeListPanel.SetActive(true);
             RefreshRecipeList();
+            RecipeListOpened?.Invoke();
         }
 
         public void HideRecipeList()
@@ -235,6 +250,7 @@ namespace Kinnly
 
             if (hideRecipeListAfterSelection)
                 HideRecipeList();
+            RecipeSelected?.Invoke(recipe);
         }
 
         private bool IsSameItem(Item first, Item second)
@@ -675,6 +691,7 @@ namespace Kinnly
                 !HasAllIngredients(currentRecipe))
             {
                 UpdateResult();
+                CraftSucceeded?.Invoke();
                 return;
             }
 
