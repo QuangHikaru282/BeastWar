@@ -71,7 +71,15 @@ public class BeastUnit : MonoBehaviour
     {
         Data = data;
         IsPlayerTeam = isPlayerTeam;
-        CurrentHP = data.MaxHP;
+        if (data.currentHP >= 0)
+        {
+            CurrentHP = data.currentHP;
+        }
+        else
+        {
+            CurrentHP = data.MaxHP;
+            data.currentHP = CurrentHP;
+        }
 
 
         // Hiển thị sprite: Player dùng backSprite (nhìn về phía địch), Enemy dùng frontSprite
@@ -179,6 +187,7 @@ public class BeastUnit : MonoBehaviour
 
         damage = Mathf.Max(1, damage);
         CurrentHP = Mathf.Max(0, CurrentHP - damage);
+        if (Data != null) Data.currentHP = CurrentHP;
 
         // Cập nhật HP bar
         hpBar?.UpdateHP(CurrentHP);
@@ -208,6 +217,7 @@ public class BeastUnit : MonoBehaviour
 
         finalDamage = Mathf.Max(1, finalDamage);
         CurrentHP   = Mathf.Max(0, CurrentHP - finalDamage);
+        if (Data != null) Data.currentHP = CurrentHP;
 
         hpBar?.UpdateHP(CurrentHP);
         DamagePopup.Create(transform.position + Vector3.up * 0.5f, finalDamage, isCritical);
@@ -284,6 +294,7 @@ public class BeastUnit : MonoBehaviour
         if (CurrentHP <= 0) return; // Thú đã chết thì không hồi
         int healAmount = Mathf.Max(1, Mathf.RoundToInt(Data.MaxHP * 0.02f));
         CurrentHP = Mathf.Min(Data.MaxHP, CurrentHP + healAmount);
+        if (Data != null) Data.currentHP = CurrentHP;
         hpBar?.UpdateHP(CurrentHP);
         Debug.Log($"[RestTick] {Data.baseBeast.beastName} nghỉ ngơi, hồi {healAmount} HP. HP hiện tại: {CurrentHP}/{Data.MaxHP}");
     }
@@ -327,6 +338,7 @@ public class BeastUnit : MonoBehaviour
             case StatusEffect.Burned:
                 int burnDmg = Mathf.Max(1, Mathf.RoundToInt(Data.MaxHP * 0.10f));
                 CurrentHP = Mathf.Max(0, CurrentHP - burnDmg);
+                if (Data != null) Data.currentHP = CurrentHP;
                 hpBar?.UpdateHP(CurrentHP);
                 DamagePopup.Create(transform.position + Vector3.up * 0.5f, burnDmg, false);
                 Debug.Log($"[Status] {Data.baseBeast.beastName} mất {burnDmg} HP vì bị thiêu đốt!");
@@ -336,6 +348,7 @@ public class BeastUnit : MonoBehaviour
             case StatusEffect.Poisoned:
                 int poisonDmg = Mathf.Max(1, Mathf.RoundToInt(Data.MaxHP * 0.08f));
                 CurrentHP = Mathf.Max(0, CurrentHP - poisonDmg);
+                if (Data != null) Data.currentHP = CurrentHP;
                 hpBar?.UpdateHP(CurrentHP);
                 DamagePopup.Create(transform.position + Vector3.up * 0.5f, poisonDmg, false);
                 Debug.Log($"[Status] {Data.baseBeast.beastName} mất {poisonDmg} HP vì độc.");
@@ -365,6 +378,7 @@ public class BeastUnit : MonoBehaviour
         if (CurrentHP <= 0) return;
         amount = Mathf.Max(1, amount); // Đảm bảo luôn hồi ít nhất 1 máu
         CurrentHP = Mathf.Min(Data.MaxHP, CurrentHP + amount);
+        if (Data != null) Data.currentHP = CurrentHP;
         hpBar?.UpdateHP(CurrentHP);
 
         DamagePopup.Create(transform.position + Vector3.up * 0.5f, amount, false, true);
@@ -380,6 +394,7 @@ public class BeastUnit : MonoBehaviour
         if (CurrentHP <= 0) return; // Thú đã chết thì không hồi
         int healAmount = Mathf.RoundToInt(Data.MaxHP * 0.5f);
         CurrentHP = Mathf.Min(Data.MaxHP, CurrentHP + healAmount);
+        if (Data != null) Data.currentHP = CurrentHP;
         hpBar?.UpdateHP(CurrentHP);
         Debug.Log($"[TeamHeal] {Data.baseBeast.beastName} được hồi {healAmount} HP. HP hiện tại: {CurrentHP}/{Data.MaxHP}");
     }

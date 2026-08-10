@@ -561,6 +561,7 @@ GameObject:
   - component: {fileID: 189544261}
   - component: {fileID: 189544263}
   - component: {fileID: 189544262}
+  - component: {fileID: 189544264}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -687,6 +688,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 189544260}
   m_CullTransparentMesh: 1
+--- !u!114 &189544264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 189544260}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f4fab582d14a8842a5e2178e02debdf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTextBounce
+  bounceAmountY: 6
+  scaleAmount: 0.95
+  duration: 0.15
 --- !u!1 &304888850
 GameObject:
   m_ObjectHideFlags: 0
@@ -1511,10 +1527,10 @@ MonoBehaviour:
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 6.4
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
-  m_lineSpacing: 0
+  m_lineSpacing: 74
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
@@ -2209,6 +2225,7 @@ MonoBehaviour:
   charSelectPanel: {fileID: 687608401}
   charNameLabel: {fileID: 626192071}
   nameInputField: {fileID: 328610549}
+  placeholderText: "Nh\u1EADp t\xEAn nh\xE2n v\u1EADt..."
   confirmButton: {fileID: 798785421}
   arrowLeftButton: {fileID: 993164591}
   arrowRightButton: {fileID: 1733846410}
@@ -2739,8 +2756,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: -855298285791758126, guid: a8ea33033f7e24f42b46a0e022b8554f, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -2776,7 +2793,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 2
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -2786,9 +2803,9 @@ MonoBehaviour:
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
-    m_SelectedSprite: {fileID: 0}
+    m_HighlightedSprite: {fileID: -6470460504253458178, guid: cfbdb2799835db24ea4a94019237ebca, type: 3}
+    m_PressedSprite: {fileID: -855298285791758126, guid: a8ea33033f7e24f42b46a0e022b8554f, type: 3}
+    m_SelectedSprite: {fileID: 4130640169021434097, guid: d727bc500da791641b7b24a1cf710c99, type: 3}
     m_DisabledSprite: {fileID: 0}
   m_AnimationTriggers:
     m_NormalTrigger: Normal
@@ -3151,7 +3168,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Enter text...
+  m_text: "Nh\u1EADp t\xEAn nh\xE2n v\u1EADt..."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e4db6ad8acb3d3a4098528f13e9cc849, type: 2}
   m_sharedMaterial: {fileID: -4432243547281776543, guid: e4db6ad8acb3d3a4098528f13e9cc849, type: 2}

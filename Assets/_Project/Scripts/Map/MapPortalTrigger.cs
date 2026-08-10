@@ -64,13 +64,29 @@ public class MapPortalTrigger : MonoBehaviour
                 }
                 
                 // 3. Gọi Scene Transition (Chuyển cảnh làm mờ)
+                string finalSceneToLoad = targetSceneName;
+                bool isGameCoreLoaded = false;
+                for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
+                {
+                    if (UnityEngine.SceneManagement.SceneManager.GetSceneAt(i).name == "GameCore")
+                    {
+                        isGameCoreLoaded = true;
+                        break;
+                    }
+                }
+
+                if (isGameCoreLoaded && !finalSceneToLoad.Contains("GameCore"))
+                {
+                    finalSceneToLoad = "GameCore," + finalSceneToLoad;
+                }
+
                 if (SceneTransitionManager.Instance != null)
                 {
-                    SceneTransitionManager.Instance.TransitionToScene(targetSceneName);
+                    SceneTransitionManager.Instance.TransitionToScene(finalSceneToLoad);
                 }
                 else
                 {
-                    UnityEngine.SceneManagement.SceneManager.LoadScene(targetSceneName);
+                    UnityEngine.SceneManagement.SceneManager.LoadScene(finalSceneToLoad);
                 }
             }
             else

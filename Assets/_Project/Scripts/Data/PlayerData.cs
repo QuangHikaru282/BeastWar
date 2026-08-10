@@ -136,6 +136,7 @@ public class PlayerData : ScriptableObject
         public string baseBeastName;
         public int currentLevel;
         public int currentExp;
+        public int currentHP = -1;
         public List<SavedRuntimeMove> moves = new List<SavedRuntimeMove>();
     }
 
@@ -236,7 +237,8 @@ public class PlayerData : ScriptableObject
         {
             baseBeastName = beast.baseBeast.name,
             currentLevel = beast.currentLevel,
-            currentExp = beast.currentExp
+            currentExp = beast.currentExp,
+            currentHP = beast.currentHP
         };
         if (beast.moves != null)
         {
@@ -258,6 +260,7 @@ public class PlayerData : ScriptableObject
 
         RuntimeBeastData rt = new RuntimeBeastData(baseBeast, saved.currentLevel);
         rt.currentExp = saved.currentExp;
+        rt.currentHP = saved.currentHP >= 0 ? saved.currentHP : rt.MaxHP;
 
         // Restore moves
         if (saved.moves != null && saved.moves.Count > 0)

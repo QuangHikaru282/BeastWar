@@ -7,6 +7,7 @@ public class RuntimeBeastData
     public BeastData baseBeast;
     public int currentLevel;
     public int currentExp;
+    public int currentHP = -1; // -1 nghĩa là chưa khởi tạo, mặc định bằng MaxHP
     public RuntimeMoveData[] moves;
 
     public RuntimeBeastData(BeastData data, int level = 1)
@@ -14,6 +15,7 @@ public class RuntimeBeastData
         baseBeast = data;
         currentLevel = level;
         currentExp = 0;
+        currentHP = MaxHP;
 
         // Clone moves
         if (data != null && data.moves != null)
@@ -78,5 +80,11 @@ public class RuntimeBeastData
         }
 
         return true;
+    }
+
+    /// <summary>Hồi đầy máu cho Beast.</summary>
+    public void HealFull()
+    {
+        currentHP = MaxHP;
     }
 }

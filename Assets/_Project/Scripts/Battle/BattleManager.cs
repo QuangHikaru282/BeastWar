@@ -702,6 +702,7 @@ public class BattleManager : MonoBehaviour
 
     private void ReturnToMap()
     {
+        SavePlayerBeastHP();
         Debug.Log("--- BƯỚC 9: Quay về Bản Đồ! ---");
 
         string sceneToReturn = PlayerPrefs.GetString("SceneBeforeBattle", GameSceneManager.SCENE_MAP);
@@ -713,6 +714,24 @@ public class BattleManager : MonoBehaviour
         else 
         {
             BattleActionIconsUI.LoadScenesSafely(sceneToReturn);
+        }
+    }
+
+    private void SavePlayerBeastHP()
+    {
+        if (playerTeam != null)
+        {
+            foreach (var unit in playerTeam)
+            {
+                if (unit != null && unit.Data != null)
+                {
+                    unit.Data.currentHP = unit.CurrentHP;
+                }
+            }
+        }
+        if (playerData != null)
+        {
+            playerData.Save();
         }
     }
 

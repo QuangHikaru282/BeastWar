@@ -67,6 +67,9 @@ public class CharacterSelectController : MonoBehaviour
     [Tooltip("Ô nhập tên do người chơi đặt")]
     [SerializeField] private TMP_InputField nameInputField;
 
+    [Tooltip("Text hướng dẫn hiển thị trong ô nhập tên khi chưa nhập (Placeholder)")]
+    [SerializeField] private string placeholderText = "Nhập tên nhân vật...";
+
     [Tooltip("Nút Xác Nhận")]
     [SerializeField] private Button confirmButton;
 
@@ -209,7 +212,20 @@ public class CharacterSelectController : MonoBehaviour
             charSelectPanel.SetActive(true);
 
         if (nameInputField != null)
+        {
             nameInputField.text = "";
+            if (nameInputField.placeholder != null)
+            {
+                if (nameInputField.placeholder is TMP_Text tmpPlaceholder)
+                {
+                    tmpPlaceholder.text = placeholderText;
+                }
+                else if (nameInputField.placeholder is Text uiPlaceholder)
+                {
+                    uiPlaceholder.text = placeholderText;
+                }
+            }
+        }
 
         RefreshCharacterDisplay();
     }
