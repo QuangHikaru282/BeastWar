@@ -12,6 +12,9 @@ public class StarterSelectionUI : MonoBehaviour
     [Tooltip("Kéo NPC Trưởng làng vào đây để đánh dấu trạng thái")]
     public ElderNPC elderNPC;
 
+    [Tooltip("Kéo NPC Rival vào đây để tự động kích hoạt trận đấu ngay sau khi chọn")]
+    public RivalController rivalController;
+
     [Header("3 Pets Khởi Đầu")]
     public BeastData starter1;
     public BeastData starter2;
@@ -42,7 +45,7 @@ public class StarterSelectionUI : MonoBehaviour
         Canvas canvas = GetComponentInParent<Canvas>();
         if (canvas != null)
         {
-            canvas.sortingOrder = 9999;
+            canvas.sortingOrder = 1000;
         }
 
         // Ẩn tất cả các UI khác khi đang chọn Pet khởi đầu
@@ -244,10 +247,10 @@ public class StarterSelectionUI : MonoBehaviour
                 {
                     slot.petImage.sprite = data.frontSprite;
                 }
-                slot.petImage.gameObject.SetActive(false);
+                slot.petImage.gameObject.SetActive(true);
             }
 
-            slot.petIsVisible = false;
+            slot.petIsVisible = true;
             slot.pointerInside = false;
             slot.targetPosition = slot.originalPosition;
 
@@ -460,6 +463,12 @@ public class StarterSelectionUI : MonoBehaviour
 
         // 4. Đóng bảng UI
         gameObject.SetActive(false);
+
+        // 5. Kích hoạt Rival chọn Beast khắc chế và thoại thách đấu ngay lập tức
+        if (rivalController != null)
+        {
+            rivalController.TriggerImmediateBattle();
+        }
     }
 }
 

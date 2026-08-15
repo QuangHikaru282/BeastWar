@@ -34,6 +34,45 @@ public class ElderNPC : MonoBehaviour, IInteractable
         }
 
         UpdateHasGivenStarterState();
+
+        // Tự động kiểm tra và chạy hội thoại chúc mừng nếu vừa đánh thắng Rival xong
+        StartCoroutine(CheckAutoCongratulateRoutine());
+    }
+
+    private System.Collections.IEnumerator CheckAutoCongratulateRoutine()
+    {
+        // Chờ scene và player khởi tạo ổn định
+        yield return new WaitForSeconds(0.5f);
+
+        PlayerData pData = null;
+        if (global::QuestManager.Instance != null && global::QuestManager.Instance.playerData != null)
+        {
+            pData = global::QuestManager.Instance.playerData;
+        }
+        else
+        {
+            pData = Resources.Load<PlayerData>("PlayerData");
+        }
+
+        if (pData != null && pData.defeatedTrainers != null && pData.defeatedTrainers.Contains("Rival_Lab_Phase1"))
+        {
+            // Kiểm tra xem đã nói câu chúc mừng chưa (nếu quest còn là 0)
+            if (pData.currentMainQuestId == 0)
+            {
+                pData.currentMainQuestId = 1; // Hoàn thành Giai đoạn 1
+
+                if (DialogueManager.Instance != null)
+                {
+                    DialogueManager.Instance.StartDialogue(
+                        "Trưởng Làng",
+                        "Trận đấu vừa rồi tuyệt vời lắm! Cháu đã thể hiện sự gắn kết rất tốt với Beast của mình.\n" +
+                        "Bây giờ cổng làng đã mở, chúc cháu có một chuyến phiêu lưu thật vui vẻ và đầy kỳ thú!",
+                        null,
+                        npcAvatar
+                    );
+                }
+            }
+        }
     }
 
     private void UpdateHasGivenStarterState()
@@ -78,29 +117,45 @@ public class ElderNPC : MonoBehaviour, IInteractable
                 DialogueManager.Instance.StartDialogue(
                     "Trưởng Làng",
                     "Làng của chúng ta đang bị quái vật quấy phá. Cháu hãy nhận lấy một Pet khởi đầu và giúp ta giải quyết chúng nhé!",
-                    () => {
-                        if (starterSelectionUI != null)
-                        {
-                            starterSelectionUI.SetActive(true);
-                            starterSelectionUI.transform.SetAsLastSibling();
-                            InteractHintManager.Instance?.RegisterPanelOpen();
-                        }
-                    },
+                    () => { StartCoroutine(ShowStarterUIDelayed()); },
                     npcAvatar
                 );
             }
             else
             {
-                starterSelectionUI.SetActive(true);
-                starterSelectionUI.transform.SetAsLastSibling();
-                InteractHintManager.Instance?.RegisterPanelOpen();
+                StartCoroutine(ShowStarterUIDelayed());
             }
 
-            Debug.Log("Đã mở bảng chọn Pet khởi đầu.");
+            Debug.Log("Đã bắt đầu thoại chọn Pet khởi đầu.");
             return;
         }
 
-        // 2. Kiểm tra Quest 25: Gặp Trưởng Làng
+        // 2. Chúc mừng sau khi thắng trận đấu với Rival
+        if (hasGivenStarter && global::QuestManager.Instance != null && global::QuestManager.Instance.playerData != null)
+        {
+            var pData = global::QuestManager.Instance.playerData;
+            if (pData.defeatedTrainers != null && pData.defeatedTrainers.Contains("Rival_Lab_Phase1"))
+            {
+                if (pData.currentMainQuestId == 0)
+                {
+                    pData.currentMainQuestId = 1; // Hoàn thành Giai đoạn 1, mở khóa tiến trình tiếp theo
+                }
+
+                if (DialogueManager.Instance != null)
+                {
+                    DialogueManager.Instance.StartDialogue(
+                        "Trưởng Làng",
+                        "Trận đấu vừa rồi tuyệt vời lắm! Cháu đã thể hiện sự gắn kết rất tốt với Beast của mình.\n" +
+                        "Bây giờ cổng làng đã mở, cháu có thể tự do ra ngoài khám phá thế giới!",
+                        null,
+                        npcAvatar
+                    );
+                    return;
+                }
+            }
+        }
+
+        // 3. Kiểm tra Quest 25: Gặp Trưởng Làng
         if (hasGivenStarter && global::QuestManager.Instance != null && global::QuestManager.Instance.playerData != null)
         {
             int qId = global::QuestManager.Instance.playerData.currentMainQuestId;
@@ -204,6 +259,43 @@ public class ElderNPC : MonoBehaviour, IInteractable
                     npcAvatar
                 );
             }
+        }
+    }
+
+    /// <summary>
+    /// Chờ Dialogue đóng hoàn toàn rồi mới kích hoạt StarterSelectionPanel.
+    /// </summary>
+    private System.Collections.IEnumerator ShowStarterUIDelayed()
+    {
+        // Chờ đến khi Dialogue hoàn tất và đóng hẳn
+        while (DialogueManager.Instance != null && DialogueManager.Instance.IsDialogueActive)
+        {
+            yield return null;
+        }
+
+        // Chờ thêm 1 frame để hệ thống Canvas khôi phục trạng thái
+        yield return null;
+
+        if (starterSelectionUI != null)
+        {
+            // Bật Canvas cha trước
+            Canvas parentCanvas = starterSelectionUI.GetComponentInParent<Canvas>(true);
+            if (parentCanvas != null)
+            {
+                parentCanvas.gameObject.SetActive(true);
+                parentCanvas.sortingOrder = 1000;
+            }
+
+            // Bật chính StarterSelectionPanel
+            starterSelectionUI.SetActive(true);
+            starterSelectionUI.transform.SetAsLastSibling();
+
+            InteractHintManager.Instance?.RegisterPanelOpen();
+            Debug.Log("<color=green>[ElderNPC] Đã kích hoạt thành công StarterSelectionPanel!</color>");
+        }
+        else
+        {
+            Debug.LogError("[ElderNPC] starterSelectionUI đang bị null! Hãy kéo StarterSelectionPanel vào ô trong Inspector của NPC Trưởng Làng.");
         }
     }
 }

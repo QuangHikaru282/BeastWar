@@ -10,6 +10,12 @@ public class PlayerMapController : MonoBehaviour
     [Header("Di chuyển")]
     [SerializeField] private float moveSpeed = 5f;
 
+    public float MoveSpeed
+    {
+        get => moveSpeed;
+        set => moveSpeed = value;
+    }
+
     [Header("Animation (tùy chọn)")]
     [SerializeField] private Animator animator;
 

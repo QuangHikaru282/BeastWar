@@ -957,19 +957,19 @@ MonoBehaviour:
   unlockedColor: {r: 1, g: 1, b: 1, a: 1}
   lockedColor: {r: 0.15, g: 0.15, b: 0.15, a: 0.7}
   badgeSlots:
-  - badgeId: Badge_1
+  - badgeId: EarthBadge
     badgeImage: {fileID: 1007589799}
     badgeSprite: {fileID: 2528684078803011959, guid: 2afd3957ee0c5a444a837199737179d4, type: 3}
-  - badgeId: Badge_2
+  - badgeId: GrassBadge
     badgeImage: {fileID: 1604968802}
     badgeSprite: {fileID: -7779397825099356084, guid: 2afd3957ee0c5a444a837199737179d4, type: 3}
-  - badgeId: Badge_3
+  - badgeId: WaterBadge
     badgeImage: {fileID: 1704198080}
     badgeSprite: {fileID: -8296272600640986101, guid: 2afd3957ee0c5a444a837199737179d4, type: 3}
-  - badgeId: Badge_4
+  - badgeId: FireBadge
     badgeImage: {fileID: 2095905785}
     badgeSprite: {fileID: 1491796477253987758, guid: 2afd3957ee0c5a444a837199737179d4, type: 3}
-  - badgeId: Badge_5
+  - badgeId: WindBadge
     badgeImage: {fileID: 129802009}
     badgeSprite: {fileID: -3853021834966322461, guid: 2afd3957ee0c5a444a837199737179d4, type: 3}
 --- !u!114 &656862867

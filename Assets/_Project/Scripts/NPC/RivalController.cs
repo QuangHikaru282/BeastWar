@@ -100,8 +100,18 @@ public class RivalController : MonoBehaviour, Kinnly.IInteractable
         StartCoroutine(RivalEncounterRoutine(playerInventory?.gameObject));
     }
 
+    /// <summary>
+    /// Kích hoạt thách đấu ngay lập tức sau khi người chơi vừa chọn Starter.
+    /// </summary>
+    public void TriggerImmediateBattle(GameObject playerObj = null)
+    {
+        StartCoroutine(RivalEncounterRoutine(playerObj));
+    }
+
     private IEnumerator RivalEncounterRoutine(GameObject playerObj)
     {
+        Debug.Log("[RivalController] ▶ BẮT ĐẦU RivalEncounterRoutine");
+
         // 1. Dừng Player
         PlayerMapController ctrl = playerObj != null
             ? playerObj.GetComponent<PlayerMapController>()
@@ -112,6 +122,7 @@ public class RivalController : MonoBehaviour, Kinnly.IInteractable
         bool done = false;
         if (DialogueManager.Instance != null)
         {
+            Debug.Log("[RivalController] Hiển thị thoại thách đấu...");
             DialogueManager.Instance.StartDialogue(
                 "Rival",
                 preBattleDialogue,
@@ -119,18 +130,21 @@ public class RivalController : MonoBehaviour, Kinnly.IInteractable
                 rivalAvatar
             );
             yield return new WaitUntil(() => done);
+            Debug.Log("[RivalController] Thoại xong, tiếp tục...");
         }
         else
         {
+            Debug.LogWarning("[RivalController] DialogueManager.Instance == null, bỏ qua thoại");
             yield return new WaitForSeconds(0.5f);
         }
 
         // 3. Xác định đội Rival dựa vào Starter người chơi đã chọn
         List<BeastData> chosenTeam = GetRivalTeamBasedOnPlayerStarter();
+        Debug.Log($"[RivalController] chosenTeam = {(chosenTeam == null ? "null" : chosenTeam.Count + " con")}");
 
         if (chosenTeam == null || chosenTeam.Count == 0)
         {
-            Debug.LogError("[RivalController] Chưa gán đội Rival phù hợp trong Inspector!");
+            Debug.LogError("[RivalController] ❌ Chưa gán đội Rival phù hợp trong Inspector! Kiểm tra rivalTeamIfPlayerChoseStarter1/2/3");
             if (ctrl != null) ctrl.SetCanMove(true);
             yield break;
         }
@@ -138,10 +152,12 @@ public class RivalController : MonoBehaviour, Kinnly.IInteractable
         // 4. Vào Battle
         if (battleTransferData == null)
         {
-            Debug.LogError("[RivalController] Chưa gán BattleTransferData!");
+            Debug.LogError("[RivalController] ❌ Chưa gán BattleTransferData! Kéo BattleTransferData asset vào Inspector.");
             if (ctrl != null) ctrl.SetCanMove(true);
             yield break;
         }
+
+        Debug.Log("[RivalController] Chuẩn bị BattleTransferData và gọi GoToBattle...");
 
         battleTransferData.ResetData();
         battleTransferData.originScene = BattleTransferData.OriginScene.Map;
@@ -161,8 +177,10 @@ public class RivalController : MonoBehaviour, Kinnly.IInteractable
         }
         battleTransferData.SetEnemyTeam(runtimeTeam);
 
+        Debug.Log($"[RivalController] ✅ GoToBattle! SceneTransitionManager = {SceneTransitionManager.Instance}");
         GameSceneManager.GoToBattle();
     }
+
 
     /// <summary>
     /// Xác định đội Rival dựa vào playerData.lastStarterChoiceIndex:

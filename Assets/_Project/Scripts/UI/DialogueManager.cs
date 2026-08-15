@@ -222,7 +222,7 @@ public class DialogueManager : MonoBehaviour
         // Mở lại di chuyển của Player
         SetPlayerMovement(true);
 
-        // Thực thi callback kết thúc thoại (nếu có)
+        // Thực thi callback kết thúc thoại (nếu có) sau khi UI đã bật lại
         var callback = onDialogueCompleteCallback;
         onDialogueCompleteCallback = null;
         callback?.Invoke();

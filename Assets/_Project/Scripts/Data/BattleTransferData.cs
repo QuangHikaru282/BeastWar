@@ -36,7 +36,7 @@ public class BattleTransferData : ScriptableObject
     public bool isGymLeaderBattle = false;
     
     [Tooltip("ID của Huy hiệu Gym sẽ trao khi đánh bại Gym Leader này")]
-    public string rewardBadgeId = "BoulderBadge";
+    public string rewardBadgeId = "";
 
     [Header("Đội địch (gặp trên Map/Hunting)")]
     public List<RuntimeBeastData> wildEnemyTeam = new List<RuntimeBeastData>();
@@ -62,6 +62,8 @@ public class BattleTransferData : ScriptableObject
         originScene = OriginScene.Map;
         isSingleBattle = false;
         isTrainerBattle = false;
+        isGymLeaderBattle = false;   // QUAN TRỌNG: reset để tránh trao badge nhầm
+        rewardBadgeId = "";          // QUAN TRỌNG: reset để tránh trao badge cũ
         currentArenaStageId = -1;
     }
 }

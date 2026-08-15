@@ -14,23 +14,19 @@ using UnityEngine;
 /// </summary>
 public class VillageTownGateTrigger : MonoBehaviour
 {
-    [Header("References — Kéo thả trong Inspector")]
+    [Header("References")]
     [Tooltip("Kéo PlayerData vào đây")]
     [SerializeField] private PlayerData playerData;
 
-    [Tooltip("Kéo NPC Oak / Trưởng Làng vào đây")]
-    [SerializeField] private ElderNPC elderNPC;
-
-    [Tooltip("Kéo Sprite avatar của Oak vào đây (dùng trong dialogue)")]
+    [Tooltip("Ảnh đại diện Trưởng Làng khi thoại")]
     [SerializeField] private Sprite oakAvatar;
 
-    [Header("Điểm đứng của Oak khi chặn cổng")]
-    [Tooltip("Kéo Transform điểm Oak sẽ di chuyển đến khi chặn Player")]
-    [SerializeField] private Transform oakBlockPosition;
+    [Header("Chuyển Scene về Lab / Nhà Trưởng Làng")]
+    [Tooltip("Tên Scene Lab trong Build Settings")]
+    [SerializeField] private string targetSceneName = "TruongLang";
 
-    [Header("Điểm teleport Player về Lab")]
-    [Tooltip("Kéo Transform vị trí Player sẽ được dịch chuyển đến (cửa Lab)")]
-    [SerializeField] private Transform labEntrance;
+    [Tooltip("ID của SpawnPoint trong Scene Lab")]
+    [SerializeField] private string targetSpawnPointId = "1";
 
     [Header("Cấu hình thoại")]
     [TextArea(2, 4)]
@@ -79,13 +75,7 @@ public class VillageTownGateTrigger : MonoBehaviour
         Rigidbody2D rb = playerObj.GetComponent<Rigidbody2D>();
         if (rb != null) rb.linearVelocity = Vector2.zero;
 
-        // 2. Di chuyển Oak đến vị trí chặn (nếu có)
-        if (elderNPC != null && oakBlockPosition != null)
-        {
-            elderNPC.transform.position = oakBlockPosition.position;
-        }
-
-        // 3. Chạy dialogue Oak
+        // 2. Chạy dialogue Oak
         bool dialogueDone = false;
 
         if (DialogueManager.Instance != null)
@@ -105,27 +95,45 @@ public class VillageTownGateTrigger : MonoBehaviour
             dialogueDone = true;
         }
 
-        // 4. Teleport Player về cửa Lab
-        if (labEntrance != null)
+        // 3. Đưa Player về Lab qua Scene mới
+        if (!string.IsNullOrEmpty(targetSceneName))
         {
-            playerObj.transform.position = labEntrance.position;
-        }
-
-        // 5. Mở lại di chuyển
-        if (playerCtrl != null) playerCtrl.SetCanMove(true);
-
-        // 6. Kích hoạt Interact với Oak ngay lập tức
-        //    để bảng chọn Starter mở tự động
-        if (elderNPC != null)
-        {
-            // Chờ 1 frame để Player spawn xong
-            yield return null;
-
-            Kinnly.PlayerInventory inv = playerObj.GetComponent<Kinnly.PlayerInventory>();
-            if (inv != null)
+            // Lưu Spawn ID vào PlayerData để khi sang Scene Lab nhân vật đứng đúng vị trí
+            if (playerData != null)
             {
-                elderNPC.Interact(inv);
+                playerData.targetSpawnPointId = targetSpawnPointId;
             }
+
+            // Gọi chuyển cảnh làm mờ (Fade Transition)
+            string finalSceneToLoad = targetSceneName;
+            bool isGameCoreLoaded = false;
+            for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
+            {
+                if (UnityEngine.SceneManagement.SceneManager.GetSceneAt(i).name == "GameCore")
+                {
+                    isGameCoreLoaded = true;
+                    break;
+                }
+            }
+
+            if (isGameCoreLoaded && !finalSceneToLoad.Contains("GameCore"))
+            {
+                finalSceneToLoad = "GameCore," + finalSceneToLoad;
+            }
+
+            if (SceneTransitionManager.Instance != null)
+            {
+                SceneTransitionManager.Instance.TransitionToScene(finalSceneToLoad);
+            }
+            else
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene(finalSceneToLoad);
+            }
+            yield break;
+        }
+        else
+        {
+            if (playerCtrl != null) playerCtrl.SetCanMove(true);
         }
     }
 }

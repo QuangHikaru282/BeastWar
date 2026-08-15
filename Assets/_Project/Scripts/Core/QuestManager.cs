@@ -605,29 +605,43 @@ public class QuestManager : MonoBehaviour
             return;
         }
 
-        // Quest 26: Đánh bại Gym Leader Đá -> Đã nhận Huy Hiệu Đá
-        if (id == 26 && playerData.gymBadges != null && playerData.gymBadges.Contains("BoulderBadge"))
+        // Quest 26: Đánh bại Gym Leader Đất -> Huy Hiệu Đất
+        if (id == 26 && playerData.gymBadges != null && playerData.gymBadges.Contains("EarthBadge"))
         {
             MarkCurrentQuestCompleted();
             return;
         }
 
-        // Quest 27: Đánh bại Gym Leader Nước -> Đã nhận Huy Hiệu Nước
-        if (id == 27 && playerData.gymBadges != null && playerData.gymBadges.Contains("CascadeBadge"))
+        // Quest 27: Đánh bại Gym Leader Cỏ -> Huy Hiệu Cỏ
+        if (id == 27 && playerData.gymBadges != null && playerData.gymBadges.Contains("GrassBadge"))
         {
             MarkCurrentQuestCompleted();
             return;
         }
 
-        // Quest 28: Đánh bại Gym Leader Cỏ -> Đã nhận Huy Hiệu Cỏ
-        if (id == 28 && playerData.gymBadges != null && playerData.gymBadges.Contains("ThunderBadge"))
+        // Quest 28: Đánh bại Gym Leader Nước -> Huy Hiệu Nước
+        if (id == 28 && playerData.gymBadges != null && playerData.gymBadges.Contains("WaterBadge"))
         {
             MarkCurrentQuestCompleted();
             return;
         }
 
-        // Quest 29: Thu thập đủ 3 Huy hiệu Gym
-        if (id == 29 && playerData.gymBadges != null && playerData.gymBadges.Count >= 3)
+        // Quest 29: Đánh bại Gym Leader Lửa -> Huy Hiệu Lửa
+        if (id == 29 && playerData.gymBadges != null && playerData.gymBadges.Contains("FireBadge"))
+        {
+            MarkCurrentQuestCompleted();
+            return;
+        }
+
+        // Quest 30: Đánh bại Gym Leader Gió -> Huy Hiệu Gió
+        if (id == 30 && playerData.gymBadges != null && playerData.gymBadges.Contains("WindBadge"))
+        {
+            MarkCurrentQuestCompleted();
+            return;
+        }
+
+        // Quest 31: Thu thập đủ 5 Huy hiệu Gym
+        if (id == 31 && playerData.gymBadges != null && playerData.gymBadges.Count >= 5)
         {
             MarkCurrentQuestCompleted();
             return;

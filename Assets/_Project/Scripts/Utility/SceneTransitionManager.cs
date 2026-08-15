@@ -17,8 +17,8 @@ public class SceneTransitionManager : MonoBehaviour
 
     [Header("Transition Settings")]
     [SerializeField] private float fadeDuration = 0.5f;
-    [Tooltip("Thời gian tối thiểu màn hình Loading sẽ hiển thị (giúp người chơi kịp đọc chữ và ngắm ảnh nền)")]
-    [SerializeField] private float minShowTime = 3.0f;
+    [Tooltip("Thời gian tối thiểu màn hình Loading sẽ hiển thị")]
+    [SerializeField] private float minShowTime = 0.5f;
 
     private bool isTransitioning = false;
 
@@ -33,11 +33,21 @@ public class SceneTransitionManager : MonoBehaviour
             }
             DontDestroyOnLoad(gameObject);
 
-            // Đảm bảo Canvas ẩn đi lúc khởi động game
+            // Đảm bảo Canvas cũng không bị destroy khi scene unload
             if (transitionCanvasGroup != null)
             {
+                // Tách canvas khỏi parent (nếu có) để DontDestroyOnLoad hoạt động
+                if (transitionCanvasGroup.transform.parent != null)
+                {
+                    transitionCanvasGroup.transform.SetParent(null);
+                }
+                DontDestroyOnLoad(transitionCanvasGroup.gameObject);
+
+                // Ẩn đi lúc khởi động
                 transitionCanvasGroup.alpha = 0f;
                 transitionCanvasGroup.blocksRaycasts = false;
+                Canvas cv = transitionCanvasGroup.GetComponent<Canvas>();
+                if (cv != null) cv.enabled = false;
             }
         }
         else
@@ -46,6 +56,7 @@ public class SceneTransitionManager : MonoBehaviour
         }
     }
 
+
     /// <summary>
     /// Chuyển scene bất tuần tự kèm theo hiệu ứng Fade màn hình.
     /// </summary>
@@ -53,6 +64,7 @@ public class SceneTransitionManager : MonoBehaviour
     public void TransitionToScene(string sceneName)
     {
         if (isTransitioning) return;
+        if (!gameObject.activeSelf) gameObject.SetActive(true);
         StartCoroutine(TransitionRoutine(sceneName));
     }
 
@@ -64,6 +76,9 @@ public class SceneTransitionManager : MonoBehaviour
         // Bật chặn raycast và force active CanvasGroup để chắc chắn nó hiển thị
         if (transitionCanvasGroup != null)
         {
+            Canvas cv = transitionCanvasGroup.GetComponent<Canvas>();
+            if (cv != null) cv.enabled = true;
+
             transitionCanvasGroup.gameObject.SetActive(true);
             transitionCanvasGroup.blocksRaycasts = true;
             // Fade out (làm tối dần màn hình game, hiện màn hình loading)
@@ -112,6 +127,30 @@ public class SceneTransitionManager : MonoBehaviour
                 if (s.name != primaryScene && System.Array.IndexOf(scenesToLoad, s.name) < 0)
                 {
                     yield return SceneManager.UnloadSceneAsync(s);
+                }
+            }
+
+            // Tải các scene phụ (như HoangDa2, Nha) nếu chưa có
+            for (int i = 1; i < scenesToLoad.Length; i++)
+            {
+                string subName = scenesToLoad[i];
+                bool isSubLoaded = false;
+                for (int j = 0; j < SceneManager.sceneCount; j++)
+                {
+                    if (SceneManager.GetSceneAt(j).name == subName)
+                    {
+                        isSubLoaded = true;
+                        break;
+                    }
+                }
+
+                if (!isSubLoaded)
+                {
+                    AsyncOperation subLoad = SceneManager.LoadSceneAsync(subName, LoadSceneMode.Additive);
+                    if (subLoad != null)
+                    {
+                        while (!subLoad.isDone) yield return null;
+                    }
                 }
             }
 
@@ -227,7 +266,10 @@ public class SceneTransitionManager : MonoBehaviour
         {
             yield return transitionCanvasGroup.DOFade(0f, fadeDuration).WaitForCompletion();
             transitionCanvasGroup.blocksRaycasts = false;
-            // transitionCanvasGroup.gameObject.SetActive(false); // Tuỳ chọn tắt đi, nhưng alpha=0 cũng tàng hình rồi.
+            transitionCanvasGroup.alpha = 0f;
+
+            Canvas cv = transitionCanvasGroup.GetComponent<Canvas>();
+            if (cv != null) cv.enabled = false;
         }
         else
         {
