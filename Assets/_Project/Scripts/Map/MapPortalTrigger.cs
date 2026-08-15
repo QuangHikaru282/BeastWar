@@ -33,11 +33,10 @@ public class MapPortalTrigger : MonoBehaviour
         {
             // Kiểm tra xem Quest hiện tại đã vượt qua yêu cầu chưa
             bool isUnlocked = true;
-            if (global::QuestManager.Instance != null)
+            if (requiredQuestIdToUnlock > 0 && global::QuestManager.Instance != null && global::QuestManager.Instance.playerData != null)
             {
-                // Nếu currentMainQuestId > requiredQuestIdToUnlock tức là đã qua quest đó rồi (hoặc bằng nếu là kiểu quest hoàn thành)
-                // Ở hệ thống chúng ta, khi hoàn thành quest 5 thì currentMainQuestId nhảy lên 6.
-                isUnlocked = global::QuestManager.Instance.playerData.currentMainQuestId > requiredQuestIdToUnlock;
+                // Yêu cầu hoàn thành quest số N (khi hoàn thành quest N thì currentMainQuestId >= N)
+                isUnlocked = global::QuestManager.Instance.playerData.currentMainQuestId >= requiredQuestIdToUnlock;
             }
 
             if (isUnlocked)

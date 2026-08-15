@@ -95,7 +95,7 @@ public class BattleCaptureHandler : MonoBehaviour
             }
 
             // Quét bổ sung toàn bộ InventoryItem trên Scene nếu slot danh sách bị thiếu
-            var allInvItems = FindObjectsOfType<Kinnly.InventoryItem>(true);
+            var allInvItems = FindObjectsByType<Kinnly.InventoryItem>(FindObjectsSortMode.None);
             if (allInvItems != null)
             {
                 foreach (var invItem in allInvItems)

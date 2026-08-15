@@ -84,8 +84,8 @@ public class CharacterSelectController : MonoBehaviour
     [Tooltip("Kéo file PlayerData asset vào đây")]
     [SerializeField] private PlayerData playerData;
 
-    [Tooltip("Tên Scene GameCore / HubTownNew để chuyển vào")]
-    [SerializeField] private string gameSceneName = "GameCore, HubTownNew";
+    [Tooltip("Tên Scene GameCore / Lau1 để chuyển vào khi bắt đầu game")]
+    [SerializeField] private string gameSceneName = "GameCore, Lau1";
 
     [Tooltip("Kéo WorldIntroUI vào đây nếu muốn hiển thị bảng giới thiệu thế giới sau khi bấm Xác Nhận đặt tên")]
     [SerializeField] private BeastWar.UI.WorldIntroUI worldIntroUI;
@@ -318,6 +318,7 @@ public class CharacterSelectController : MonoBehaviour
         {
             playerData.playerName = inputName;
             playerData.characterGender = gender;
+            playerData.targetSpawnPointId = "1"; // Khớp với SpawnPoint_Inside trong scene Lau1
         }
 
         // Lưu dự phòng qua PlayerPrefs (để các scene khác đọc được)

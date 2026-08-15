@@ -243,8 +243,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8397941ab55eebc47bf3a8de753a2b7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HouseDoorInteractable
-  targetSceneName: HubTownNew
-  targetSpawnPointId: 2
+  targetSceneName: Nha
+  targetSpawnPointId: 1
   playerData: {fileID: 11400000, guid: 86002785663fef148821f3bc0a8c1986, type: 2}
   requireQuestUnlock: 0
   requiredQuestId: 0
@@ -363,7 +363,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 1941993470564668434, guid: 7d4bc4e129b04d04d942c97f4069cdb5, type: 3}
+  m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -371,7 +371,7 @@ SpriteRenderer:
   m_Size: {x: 0.16, y: 0.16}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!114 &373272684
 MonoBehaviour:
@@ -450,7 +450,7 @@ Transform:
   m_GameObject: {fileID: 725799767}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.86, y: -2.55, z: 0}
+  m_LocalPosition: {x: -0.86, y: -2.45, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

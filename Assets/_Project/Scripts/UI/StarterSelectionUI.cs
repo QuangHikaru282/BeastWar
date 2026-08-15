@@ -363,16 +363,19 @@ public class StarterSelectionUI : MonoBehaviour
 
     public void ChooseStarter1()
     {
+        if (playerData != null) playerData.lastStarterChoiceIndex = 0;
         HandleStarterClick(0, starter1);
     }
 
     public void ChooseStarter2()
     {
+        if (playerData != null) playerData.lastStarterChoiceIndex = 1;
         HandleStarterClick(1, starter2);
     }
 
     public void ChooseStarter3()
     {
+        if (playerData != null) playerData.lastStarterChoiceIndex = 2;
         HandleStarterClick(2, starter3);
     }
 

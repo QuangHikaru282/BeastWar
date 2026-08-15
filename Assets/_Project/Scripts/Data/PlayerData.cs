@@ -57,6 +57,9 @@ public class PlayerData : ScriptableObject
     [Tooltip("Số vàng hiện có")]
     public int gold = 0;
 
+    [Tooltip("Index Starter đã chọn (0=Cỏ, 1=Lửa, 2=Nước). Dùng cho Rival.")]
+    public int lastStarterChoiceIndex = 0;
+
     // ─── Beast Methods ───────────────────────────────────────────────
 
     /// <summary>Thêm Beast vào bộ sưu tập (sau khi bắt được).</summary>

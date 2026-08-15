@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using TMPro;
@@ -113,7 +113,7 @@ namespace Kinnly
             {
                 MoveIndicator();
 
-                if (Input.GetKeyDown(KeyCode.F))
+                if (Input.GetKeyDown(KeyCode.F) && Time.unscaledTime >= canChopAfterTime)
                 {
                     PressChopButton();
                 }
@@ -231,6 +231,7 @@ namespace Kinnly
 
             indicatorIsMoving = false;
             waitingForAnimation = false;
+            canChopAfterTime = Time.unscaledTime + openInputDelay;
 
             SetIndicatorPosition();
 
