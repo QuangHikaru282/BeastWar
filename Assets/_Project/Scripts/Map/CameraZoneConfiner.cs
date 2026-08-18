@@ -13,16 +13,50 @@ public class CameraZoneConfiner : MonoBehaviour
     private BoxCollider2D zoneCollider;
     private CameraMovement camMovement;
 
+    [Header("Tuỳ chọn giới hạn Player")]
+    [Tooltip("Nếu bật: Nhân vật cũng sẽ bị giữ chặt bên trong khung này, không thể đi xuyên ra ngoài.")]
+    [SerializeField] private bool clampPlayerInsideZone = true;
+
+    private Transform playerTransform;
+
     private void Awake()
     {
         zoneCollider = GetComponent<BoxCollider2D>();
         zoneCollider.isTrigger = true;
     }
 
+    private void Start()
+    {
+        // Tự động áp dụng bounds khi scene vừa load lên
+        GameObject player = GameObject.FindWithTag("Player");
+        if (player != null && zoneCollider != null)
+        {
+            if (zoneCollider.bounds.Contains(player.transform.position))
+            {
+                playerTransform = player.transform;
+                ApplyZoneCameraBounds();
+            }
+        }
+    }
+
+    private void LateUpdate()
+    {
+        // Giữ nhân vật không đi vượt ra ngoài mép collider
+        if (clampPlayerInsideZone && playerTransform != null && zoneCollider != null)
+        {
+            Bounds b = zoneCollider.bounds;
+            Vector3 pos = playerTransform.position;
+            float clampedX = Mathf.Clamp(pos.x, b.min.x + 0.3f, b.max.x - 0.3f);
+            float clampedY = Mathf.Clamp(pos.y, b.min.y + 0.3f, b.max.y - 0.3f);
+            playerTransform.position = new Vector3(clampedX, clampedY, pos.z);
+        }
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
         {
+            playerTransform = other.transform;
             ApplyZoneCameraBounds();
         }
     }
@@ -54,7 +88,7 @@ public class CameraZoneConfiner : MonoBehaviour
         BoxCollider2D col = GetComponent<BoxCollider2D>();
         if (col != null)
         {
-            Gizmos.color = new Color(0f, 1f, 1f, 0.3f);
+            Gizmos.color = new Color(0f, 1f, 1f, 0.2f);
             Gizmos.DrawCube(col.bounds.center, col.bounds.size);
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireCube(col.bounds.center, col.bounds.size);

@@ -1,77 +1,76 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ????????????????????????????????????????????????????????????????
-///  GymLeaderController � Script d�ng chung cho m?i Gym Leader
-/// ????????????????????????????????????????????????????????????????
-///
-/// C�CH D�NG:
-///   1. T?o GameObject r?ng trong scene (�?t t�n VD: "GymLeader_Earth")
-///   2. G?n script n�y v�o
-///   3. Th�m Collider2D, b?t isTrigger = true
-///   4. K�o th? c�c field trong Inspector
-///
-/// SETUP NHANH 4 GYM:
-///   � Gym 1 �?t:  gymLeaderId="GymLeader_Earth"  badgeId="Badge_1"  rewardToolItem=Cuoc da
-///   � Gym 2 C?:   gymLeaderId="GymLeader_Grass"  badgeId="Badge_2"  rewardToolItem=Liem
-///   � Gym 3 N�?c: gymLeaderId="GymLeader_Water"  badgeId="Badge_3"  rewardToolItem=Binh tuoi
-///   � Gym 4 L?a:  gymLeaderId="GymLeader_Fire"   badgeId="Badge_4"   rewardToolItem=Rua
+/// ════════════════════════════════════════════════════════════════
+///  GymLeaderController — Script dùng chung cho mọi Gym Leader
+/// ════════════════════════════════════════════════════════════════
 /// </summary>
 public class GymLeaderController : MonoBehaviour, Kinnly.IInteractable
 {
-    [Header("?? Th�ng tin Gym Leader")]
-    [Tooltip("ID duy nh?t �? l�u tr?ng th�i (VD: GymLeader_Earth)")]
+    [System.Serializable]
+    public class GymBeastSlot
+    {
+        [Tooltip("Dữ liệu Beast của Gym Leader")]
+        public BeastData beastData;
+
+        [Range(1, 100)]
+        [Tooltip("Cấp độ (Level) của Beast này khi vào trận đấu")]
+        public int beastLevel = 10;
+    }
+
+    [Header("── Thông tin Gym Leader")]
+    [Tooltip("ID duy nhất để lưu trạng thái (VD: GymLeader_Earth)")]
     public string gymLeaderId = "GymLeader_Earth";
 
-    [Tooltip("T�n hi?n th? trong h?i tho?i")]
-    public string gymLeaderName = "Th? L?nh �?t";
+    [Tooltip("Tên hiển thị trong hội thoại")]
+    public string gymLeaderName = "Thủ Lĩnh Đất";
 
-    [Tooltip("?nh avatar c?a Gym Leader")]
+    [Tooltip("Ảnh avatar của Gym Leader")]
     public Sprite leaderAvatar;
 
-    [Header("?? H?i Tho?i")]
+    [Header("── Hội Thoại")]
     [TextArea(2, 5)]
-    public string challengeDialogue = "�?t �ai n�y s? nh?n ch?m ng��i!";
-
-    [TextArea(2, 5)]
-    public string defeatDialogue = "Kh�ng th? tin ��?c... H?y nh?n Huy Hi?u n�y x?ng ��ng.";
+    public string challengeDialogue = "Đất đai này sẽ nhấn chìm ngươi!";
 
     [TextArea(2, 5)]
-    public string rematchDialogue = "Ng��i �? ch?ng minh b?n th�n. Ta kh�ng c� g? �? th�ch �?u th�m.";
+    public string defeatDialogue = "Không thể tin được... Hãy nhận Huy Hiệu này xứng đáng.";
 
-    [Header("?? �?i H?nh Chi?n �?u")]
-    [Tooltip("K�o BeastData v�o ��y (t?i �a 6 Beast)")]
-    public List<BeastData> leaderTeam = new List<BeastData>();
+    [TextArea(2, 5)]
+    public string rematchDialogue = "Ngươi đã chứng minh bản thân. Ta không có gì để thách đấu thêm.";
 
-    [Header("?? Huy Hi?u & Ph?n Th�?ng")]
-    [Tooltip("ID Huy hi?u (VD: EarthBadge, GrassBadge, WaterBadge, FireBadge)")]
-    public string badgeId = "Badge_1";
+    [Header("── Đội Hình Chiến Đấu & Cấp Độ")]
+    [Tooltip("Cấu hình danh sách Pet và Level tương ứng của Gym Leader")]
+    public List<GymBeastSlot> leaderTeamWithLevel = new List<GymBeastSlot>();
 
-    [Tooltip("T�n Huy hi?u hi?n th? (VD: Huy Hi?u �?t)")]
-    public string badgeDisplayName = "Huy Hi?u �?t";
+    [Header("── Huy Hiệu & Phần Thưởng")]
+    [Tooltip("ID Huy hiệu (VD: EarthBadge, GrassBadge, WaterBadge, FireBadge, WindBadge)")]
+    public string badgeId = "EarthBadge";
 
-    [Tooltip("C�ng c? trao sau khi th?ng (k�o Item asset v�o ��y)")]
+    [Tooltip("Tên Huy hiệu hiển thị (VD: Huy Hiệu Đất)")]
+    public string badgeDisplayName = "Huy Hiệu Đất";
+
+    [Tooltip("Công cụ trao sau khi thắng (kéo Item asset vào đây)")]
     public Kinnly.Item rewardToolItem;
 
-    [Tooltip("S? l�?ng v?t ph?m trao")]
+    [Tooltip("Số lượng vật phẩm trao")]
     public int rewardToolAmount = 1;
 
     [TextArea(1, 3)]
-    public string toolRewardDialogue = "Ngo�i Huy Hi?u, ta t?ng ng��i th�m m?t v?t ph?m �?c bi?t!";
+    public string toolRewardDialogue = "Ngoài Huy Hiệu, ta tặng ngươi thêm một vật phẩm đặc biệt!";
 
-    [Header("?? References")]
-    [Tooltip("K�o BattleTransferData asset v�o ��y")]
+    [Header("── References")]
+    [Tooltip("Kéo BattleTransferData asset vào đây")]
     public BattleTransferData battleTransferData;
 
-    [Tooltip("K�o PlayerData asset v�o ��y")]
+    [Tooltip("Kéo PlayerData asset vào đây")]
     public PlayerData playerData;
 
-    [Tooltip("(T�y ch?n) D?u ch?m than ! hi?n l�n �?u khi g?p Player")]
+    [Tooltip("(Tùy chọn) Dấu chấm than ! hiện lên đầu khi gặp Player")]
     public GameObject exclamationMarkObject;
 
-    [Header("?? Tr?ng Th�i (Runtime)")]
+    [Header("── Trạng Thái (Runtime)")]
     public bool alreadyDefeated = false;
 
     private bool isEncounterActive = false;
@@ -129,14 +128,14 @@ public class GymLeaderController : MonoBehaviour, Kinnly.IInteractable
 
     private IEnumerator GymLeaderEncounterRoutine(GameObject playerObj)
     {
-        // 1. D?ng Player
+        // 1. Dừng Player
         PlayerMapController playerCtrl = playerObj.GetComponent<PlayerMapController>();
         if (playerCtrl != null) playerCtrl.SetCanMove(false);
 
         Rigidbody2D rb = playerObj.GetComponent<Rigidbody2D>();
         if (rb != null) rb.linearVelocity = Vector2.zero;
 
-        // 2. Hi?n d?u ch?m than
+        // 2. Hiện dấu chấm than
         if (exclamationMarkObject != null)
         {
             exclamationMarkObject.SetActive(true);
@@ -144,7 +143,7 @@ public class GymLeaderController : MonoBehaviour, Kinnly.IInteractable
             exclamationMarkObject.SetActive(false);
         }
 
-        // 3. H?i tho?i th�ch �?u
+        // 3. Hội thoại thách đấu
         bool dialogueDone = false;
         if (DialogueManager.Instance != null)
         {
@@ -158,18 +157,18 @@ public class GymLeaderController : MonoBehaviour, Kinnly.IInteractable
             yield return new WaitForSeconds(0.5f);
         }
 
-        // 4. Ki?m tra d? li?u
+        // 4. Kiểm tra dữ liệu
         if (battleTransferData == null)
         {
-            Debug.LogError($"[GymLeaderController] {gymLeaderName}: Ch�a g�n BattleTransferData!");
+            Debug.LogError($"[GymLeaderController] {gymLeaderName}: Chưa gán BattleTransferData!");
             if (playerCtrl != null) playerCtrl.SetCanMove(true);
             isEncounterActive = false;
             yield break;
         }
 
-        if (leaderTeam == null || leaderTeam.Count == 0)
+        if (leaderTeamWithLevel == null || leaderTeamWithLevel.Count == 0)
         {
-            Debug.LogError($"[GymLeaderController] {gymLeaderName}: Ch�a g�n leaderTeam!");
+            Debug.LogError($"[GymLeaderController] {gymLeaderName}: Chưa gán đội hình (leaderTeamWithLevel)!");
             if (playerCtrl != null) playerCtrl.SetCanMove(true);
             isEncounterActive = false;
             yield break;
@@ -186,18 +185,22 @@ public class GymLeaderController : MonoBehaviour, Kinnly.IInteractable
         battleTransferData.lastEncounteredBeastId = gymLeaderId;
 
         List<RuntimeBeastData> runtimeTeam = new List<RuntimeBeastData>();
-        foreach (var beast in leaderTeam)
+        foreach (var slot in leaderTeamWithLevel)
         {
-            if (beast != null) runtimeTeam.Add(new RuntimeBeastData(beast, 1));
+            if (slot != null && slot.beastData != null)
+            {
+                int lvl = Mathf.Max(1, slot.beastLevel);
+                runtimeTeam.Add(new RuntimeBeastData(slot.beastData, lvl));
+            }
         }
         battleTransferData.SetEnemyTeam(runtimeTeam);
 
-        Debug.Log($"[GymLeaderController] {gymLeaderName}: V�o chi?n �?u!");
+        Debug.Log($"[GymLeaderController] {gymLeaderName}: Vào chiến đấu với {runtimeTeam.Count} pet!");
         GameSceneManager.GoToBattle();
     }
 
     /// <summary>
-    /// G?i h�m n�y t? BattleManager sau khi Player th?ng Gym Leader.
+    /// Gọi hàm này từ BattleManager sau khi Player thắng Gym Leader.
     /// </summary>
     public void OnPlayerWon()
     {
@@ -221,9 +224,9 @@ public class GymLeaderController : MonoBehaviour, Kinnly.IInteractable
 
     private IEnumerator PostWinRoutine()
     {
-        yield return null; // ch? 1 frame
+        yield return null; // chờ 1 frame
 
-        // H?i tho?i thua
+        // Hội thoại thua
         bool dialogueDone = false;
         if (DialogueManager.Instance != null)
         {
@@ -233,14 +236,14 @@ public class GymLeaderController : MonoBehaviour, Kinnly.IInteractable
             yield return new WaitUntil(() => dialogueDone);
         }
 
-        // Trao c�ng c?
+        // Trao công cụ
         if (rewardToolItem != null)
         {
             Kinnly.PlayerInventory playerInv = FindFirstObjectByType<Kinnly.PlayerInventory>();
             if (playerInv != null)
             {
                 playerInv.AddItem(rewardToolItem, rewardToolAmount);
-                Debug.Log($"[GymLeaderController] �? trao {rewardToolAmount}x {rewardToolItem.name}!");
+                Debug.Log($"[GymLeaderController] Đã trao {rewardToolAmount}x {rewardToolItem.name}!");
             }
 
             if (DialogueManager.Instance != null && !string.IsNullOrEmpty(toolRewardDialogue))
@@ -253,13 +256,13 @@ public class GymLeaderController : MonoBehaviour, Kinnly.IInteractable
             }
         }
 
-        // Th�ng b�o nh?n Huy hi?u
+        // Thông báo nhận Huy hiệu
         if (DialogueManager.Instance != null)
         {
             bool badgeDone = false;
             DialogueManager.Instance.StartDialogue(
-                "Th�ng b�o",
-                $"? B?n �? nh?n ��?c {badgeDisplayName}!",
+                "Thông báo",
+                $"★ Bạn đã nhận được {badgeDisplayName}!",
                 () => { badgeDone = true; });
             yield return new WaitUntil(() => badgeDone);
         }

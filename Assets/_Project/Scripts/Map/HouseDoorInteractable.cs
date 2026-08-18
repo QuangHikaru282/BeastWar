@@ -80,6 +80,13 @@ public class HouseDoorInteractable : MonoBehaviour, IInteractable
             }
         }
 
+        // Xóa cờ vị trí cũ của trận đánh trước đó để ưu tiên đi qua cửa
+        BattleTransferData battleData = Resources.Load<BattleTransferData>("BattleTransferData");
+        if (battleData != null)
+        {
+            battleData.returnToLastPosition = false;
+        }
+
         Debug.Log($"<color=cyan>[HouseDoor]</color> Đang chuyển sang Scene '{targetSceneName}' tại điểm Spawn '{targetSpawnPointId}'...");
 
         // Tự động giữ Scene GameCore nếu đang chạy ở chế độ Multi-Scene

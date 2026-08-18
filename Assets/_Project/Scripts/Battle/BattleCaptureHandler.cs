@@ -1,21 +1,17 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// Xu ly logic bat thu bang Pokeball trong tran chien.
-/// - Quai bi choang 3 luot khi bi quang cau
-/// - Sau 3 lan quang (thanh cong hay khong) -> quai tinh day va bo di
-/// - Ti le bat = beast.captureRate * hpModifier
+/// Xử lý logic ném bóng bắt thú trong trận chiến.
+/// - Không cần kiểm tra số lượng bóng trong túi (ném bóng tự do).
+/// - Mỗi lần ném quái sẽ có tỉ lệ bắt dính theo lượng máu.
+/// - Mỗi phiên cho phép ném tối đa 3 lần, nếu cả 3 lần trượt thì quái bỏ chạy.
 /// </summary>
 public class BattleCaptureHandler : MonoBehaviour
 {
     public static BattleCaptureHandler Instance { get; private set; }
 
-    [Header("Config")]
-    [Tooltip("Ten item Pokeball trong kho do Kinnly")]
-    [SerializeField] private string pokeballItemName = "Pokeball";
-
-    [Header("UI")]
+    [Header("UI (Tùy chọn)")]
     [SerializeField] private UnityEngine.UI.Text pokeballCountText;
     [SerializeField] private TMPro.TextMeshProUGUI pokeballCountTextTMP;
 
@@ -23,8 +19,8 @@ public class BattleCaptureHandler : MonoBehaviour
     private bool captureSessionActive = false;
     private BeastUnit targetEnemy;
 
-    // Callback de bao BattleManager ket qua
-    public System.Action<bool> OnCaptureSessionEnd; // true = da bat, false = thoat
+    // Callback để báo BattleManager kết quả
+    public System.Action<bool> OnCaptureSessionEnd; // true = đã bắt, false = thoát
 
     private void Awake()
     {
@@ -37,237 +33,115 @@ public class BattleCaptureHandler : MonoBehaviour
         RefreshPokeballUI();
     }
 
-    private string GetTargetBallName()
-    {
-        if (global::QuestManager.Instance != null && global::QuestManager.Instance.captureBallItem != null)
-        {
-            return global::QuestManager.Instance.captureBallItem.name;
-        }
-        return pokeballItemName;
-    }
-
-    private bool IsMatchingBallItem(Kinnly.Item item, string targetName)
-    {
-        if (item == null) return false;
-        if (global::QuestManager.Instance != null && global::QuestManager.Instance.captureBallItem != null)
-        {
-            if (item == global::QuestManager.Instance.captureBallItem) return true;
-        }
-        string assetName = ((UnityEngine.Object)item).name;
-        return IsMatchingBallName(item.name, targetName) || IsMatchingBallName(assetName, targetName);
-    }
-
-    private bool IsMatchingBallName(string name, string targetName)
-    {
-        if (string.IsNullOrEmpty(name)) return false;
-        if (name.Equals(targetName, System.StringComparison.OrdinalIgnoreCase)) return true;
-        string n = name.ToLower().Trim();
-        if (n.Contains("ball") || n.Contains("bóng") || n.Contains("pokeball") || n.Contains("thu phục") || n.Contains("bóng thu phục") || n.Contains("captureball")) return true;
-        return false;
-    }
-
-    /// <summary>Tra ve so Pokeball con lai tu kho do Kinnly.</summary>
-    public int GetPokeballCount()
-    {
-        string targetName = GetTargetBallName();
-
-        int total = 0;
-        var playerInv = FindFirstObjectByType<Kinnly.PlayerInventory>();
-        if (playerInv != null)
-        {
-            var slots = new System.Collections.Generic.List<GameObject>();
-            if (playerInv.InventorySlots != null) slots.AddRange(playerInv.InventorySlots);
-            if (playerInv.ToolbarSlots != null) slots.AddRange(playerInv.ToolbarSlots);
-
-            foreach (var slot in slots)
-            {
-                if (slot != null)
-                {
-                    var invItem = slot.GetComponentInChildren<Kinnly.InventoryItem>(true);
-                    if (invItem != null && invItem.Item != null)
-                    {
-                        if (IsMatchingBallItem(invItem.Item, targetName))
-                        {
-                            total += invItem.Amount;
-                        }
-                    }
-                }
-            }
-
-            // Quét bổ sung toàn bộ InventoryItem trên Scene nếu slot danh sách bị thiếu
-            var allInvItems = FindObjectsByType<Kinnly.InventoryItem>(FindObjectsSortMode.None);
-            if (allInvItems != null)
-            {
-                foreach (var invItem in allInvItems)
-                {
-                    if (invItem != null && invItem.Item != null && IsMatchingBallItem(invItem.Item, targetName))
-                    {
-                        // Tránh đếm trùng nếu đã đếm trong loop trước
-                        total = Mathf.Max(total, invItem.Amount);
-                    }
-                }
-            }
-        }
-
-        if (total <= 0)
-        {
-            var pdList = Resources.FindObjectsOfTypeAll<PlayerData>();
-            foreach (var data in pdList)
-            {
-                if (data.savedInventoryItems != null)
-                {
-                    foreach (var item in data.savedInventoryItems)
-                    {
-                        if (IsMatchingBallName(item.itemName, targetName))
-                        {
-                            total += item.amount;
-                        }
-                    }
-                    if (total > 0) break;
-                }
-            }
-        }
-
-        return total;
-    }
-
-    private void ConsumeOnePokeball()
-    {
-        string targetName = GetTargetBallName();
-
-        var playerInv = FindFirstObjectByType<Kinnly.PlayerInventory>();
-        if (playerInv != null)
-        {
-            var slots = new System.Collections.Generic.List<GameObject>();
-            if (playerInv.InventorySlots != null) slots.AddRange(playerInv.InventorySlots);
-            if (playerInv.ToolbarSlots != null) slots.AddRange(playerInv.ToolbarSlots);
-
-            foreach (var slot in slots)
-            {
-                if (slot != null)
-                {
-                    var invItem = slot.GetComponentInChildren<Kinnly.InventoryItem>(true);
-                    if (invItem != null && invItem.Item != null && IsMatchingBallItem(invItem.Item, targetName))
-                    {
-                        playerInv.RemoveItem(invItem, 1);
-                        playerInv.SaveNow();
-                        RefreshPokeballUI();
-                        return;
-                    }
-                }
-            }
-        }
-
-        var pd = Resources.FindObjectsOfTypeAll<PlayerData>();
-        foreach (var data in pd)
-        {
-            if (data.savedInventoryItems != null)
-            {
-                for (int i = 0; i < data.savedInventoryItems.Count; i++)
-                {
-                    var item = data.savedInventoryItems[i];
-                    if (IsMatchingBallName(item.itemName, targetName) && item.amount > 0)
-                    {
-                        var updated = item;
-                        updated.amount--;
-                        data.savedInventoryItems[i] = updated;
-                        if (updated.amount <= 0)
-                            data.savedInventoryItems.RemoveAt(i);
-                        data.Save();
-                        RefreshPokeballUI();
-                        return;
-                    }
-                }
-            }
-        }
-    }
-
+    /// <summary>
+    /// Cập nhật text hiển thị.
+    /// </summary>
     public void RefreshPokeballUI()
     {
-        int count = GetPokeballCount();
-        string display = $"x{count}";
+        string display = captureSessionActive ? $"{throwsLeft}/3" : "∞";
         if (pokeballCountText != null) pokeballCountText.text = display;
         if (pokeballCountTextTMP != null) pokeballCountTextTMP.text = display;
     }
 
     /// <summary>
-    /// Nguoi choi bam nut Pokeball. Bat dau hoac tiep tuc phien bat thu.
+    /// Người chơi bấm nút Pokeball -> Quăng bóng bắt thú ngay lập tức!
     /// </summary>
     public void OnPokeballButtonPressed()
     {
         if (BattleManager.Instance == null) return;
 
-        // Chi cho phep khi den luot nguoi choi
+        // Chỉ cho phép khi có quái địch hợp lệ
         var enemy = BattleManager.Instance.GetActiveEnemyUnit();
         if (enemy == null || !enemy.IsAlive) return;
 
+        // Kiểm tra xem có phải trận đấu Trainer / Gym không
+        BattleTransferData bData = Resources.Load<BattleTransferData>("BattleTransferData");
+        if (bData != null && (bData.isTrainerBattle || bData.isGymLeaderBattle))
+        {
+            Debug.LogWarning("[Capture] Không thể bắt thú cưng của Trainer hoặc Gym Leader!");
+            return;
+        }
+
         if (!captureSessionActive)
         {
-            // Bat dau phien moi
+            // Bắt đầu phiên mới
             targetEnemy = enemy;
             throwsLeft = 3;
             captureSessionActive = true;
             targetEnemy.ApplyStun();
-            Debug.Log($"[Capture] Bat dau quang cau! Quai {targetEnemy.Data.baseBeast.beastName} bi choang 3 luot.");
+            Debug.Log($"[Capture] Bắt đầu quăng bóng! Quái {targetEnemy.Data.baseBeast.beastName} bị choáng.");
         }
 
-        // Tieu thu 1 Pokeball
-        ConsumeOnePokeball();
         throwsLeft--;
+        RefreshPokeballUI();
 
-        // Tinh ti le bat
+        // Tính tỉ lệ bắt dựa trên lượng máu còn lại của quái
         float hpRatio = (float)targetEnemy.CurrentHP / targetEnemy.Data.MaxHP;
-        float hpModifier = hpRatio < 0.25f ? 0.70f
-                         : hpRatio < 0.50f ? 0.40f
-                         : 0.15f;
-        float finalRate = targetEnemy.Data.baseBeast.captureRate * hpModifier;
+        float hpModifier = hpRatio < 0.25f ? 0.85f
+                         : hpRatio < 0.50f ? 0.55f
+                         : 0.30f;
+        float baseRate = (targetEnemy.Data != null && targetEnemy.Data.baseBeast != null) ? targetEnemy.Data.baseBeast.captureRate : 0.5f;
+        float finalRate = Mathf.Clamp01(baseRate * hpModifier + 0.15f);
 
         float roll = UnityEngine.Random.value;
-        Debug.Log($"[Capture] Ti le bat: {finalRate:P0} (captureRate={targetEnemy.Data.baseBeast.captureRate}, hpMod={hpModifier}). Roll: {roll:F2}");
+        Debug.Log($"[Capture] Tỉ lệ bắt: {finalRate:P0} (Roll: {roll:F2}). Còn {throwsLeft} lần ném.");
 
         if (roll <= finalRate)
         {
-            // BAT THANH CONG
+            // BẮT THÀNH CÔNG
             captureSessionActive = false;
             targetEnemy.ClearStatus();
-            Debug.Log($"[Capture] BAT THANH CONG! {targetEnemy.Data.baseBeast.beastName} da duoc bat!");
+            Debug.Log($"[Capture] BẮT THÀNH CÔNG! {targetEnemy.Data.baseBeast.beastName} đã được thu phục!");
 
-            // Them vao kho thu cua nguoi choi
-            var pd = Resources.FindObjectsOfTypeAll<PlayerData>();
-            foreach (var data in pd)
+            // Thêm vào kho thú của người chơi
+            PlayerData pd = global::QuestManager.Instance != null && global::QuestManager.Instance.playerData != null
+                ? global::QuestManager.Instance.playerData
+                : Resources.Load<PlayerData>("PlayerData");
+
+            if (pd != null)
             {
-                if (data.currentFormation.Count > 0 || data.ownedBeasts.Count >= 0)
-                {
-                    data.AddBeast(targetEnemy.Data);
-                    data.Save();
-                    break;
-                }
+                pd.AddBeast(targetEnemy.Data);
+                pd.Save();
+            }
+
+            if (BattleManager.Instance != null)
+            {
+                BattleManager.Instance.OnCaptureBeastSuccess();
             }
 
             OnCaptureSessionEnd?.Invoke(true);
+            RefreshPokeballUI();
         }
         else
         {
-            // THAT BAI
-            Debug.Log($"[Capture] Quang cau that bai! Con {throwsLeft} luot.");
+            // THẤT BẠI
+            Debug.Log($"[Capture] Quăng bóng thất bại! Còn {throwsLeft} lượt ném.");
 
             if (throwsLeft <= 0)
             {
-                // Het luot -> quai tinh day, bo di
+                // Hết 3 lần ném -> quái tỉnh dậy và bỏ chạy
                 captureSessionActive = false;
                 targetEnemy.ClearStatus();
-                Debug.Log($"[Capture] {targetEnemy.Data.baseBeast.beastName} tinh day va bo di!");
+                Debug.Log($"[Capture] {targetEnemy.Data.baseBeast.beastName} tỉnh dậy và bỏ chạy mất!");
+
+                if (BattleManager.Instance != null)
+                {
+                    BattleManager.Instance.OnWildBeastFled();
+                }
+
                 OnCaptureSessionEnd?.Invoke(false);
+                RefreshPokeballUI();
             }
         }
     }
 
-    /// <summary>Huy phien bat (goi khi ket thuc tran).</summary>
+    /// <summary>Hủy phiên bắt (gọi khi kết thúc trận).</summary>
     public void CancelSession()
     {
         if (captureSessionActive && targetEnemy != null)
             targetEnemy.ClearStatus(BeastUnit.StatusEffect.Stunned);
         captureSessionActive = false;
+        RefreshPokeballUI();
     }
 
     public bool IsCaptureSessionActive => captureSessionActive;

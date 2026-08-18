@@ -63,7 +63,12 @@ public class SceneTransitionManager : MonoBehaviour
     /// <param name="sceneName">Tên scene cần chuyển tới</param>
     public void TransitionToScene(string sceneName)
     {
-        if (isTransitioning) return;
+        if (isTransitioning)
+        {
+            // Aǹ toàn: nếu bị kẹt quá 5 giây, tự reset
+            Debug.LogWarning("[SceneTransitionManager] isTransitioning=true, đang tự reset để tránh kẹt!");
+            isTransitioning = false;
+        }
         if (!gameObject.activeSelf) gameObject.SetActive(true);
         StartCoroutine(TransitionRoutine(sceneName));
     }
@@ -71,6 +76,7 @@ public class SceneTransitionManager : MonoBehaviour
     private IEnumerator TransitionRoutine(string sceneName)
     {
         isTransitioning = true;
+        bool completed = false;
         float startTime = Time.time;
 
         // Bật chặn raycast và force active CanvasGroup để chắc chắn nó hiển thị
@@ -260,6 +266,63 @@ public class SceneTransitionManager : MonoBehaviour
                 Debug.Log($"[SceneTransitionManager] Đã khôi phục vị trí người chơi về: {battleData.lastPlayerPosition}");
             }
         }
+        else
+        {
+            // Kiểm tra điểm SpawnPoint nếu không phải hồi sinh sau trận đánh
+            PlayerData pData = global::QuestManager.Instance != null && global::QuestManager.Instance.playerData != null 
+                ? global::QuestManager.Instance.playerData 
+                : Resources.Load<PlayerData>("PlayerData");
+
+            if (pData != null && !string.IsNullOrEmpty(pData.targetSpawnPointId))
+            {
+                MapSpawnPoint[] allSpawns = Object.FindObjectsByType<MapSpawnPoint>(FindObjectsSortMode.None);
+                foreach (var sp in allSpawns)
+                {
+                    if (sp != null && sp.spawnId == pData.targetSpawnPointId)
+                    {
+                        GameObject player = GameObject.FindGameObjectWithTag("Player");
+                        if (player != null)
+                        {
+                            player.transform.position = sp.transform.position;
+                            Debug.Log($"[SceneTransitionManager] Đã đưa Player đến SpawnPoint: {sp.spawnId} ({sp.transform.position})");
+                        }
+                        pData.targetSpawnPointId = "";
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Đảm bảo mở khóa di chuyển cho người chơi sau khi tải xong Scene
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null)
+        {
+            PlayerMapController playerCtrl = playerObj.GetComponent<PlayerMapController>();
+            if (playerCtrl != null)
+            {
+                playerCtrl.SetCanMove(true);
+            }
+
+            // Đồng bộ Camera ngay lập tức về vị trí Player (tránh camera bị kẹt ở tọa độ của scene cũ)
+            CameraMovement camMovement = Object.FindFirstObjectByType<CameraMovement>();
+            if (camMovement != null)
+            {
+                camMovement.ResetBounds(); // Xóa khung giới hạn của map cũ
+
+                // Tìm xem map mới có CameraZoneConfiner không để tự động gán khung mới
+                CameraZoneConfiner zone = Object.FindFirstObjectByType<CameraZoneConfiner>();
+                if (zone != null)
+                {
+                    zone.ApplyZoneCameraBounds();
+                }
+
+                camMovement.target = playerObj.transform;
+                camMovement.SnapToTarget();
+            }
+        }
+
+        // RESET ngay sau khi scene đã load xong — để không bị kẹt dù fade lỗi
+        isTransitioning = false;
 
         // Fade in (làm sáng dần màn hình game, ẩn màn hình loading)
         if (transitionCanvasGroup != null)
@@ -275,7 +338,5 @@ public class SceneTransitionManager : MonoBehaviour
         {
             yield return new WaitForSeconds(fadeDuration);
         }
-
-        isTransitioning = false;
     }
 }
