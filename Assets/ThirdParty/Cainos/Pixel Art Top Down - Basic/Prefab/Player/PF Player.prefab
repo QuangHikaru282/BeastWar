@@ -902,7 +902,7 @@ Transform:
   m_GameObject: {fileID: 869040199099344845}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.04, y: 0.81, z: 0}
+  m_LocalPosition: {x: -0.09, y: 0.9, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1058,7 +1058,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -10.9157715, y: -0.45062256}
+  m_AnchoredPosition: {x: -10.9157715, y: -0.4506836}
   m_SizeDelta: {x: 91.6927, y: 138.8206}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6036984277941919716
@@ -3836,7 +3836,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2101743270395311432
 Transform:
   m_ObjectHideFlags: 0
@@ -5678,18 +5678,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Kinnly.PlayerLiftSelectedItem
   liftKey: 103
+  horizontalAxis: Horizontal
+  verticalAxis: Vertical
   playerInventory: {fileID: 8957567572599846935}
-  playerAnimator: {fileID: 3165968731480756795}
+  playerAnimator: {fileID: 5000531535419032662}
   liftBoolName: IsLiftingItem
+  speedParameter: speed
+  directionXParameter: dirX
+  directionYParameter: dirY
+  updateMovementParameters: 1
+  defaultDirection: {x: 0, y: -1}
+  movementThreshold: 0.01
+  playerSpriteRenderer: {fileID: 0}
+  pickUp3FacesRight: 1
   handItemPoint: {fileID: 3389078806423997318}
   liftItemPoint: {fileID: 3389078806423997318}
   liftedItemRenderer: {fileID: 3985378739513556221}
   normalHeldItemVisual: {fileID: 0}
-  playerMovement: {fileID: 5722142430092327172}
-  playerRigidbody: {fileID: 5628018141983903117}
-  lockMovementWhileLifting: 1
-  liftDuration: 0.35
-  liftedItemScale: {x: 1, y: 1, z: 1}
+  fixedItemSize: 0.7
+  itemRevealDelay: 0.5
+  keepItemWorldRotation: 1
 --- !u!1 &5707580210119010585
 GameObject:
   m_ObjectHideFlags: 0
