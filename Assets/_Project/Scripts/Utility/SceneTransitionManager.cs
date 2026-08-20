@@ -21,6 +21,7 @@ public class SceneTransitionManager : MonoBehaviour
     [SerializeField] private float minShowTime = 0.5f;
 
     private bool isTransitioning = false;
+    public bool IsTransitioning => isTransitioning;
 
     private void Awake()
     {

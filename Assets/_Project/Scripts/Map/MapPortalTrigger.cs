@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using TMPro;
 
 /// <summary>
@@ -29,75 +29,75 @@ public class MapPortalTrigger : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player"))
+        if (!collision.CompareTag("Player")) return;
+        if (SceneTransitionManager.Instance != null && SceneTransitionManager.Instance.IsTransitioning) return;
+
+        // Kiểm tra xem Quest hiện tại đã vượt qua yêu cầu chưa
+        bool isUnlocked = true;
+        if (requiredQuestIdToUnlock > 0 && global::QuestManager.Instance != null && global::QuestManager.Instance.playerData != null)
         {
-            // Kiểm tra xem Quest hiện tại đã vượt qua yêu cầu chưa
-            bool isUnlocked = true;
-            if (requiredQuestIdToUnlock > 0 && global::QuestManager.Instance != null && global::QuestManager.Instance.playerData != null)
+            // Yêu cầu hoàn thành quest số N (khi hoàn thành quest N thì currentMainQuestId >= N)
+            isUnlocked = global::QuestManager.Instance.playerData.currentMainQuestId >= requiredQuestIdToUnlock;
+        }
+
+        if (isUnlocked)
+        {
+            Debug.Log($"[Portal] Đang di chuyển sang map: {targetMapName}...");
+            
+            // 1. Khóa chuyển động của người chơi để không chạy lung tung trong lúc màn hình đen
+            PlayerMapController playerCtrl = collision.GetComponent<PlayerMapController>();
+            if (playerCtrl != null)
             {
-                // Yêu cầu hoàn thành quest số N (khi hoàn thành quest N thì currentMainQuestId >= N)
-                isUnlocked = global::QuestManager.Instance.playerData.currentMainQuestId >= requiredQuestIdToUnlock;
+                playerCtrl.SetCanMove(false);
             }
 
-            if (isUnlocked)
+            // 2. Ghi nhớ Spawn ID vào PlayerData (nếu có)
+            if (global::QuestManager.Instance != null && global::QuestManager.Instance.playerData != null)
             {
-                Debug.Log($"[Portal] Đang di chuyển sang map: {targetMapName}...");
-                
-                // 1. Khóa chuyển động của người chơi để không chạy lung tung trong lúc màn hình đen
-                PlayerMapController playerCtrl = collision.GetComponent<PlayerMapController>();
-                if (playerCtrl != null)
-                {
-                    playerCtrl.SetCanMove(false);
-                }
-
-                // 2. Ghi nhớ Spawn ID vào PlayerData (nếu có)
-                if (global::QuestManager.Instance != null && global::QuestManager.Instance.playerData != null)
-                {
-                    global::QuestManager.Instance.playerData.targetSpawnPointId = targetSpawnPointId;
-                }
-                else
-                {
-                    // Dự phòng nếu không có QuestManager
-                    PlayerData pData = Resources.Load<PlayerData>("PlayerData");
-                    if (pData != null) pData.targetSpawnPointId = targetSpawnPointId;
-                }
-                
-                // 3. Gọi Scene Transition (Chuyển cảnh làm mờ)
-                string finalSceneToLoad = targetSceneName;
-                bool isGameCoreLoaded = false;
-                for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
-                {
-                    if (UnityEngine.SceneManagement.SceneManager.GetSceneAt(i).name == "GameCore")
-                    {
-                        isGameCoreLoaded = true;
-                        break;
-                    }
-                }
-
-                if (isGameCoreLoaded && !finalSceneToLoad.Contains("GameCore"))
-                {
-                    finalSceneToLoad = "GameCore," + finalSceneToLoad;
-                }
-
-                if (SceneTransitionManager.Instance != null)
-                {
-                    SceneTransitionManager.Instance.TransitionToScene(finalSceneToLoad);
-                }
-                else
-                {
-                    UnityEngine.SceneManagement.SceneManager.LoadScene(finalSceneToLoad);
-                }
+                global::QuestManager.Instance.playerData.targetSpawnPointId = targetSpawnPointId;
             }
             else
             {
-                Debug.Log($"[Portal] Map {targetMapName} bị chặn! Yêu cầu hoàn thành Nhiệm Vụ số {requiredQuestIdToUnlock}.");
-                
-                if (notificationText != null)
+                // Dự phòng nếu không có QuestManager
+                PlayerData pData = Resources.Load<PlayerData>("PlayerData");
+                if (pData != null) pData.targetSpawnPointId = targetSpawnPointId;
+            }
+            
+            // 3. Gọi Scene Transition (Chuyển cảnh làm mờ)
+            string finalSceneToLoad = targetSceneName;
+            bool isGameCoreLoaded = false;
+            for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
+            {
+                if (UnityEngine.SceneManagement.SceneManager.GetSceneAt(i).name == "GameCore")
                 {
-                    notificationText.text = lockedMessage;
-                    notificationText.gameObject.SetActive(true);
-                    Invoke("HideNotification", 3f); // Tắt thông báo sau 3 giây
+                    isGameCoreLoaded = true;
+                    break;
                 }
+            }
+
+            if (isGameCoreLoaded && !finalSceneToLoad.Contains("GameCore"))
+            {
+                finalSceneToLoad = "GameCore," + finalSceneToLoad;
+            }
+
+            if (SceneTransitionManager.Instance != null)
+            {
+                SceneTransitionManager.Instance.TransitionToScene(finalSceneToLoad);
+            }
+            else
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene(finalSceneToLoad);
+            }
+        }
+        else
+        {
+            Debug.Log($"[Portal] Map {targetMapName} bị chặn! Yêu cầu hoàn thành Nhiệm Vụ số {requiredQuestIdToUnlock}.");
+            
+            if (notificationText != null)
+            {
+                notificationText.text = lockedMessage;
+                notificationText.gameObject.SetActive(true);
+                Invoke("HideNotification", 3f); // Tắt thông báo sau 3 giây
             }
         }
     }
