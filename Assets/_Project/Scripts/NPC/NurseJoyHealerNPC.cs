@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
@@ -35,6 +35,13 @@ public class NurseJoyHealerNPC : MonoBehaviour, Kinnly.IInteractable
     [Tooltip("AudioClip phát chuông hồi phục kiểu PokeCenter (nếu có)")]
     [SerializeField] private AudioClip healSound;
     [SerializeField] private AudioSource audioSource;
+
+    [Header("Cấu hình Checkpoint Hồi Sinh (Tùy chọn)")]
+    [Tooltip("Tích chọn nếu muốn nói chuyện với NPC này sẽ được cập nhật điểm hồi sinh (ví dụ: Mẹ ở nhà / Y tá ở trạm xá)")]
+    [SerializeField] private bool updateRespawnCheckpoint = false;
+    [Tooltip("Tên Scene và ID Spawn hồi sinh (để trống sẽ lấy Scene hiện tại)")]
+    [SerializeField] private string checkpointSceneName = "";
+    [SerializeField] private string checkpointSpawnPointId = "";
 
     private bool isHealing = false;
 
@@ -146,9 +153,23 @@ public class NurseJoyHealerNPC : MonoBehaviour, Kinnly.IInteractable
             }
         }
 
+        // 3. Cập nhật checkpoint nếu được bật
+        if (updateRespawnCheckpoint)
+        {
+            string sceneName = string.IsNullOrEmpty(checkpointSceneName) 
+                ? UnityEngine.SceneManagement.SceneManager.GetActiveScene().name 
+                : checkpointSceneName;
+            
+            pData.respawnSceneName = sceneName;
+            if (!string.IsNullOrEmpty(checkpointSpawnPointId))
+            {
+                pData.respawnSpawnPointId = checkpointSpawnPointId;
+            }
+        }
+
         // Lưu lại dữ liệu sau khi hồi máu
         pData.Save();
 
-        Debug.Log($"<color=green>[Healer Center]</color> Đã hồi phục đầy 100% máu cho toàn bộ {healedCount} thú cưng trong đội hình!");
+        Debug.Log($"<color=green>[Healer]</color> Đã hồi phục đầy 100% máu cho toàn bộ {healedCount} thú cưng trong đội hình!");
     }
 }

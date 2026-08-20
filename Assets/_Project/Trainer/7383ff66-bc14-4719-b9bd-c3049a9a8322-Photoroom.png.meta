@@ -1,10 +1,16 @@
 fileFormatVersion: 2
-guid: c60046a9838206d48bd2d9482054653f
+guid: a9d9601001665c440bebd0a547ff56d5
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 9136880041391019705
-    second: sr2a947c8f967b8-removebg-preview_0
+      213: 1966093876850645413
+    second: 7383ff66-bc14-4719-b9bd-c3049a9a8322-Photoroom_0
+  - first:
+      213: -2425189221416879796
+    second: 7383ff66-bc14-4719-b9bd-c3049a9a8322-Photoroom_1
+  - first:
+      213: -5728524990551142011
+    second: 7383ff66-bc14-4719-b9bd-c3049a9a8322-Photoroom_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,12 +52,12 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 500
+  spritePixelsToUnits: 400
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -100,13 +106,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: sr2a947c8f967b8-removebg-preview_0
+      name: 7383ff66-bc14-4719-b9bd-c3049a9a8322-Photoroom_0
       rect:
         serializedVersion: 2
-        x: 61
-        y: 92
-        width: 378
-        height: 379
+        x: 22
+        y: 5
+        width: 287
+        height: 389
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +121,52 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9b6d7760df7bcce70800000000000000
-      internalID: 9136880041391019705
+      spriteID: 5a9d0c4d6f7f84b10800000000000000
+      internalID: 1966093876850645413
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 7383ff66-bc14-4719-b9bd-c3049a9a8322-Photoroom_1
+      rect:
+        serializedVersion: 2
+        x: 367
+        y: 25
+        width: 287
+        height: 390
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c493758904ff75ed0800000000000000
+      internalID: -2425189221416879796
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 7383ff66-bc14-4719-b9bd-c3049a9a8322-Photoroom_2
+      rect:
+        serializedVersion: 2
+        x: 711
+        y: 5
+        width: 287
+        height: 389
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 58150434fd03080b0800000000000000
+      internalID: -5728524990551142011
       vertices: []
       indices: 
       edges: []
@@ -125,7 +175,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +185,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      sr2a947c8f967b8-removebg-preview_0: 9136880041391019705
+      7383ff66-bc14-4719-b9bd-c3049a9a8322-Photoroom_0: 1966093876850645413
+      7383ff66-bc14-4719-b9bd-c3049a9a8322-Photoroom_1: -2425189221416879796
+      7383ff66-bc14-4719-b9bd-c3049a9a8322-Photoroom_2: -5728524990551142011
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

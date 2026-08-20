@@ -32,6 +32,13 @@ public class PlayerData : ScriptableObject
     
     [Tooltip("ID của điểm sinh ra (Spawn Point) sẽ dùng khi tải Map mới")]
     public string targetSpawnPointId = "";
+
+    [Header("Điểm Hồi Sinh (Pokémon Center Checkpoint)")]
+    [Tooltip("Tên Scene Trung tâm Pokémon gần nhất đã ghé thăm")]
+    public string respawnSceneName = "Lau1";
+
+    [Tooltip("ID của SpawnPoint xuất hiện ở Trung tâm Pokémon đó")]
+    public string respawnSpawnPointId = "1";
     
     [Header("Trainer đã đánh bại")]
     public List<string> defeatedTrainers = new List<string>();
@@ -113,6 +120,8 @@ public class PlayerData : ScriptableObject
         gold = 0;
         characterGender = "Male";
         currentMainQuestId = 0;
+        respawnSceneName = "Lau1";
+        respawnSpawnPointId = "1";
         Save();
     }
 
@@ -131,6 +140,8 @@ public class PlayerData : ScriptableObject
         public List<string> defeatedTrainers;
         public List<string> gymBadges;
         public List<SavedItem> savedInventoryItems;
+        public string respawnSceneName;
+        public string respawnSpawnPointId;
     }
 
     [System.Serializable]
@@ -290,7 +301,9 @@ public class PlayerData : ScriptableObject
             unlockedMaps = this.unlockedMaps,
             defeatedTrainers = this.defeatedTrainers,
             gymBadges = this.gymBadges,
-            savedInventoryItems = this.savedInventoryItems
+            savedInventoryItems = this.savedInventoryItems,
+            respawnSceneName = this.respawnSceneName,
+            respawnSpawnPointId = this.respawnSpawnPointId
         };
 
         foreach (var b in ownedBeasts) 
@@ -330,6 +343,14 @@ public class PlayerData : ScriptableObject
         if (data.savedInventoryItems != null)
         {
             this.savedInventoryItems = data.savedInventoryItems;
+        }
+        if (!string.IsNullOrEmpty(data.respawnSceneName))
+        {
+            this.respawnSceneName = data.respawnSceneName;
+        }
+        if (!string.IsNullOrEmpty(data.respawnSpawnPointId))
+        {
+            this.respawnSpawnPointId = data.respawnSpawnPointId;
         }
 
         Debug.Log($"[PlayerData] Load thành công từ File. Tiền: {gold}, Đội hình: {currentFormation.Count} thú.");

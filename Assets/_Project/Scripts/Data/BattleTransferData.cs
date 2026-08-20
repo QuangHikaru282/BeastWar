@@ -38,6 +38,9 @@ public class BattleTransferData : ScriptableObject
     [Tooltip("ID của Huy hiệu Gym sẽ trao khi đánh bại Gym Leader này")]
     public string rewardBadgeId = "";
 
+    [Tooltip("Số vàng thưởng riêng cho trận này (nếu > 0 sẽ ưu tiên dùng số này)")]
+    public int customRewardGold = 0;
+
     [Header("Đội địch (gặp trên Map/Hunting)")]
     public List<RuntimeBeastData> wildEnemyTeam = new List<RuntimeBeastData>();
 
@@ -64,6 +67,7 @@ public class BattleTransferData : ScriptableObject
         isTrainerBattle = false;
         isGymLeaderBattle = false;   // QUAN TRỌNG: reset để tránh trao badge nhầm
         rewardBadgeId = "";          // QUAN TRỌNG: reset để tránh trao badge cũ
+        customRewardGold = 0;
         currentArenaStageId = -1;
     }
 }

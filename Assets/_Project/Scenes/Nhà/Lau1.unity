@@ -249,6 +249,8 @@ MonoBehaviour:
   requireQuestUnlock: 0
   requiredQuestId: 0
   lockedMessage: "C\u1EEDa n\xE0y \u0111ang kh\xF3a!"
+  isRespawnCheckpoint: 0
+  outsideRespawnSpawnPointId: FromTown
 --- !u!61 &373272681
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -468,6 +470,7 @@ GameObject:
   - component: {fileID: 1448600709}
   - component: {fileID: 1448600712}
   - component: {fileID: 1448600711}
+  - component: {fileID: 1448600713}
   m_Layer: 0
   m_Name: Gemini_Generated_Image_ngysrngysrngysrn__2_-removebg-preview_0
   m_TagString: Untagged
@@ -614,6 +617,32 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1.93, y: 2.31}
   m_EdgeRadius: 0
+--- !u!114 &1448600713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1448600708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ad3ff8700ee4444eaee802cdcf1a0f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NurseJoyHealerNPC
+  playerData: {fileID: 11400000, guid: 86002785663fef148821f3bc0a8c1986, type: 2}
+  nurseAvatar: {fileID: 0}
+  npcName: "M\u1EB9"
+  welcomeDialogue: "Con \u0111\xE3 v\u1EC1 r\u1ED3i \xE0? H\xE3y ng\u1ED3i ngh\u1EC9
+    ng\u01A1i \u0111\u1EC3 m\u1EB9 ch\u0103m s\xF3c cho c\xE1c b\xE9 th\xFA c\u01B0ng
+    c\u1EE7a con nh\xE9!"
+  healedDialogue: "C\xE1c b\xE9 th\xFA c\u01B0ng \u0111\xE3 kh\u1ECFe m\u1EA1nh v\xE0
+    tr\xE0n \u0111\u1EA7y n\u0103ng l\u01B0\u1EE3ng r\u1ED3i! Con nh\u1EDB gi\u1EEF
+    g\xECn s\u1EE9c kh\u1ECFe nh\xE9!"
+  healSound: {fileID: 0}
+  audioSource: {fileID: 0}
+  updateRespawnCheckpoint: 1
+  checkpointSceneName: 
+  checkpointSpawnPointId: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

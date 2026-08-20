@@ -70610,6 +70610,8 @@ MonoBehaviour:
   requireQuestUnlock: 0
   requiredQuestId: 0
   lockedMessage: "C\u1EEDa n\xE0y \u0111ang kh\xF3a!"
+  isRespawnCheckpoint: 1
+  outsideRespawnSpawnPointId: SpawnPoint_FromInside
 --- !u!61 &1829509929
 BoxCollider2D:
   m_ObjectHideFlags: 0

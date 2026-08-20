@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -83,13 +83,35 @@ public class BattleKeyboardNavigationUI : MonoBehaviour
         }
     }
 
+    public void FocusFirstSkill()
+    {
+        StartCoroutine(CoFocusFirstSkill());
+    }
+
+    private IEnumerator CoFocusFirstSkill()
+    {
+        yield return null; // Đợi frame tiếp theo khi các nút skill đã active và bố trí xong
+        var activeList = GetActiveMainBarButtons();
+        if (activeList.Count == 0) yield break;
+
+        int targetIndex = -1;
+        if (skillButtons != null && skillButtons.Length > 0 && skillButtons[0] != null && skillButtons[0].gameObject.activeInHierarchy)
+        {
+            targetIndex = activeList.IndexOf(skillButtons[0]);
+        }
+
+        if (targetIndex < 0)
+        {
+            targetIndex = activeList.Count > 2 ? 2 : 0;
+        }
+
+        mainBarIndex = targetIndex;
+        FocusMainBarButton(mainBarIndex);
+    }
+
     private void SelectInitialMainButton()
     {
-        var activeList = GetActiveMainBarButtons();
-        if (activeList.Count == 0) return;
-
-        mainBarIndex = activeList.Count > 2 ? 2 : 0;
-        FocusMainBarButton(mainBarIndex);
+        FocusFirstSkill();
     }
 
     private void Update()

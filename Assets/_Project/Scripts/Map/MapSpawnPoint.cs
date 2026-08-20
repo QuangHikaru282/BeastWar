@@ -28,9 +28,24 @@ public class MapSpawnPoint : MonoBehaviour
             {
                 // 3. Đưa nhân vật tới đúng tọa độ này
                 GameObject player = GameObject.FindGameObjectWithTag("Player");
+                if (player == null)
+                {
+                    PlayerMapController pmc = Object.FindFirstObjectByType<PlayerMapController>();
+                    if (pmc != null) player = pmc.gameObject;
+                }
+                if (player == null) player = GameObject.Find("PF Player");
+
                 if (player != null)
                 {
                     player.transform.position = transform.position;
+
+                    // Đồng bộ Camera về vị trí nhân vật ngay lập tức
+                    CameraMovement cam = Object.FindFirstObjectByType<CameraMovement>();
+                    if (cam != null)
+                    {
+                        cam.target = player.transform;
+                        cam.SnapToTarget();
+                    }
                     
                     // 4. Mở khóa cho nhân vật di chuyển lại bình thường
                     PlayerMapController playerCtrl = player.GetComponent<PlayerMapController>();

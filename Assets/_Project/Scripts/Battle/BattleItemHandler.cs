@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
@@ -151,5 +151,17 @@ public class BattleItemHandler : MonoBehaviour
         }
 
         return success;
+    }
+
+    /// <summary>Dùng 1 item theo tên (ví dụ Pokeball).</summary>
+    public bool UseItemByName(string itemName)
+    {
+        int count = GetItemCount(itemName);
+        if (count > 0)
+        {
+            ConsumeItem(itemName);
+            return true;
+        }
+        return false;
     }
 }

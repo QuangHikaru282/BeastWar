@@ -4486,6 +4486,7 @@ GameObject:
   - component: {fileID: 390512406}
   - component: {fileID: 390512405}
   - component: {fileID: 390512407}
+  - component: {fileID: 390512408}
   m_Layer: 0
   m_Name: NPCHouse3
   m_TagString: Untagged
@@ -4505,7 +4506,8 @@ Transform:
   m_LocalPosition: {x: -27.13, y: 2.55, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1723797399}
   m_Father: {fileID: 766096656}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!60 &390512405
@@ -4554,16 +4556,18 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 2.8948536, y: -1.9289179}
-      - {x: 2.9060879, y: -1.303072}
-      - {x: 0.6640587, y: -1.3180933}
-      - {x: -2.924755, y: -1.351429}
-      - {x: -2.9248943, y: -1.9090662}
-      - {x: -2.7596645, y: -1.9008942}
-      - {x: -2.7373962, y: -3.503625}
-      - {x: 2.7373943, y: -3.4886036}
-      - {x: 2.7373943, y: -3.513813}
-      - {x: 2.6845608, y: -1.92558}
+    - - {x: 1.8005428, y: -2.800315}
+      - {x: 2.6629124, y: -2.4379177}
+      - {x: 3.15666, y: -1.5410109}
+      - {x: 2.4502563, y: -0.12646294}
+      - {x: -0.86239815, y: -0.16355324}
+      - {x: -2.8842278, y: -0.1963234}
+      - {x: -2.8640995, y: -1.564559}
+      - {x: -2.6988697, y: -2.164339}
+      - {x: -2.5144825, y: -2.7132883}
+      - {x: -0.5860729, y: -2.961712}
+      - {x: 0.42717934, y: -2.9666576}
+      - {x: 1.286272, y: -2.9185667}
   m_UseDelaunayMesh: 1
 --- !u!212 &390512406
 SpriteRenderer:
@@ -4642,6 +4646,54 @@ MonoBehaviour:
   requireQuestUnlock: 0
   requiredQuestId: 0
   lockedMessage: "C\u1EEDa n\xE0y \u0111ang kh\xF3a!"
+  isRespawnCheckpoint: 1
+  outsideRespawnSpawnPointId: HealCenter_Spawn
+--- !u!61 &390512408
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 390512403}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: -0.17225361, y: -0.94232464}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 5.731436, y: 4.6400003}
+    newSize: {x: 6, y: 7.1875}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 4.57633, y: 1.782629}
+  m_EdgeRadius: 0
 --- !u!1001 &394679393
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11620,6 +11672,8 @@ MonoBehaviour:
   requireQuestUnlock: 0
   requiredQuestId: 0
   lockedMessage: "C\u1EEDa n\xE0y \u0111ang kh\xF3a!"
+  isRespawnCheckpoint: 0
+  outsideRespawnSpawnPointId: FromTown
 --- !u!1 &1045132443
 GameObject:
   m_ObjectHideFlags: 0
@@ -67202,7 +67256,7 @@ Tilemap:
       - {fileID: 1168441397, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: 700178016, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: -717414383, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
-      m_AnimationSpeed: 3.0000002
+      m_AnimationSpeed: 3
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: 52, y: -8, z: 0}
@@ -67242,7 +67296,7 @@ Tilemap:
       - {fileID: -989134415111674395, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: -3644940872334523152, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: 4845831617191762501, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
-      m_AnimationSpeed: 3.0000002
+      m_AnimationSpeed: 3
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: 44, y: -7, z: 0}
@@ -67272,7 +67326,7 @@ Tilemap:
       - {fileID: 3291914812987065182, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: -3155058853054514227, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: 7670101274396148412, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
-      m_AnimationSpeed: 3
+      m_AnimationSpeed: 3.0000002
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: -24, y: 3, z: 0}
@@ -67332,7 +67386,7 @@ Tilemap:
       - {fileID: 3291914812987065182, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: -3155058853054514227, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: 7670101274396148412, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
-      m_AnimationSpeed: 3.0000002
+      m_AnimationSpeed: 3
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: 6, y: 4, z: 0}
@@ -67392,7 +67446,7 @@ Tilemap:
       - {fileID: 155882333, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: 1328193532, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: 494449804, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
-      m_AnimationSpeed: 3
+      m_AnimationSpeed: 3.0000002
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: 27, y: 7, z: 0}
@@ -67442,7 +67496,7 @@ Tilemap:
       - {fileID: 1168441397, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: 700178016, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: -717414383, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
-      m_AnimationSpeed: 3
+      m_AnimationSpeed: 3.0000002
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: -13, y: 23, z: 0}
@@ -67492,7 +67546,7 @@ Tilemap:
       - {fileID: 3291914812987065182, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: -3155058853054514227, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: 7670101274396148412, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
-      m_AnimationSpeed: 3
+      m_AnimationSpeed: 3.0000002
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: 40, y: 24, z: 0}
@@ -171065,7 +171119,7 @@ Tilemap:
       - {fileID: 1606770360, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
       - {fileID: -1556094043, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
       - {fileID: -161819268, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
-      m_AnimationSpeed: 10.000001
+      m_AnimationSpeed: 10
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: -39, y: 21, z: 0}
@@ -171110,7 +171164,7 @@ Tilemap:
       - {fileID: 1578791234, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
       - {fileID: -645570173, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
       - {fileID: 386743306, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
-      m_AnimationSpeed: 10
+      m_AnimationSpeed: 10.000001
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: -40, y: 22, z: 0}
@@ -180856,7 +180910,7 @@ Tilemap:
       - {fileID: -229977055, guid: 83ffe9d2606aa8444a8240427c56ec6c, type: 3}
       - {fileID: 800156990, guid: 83ffe9d2606aa8444a8240427c56ec6c, type: 3}
       - {fileID: -1084066737, guid: 83ffe9d2606aa8444a8240427c56ec6c, type: 3}
-      m_AnimationSpeed: 5.0000005
+      m_AnimationSpeed: 5
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: 31, y: -37, z: 0}
@@ -180922,7 +180976,7 @@ Tilemap:
       - {fileID: 1724023595, guid: 83ffe9d2606aa8444a8240427c56ec6c, type: 3}
       - {fileID: -528757724, guid: 83ffe9d2606aa8444a8240427c56ec6c, type: 3}
       - {fileID: 391746736, guid: 83ffe9d2606aa8444a8240427c56ec6c, type: 3}
-      m_AnimationSpeed: 5.0000005
+      m_AnimationSpeed: 5
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: 31, y: -36, z: 0}
@@ -182648,7 +182702,7 @@ Tilemap:
       - {fileID: -547863, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
       - {fileID: -1879126959, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
       - {fileID: -829700102, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
-      m_AnimationSpeed: 10
+      m_AnimationSpeed: 10.000001
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: -47, y: 0, z: 0}
@@ -182730,7 +182784,7 @@ Tilemap:
       - {fileID: 77814912, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
       - {fileID: -1987085635, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
       - {fileID: -2108022486, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
-      m_AnimationSpeed: 10.000001
+      m_AnimationSpeed: 10
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: -36, y: 1, z: 0}
@@ -182890,7 +182944,7 @@ Tilemap:
       - {fileID: 710999524, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
       - {fileID: 148398794, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
       - {fileID: 559719293, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
-      m_AnimationSpeed: 10.000001
+      m_AnimationSpeed: 10
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: -5, y: 2, z: 0}
@@ -185370,6 +185424,51 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4188126895270025987, guid: 1e41ed6edbf28c44c848fc8ceb6dd123, type: 3}
   m_PrefabInstance: {fileID: 1718320612}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1723797398
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1723797399}
+  - component: {fileID: 1723797400}
+  m_Layer: 0
+  m_Name: SpawnPoint_HealCenter
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1723797399
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1723797398}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -2.7, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 390512404}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1723797400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1723797398}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e9f0cc2cead05049ada4db5b63cf0b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapSpawnPoint
+  spawnId: HealCenter_Spawn
 --- !u!4 &1727176840 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5808340298366513195, guid: f7b30a1ae236b9d4b9ffa6cb34da40f2, type: 3}

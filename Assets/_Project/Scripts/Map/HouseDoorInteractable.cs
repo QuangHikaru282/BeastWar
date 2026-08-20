@@ -29,6 +29,13 @@ public class HouseDoorInteractable : MonoBehaviour, IInteractable
     [Tooltip("Thông báo hiển thị khi cửa bị khóa")]
     [SerializeField] private string lockedMessage = "Cửa này đang khóa!";
 
+    [Header("Checkpoint Hồi Sinh Trạm Xá (Tùy chọn)")]
+    [Tooltip("Tick chọn nếu ngôi nhà này là Trung Tâm Pokémon / Điểm lưu hồi sinh khi thua trận")]
+    [SerializeField] private bool isRespawnCheckpoint = false;
+
+    [Tooltip("ID của SpawnPoint trước cửa trạm xá (dùng để hồi sinh tại đây khi thua trận)")]
+    [SerializeField] private string outsideRespawnSpawnPointId = "FromTown";
+
     public void Interact(PlayerInventory playerInventory)
     {
         // 1. Kiểm tra điều kiện mở khóa (nếu có yêu cầu)
@@ -77,6 +84,22 @@ public class HouseDoorInteractable : MonoBehaviour, IInteractable
             if (loadedData != null)
             {
                 loadedData.targetSpawnPointId = targetSpawnPointId;
+            }
+        }
+
+        // Cập nhật điểm hồi sinh nếu đây là Trung Tâm Pokémon / Trạm xá
+        if (isRespawnCheckpoint)
+        {
+            PlayerData pDataToSave = QuestManager.Instance != null && QuestManager.Instance.playerData != null 
+                ? QuestManager.Instance.playerData 
+                : (playerData != null ? playerData : Resources.Load<PlayerData>("PlayerData"));
+            
+            if (pDataToSave != null)
+            {
+                pDataToSave.respawnSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+                pDataToSave.respawnSpawnPointId = outsideRespawnSpawnPointId;
+                pDataToSave.Save();
+                Debug.Log($"<color=green>[Checkpoint]</color> Đã cập nhật Điểm hồi sinh: Scene='{pDataToSave.respawnSceneName}', SpawnId='{outsideRespawnSpawnPointId}'");
             }
         }
 

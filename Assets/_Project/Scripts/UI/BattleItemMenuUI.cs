@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -256,11 +256,21 @@ public class BattleItemMenuUI : MonoBehaviour
 
     private void OnPokeballClicked()
     {
+        Debug.Log("<color=yellow>[BattleItemMenuUI] Đã bấm vào ô Pokéball!</color>");
         CloseMenu();
-        if (BattleCaptureHandler.Instance != null)
+        
+        var handler = BattleCaptureHandler.Instance != null 
+            ? BattleCaptureHandler.Instance 
+            : FindFirstObjectByType<BattleCaptureHandler>();
+
+        if (handler != null)
         {
-            BattleCaptureHandler.Instance.OnPokeballButtonPressed();
-            BattleCaptureHandler.Instance.RefreshPokeballUI();
+            handler.OnPokeballButtonPressed();
+            handler.RefreshPokeballUI();
+        }
+        else
+        {
+            Debug.LogError("[BattleItemMenuUI] Không tìm thấy BattleCaptureHandler trong Scene!");
         }
     }
 

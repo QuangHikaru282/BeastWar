@@ -404,7 +404,7 @@ public class BattleManager : MonoBehaviour
         {
             state = BattleState.BattleEnd;
             yield return new WaitForSeconds(1f);
-            BattleUIManager.Instance?.ShowBattleReward(0, 0, ReturnToMap);
+            BattleUIManager.Instance?.ShowBattleReward(0, 0, () => ReturnToMap(true));
             yield break;
         }
 
@@ -584,12 +584,20 @@ public class BattleManager : MonoBehaviour
             // Tính tổng Vàng và EXP từ các quái vật địch đã bị đánh bại
             totalGoldToGive = currentStageData != null ? currentStageData.rewardGold : 0; // Vàng cơ bản của màn chơi
             
+            if (battleTransferData != null && battleTransferData.customRewardGold > 0)
+            {
+                totalGoldToGive += battleTransferData.customRewardGold;
+            }
+
             foreach (var b in enemyTeam)
             {
-                if (b != null && b.Data != null)
+                if (b != null && b.Data != null && b.Data.baseBeast != null)
                 {
                     totalExpToGive += b.Data.baseBeast.rewardExp;
-                    totalGoldToGive += b.Data.baseBeast.rewardGold;
+                    if (battleTransferData == null || battleTransferData.customRewardGold <= 0)
+                    {
+                        totalGoldToGive += b.Data.baseBeast.rewardGold;
+                    }
                 }
             }
 
@@ -689,23 +697,60 @@ public class BattleManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("--- BƯỚC 8: NGƯỜI CHƠI ĐÃ THUA! Các thú cần nghỉ ngơi. ---");
-            // Sau này có thể thêm cơ chế trừ tiền hoặc quay về bệnh viện thú
+            Debug.Log("--- BƯỚC 8: NGƯỜI CHƠI ĐÃ NGẤT (BLACK OUT)! Đưa về Trung tâm Pokémon gần nhất... ---");
+            if (BattleUIManager.Instance != null && BattleUIManager.Instance.ActionPanel != null)
+            {
+                BattleUIManager.Instance.ActionPanel.SetGuide("Tất cả quái vật đã kiệt sức! Bạn ngất đi và được đưa về trạm xá...");
+            }
         }
 
         playerData.Save();
 
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(1.8f);
 
-        ReturnToMap();
+        ReturnToMap(playerWon);
     }
 
-    private void ReturnToMap()
+    private void ReturnToMap(bool playerWon = true)
     {
-        SavePlayerBeastHP();
+        SavePlayerBeastHP(playerWon);
         Debug.Log("--- BƯỚC 9: Quay về Bản Đồ! ---");
 
-        string sceneToReturn = PlayerPrefs.GetString("SceneBeforeBattle", GameSceneManager.SCENE_MAP);
+        string sceneToReturn;
+
+        if (playerWon)
+        {
+            // THẮNG HOẶC CHẠY TRỐN: Quay lại đúng chỗ cũ trên Map
+            sceneToReturn = PlayerPrefs.GetString("SceneBeforeBattle", GameSceneManager.SCENE_MAP);
+        }
+        else
+        {
+            // THUA TRẬN (BLACK OUT CHUẨN POKÉMON):
+            // Không hồi sinh tại chỗ Trainer! Dịch chuyển về Trung tâm Pokémon gần nhất đã lưu trong PlayerData
+            if (battleTransferData != null)
+            {
+                battleTransferData.returnToLastPosition = false; // Tắt cờ hồi sinh tại chỗ
+            }
+
+            string respawnScene = "HubTownNew";
+            string respawnSpawn = "FromTown";
+
+            if (playerData != null)
+            {
+                if (!string.IsNullOrEmpty(playerData.respawnSceneName)) respawnScene = playerData.respawnSceneName;
+                if (!string.IsNullOrEmpty(playerData.respawnSpawnPointId)) respawnSpawn = playerData.respawnSpawnPointId;
+                playerData.targetSpawnPointId = respawnSpawn;
+            }
+
+            // BẮT BUỘC luôn tải cùng Scene GameCore (chứa Nhân vật Player, Camera, Game Managers)
+            if (!respawnScene.Contains("GameCore"))
+            {
+                respawnScene = "GameCore," + respawnScene;
+            }
+
+            sceneToReturn = respawnScene;
+            Debug.Log($"[BattleManager] Black Out! Đưa người chơi về Trạm Xá: '{respawnScene}' (Spawn: '{respawnSpawn}').");
+        }
 
         if (SceneTransitionManager.Instance != null)
         {
@@ -717,7 +762,7 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    private void SavePlayerBeastHP()
+    private void SavePlayerBeastHP(bool playerWon = true)
     {
         if (playerTeam != null)
         {
@@ -725,10 +770,23 @@ public class BattleManager : MonoBehaviour
             {
                 if (unit != null && unit.Data != null)
                 {
-                    unit.Data.currentHP = unit.CurrentHP;
+                    // Nếu thua trận -> Tự động hồi đầy máu (như được đưa về trạm xá hồi phục) để tránh bị kẹt 0 HP
+                    unit.Data.currentHP = playerWon ? unit.CurrentHP : unit.Data.MaxHP;
                 }
             }
         }
+
+        if (!playerWon && playerData != null)
+        {
+            if (playerData.currentFormation != null)
+            {
+                foreach (var b in playerData.currentFormation)
+                {
+                    if (b != null) b.currentHP = b.MaxHP;
+                }
+            }
+        }
+
         if (playerData != null)
         {
             playerData.Save();

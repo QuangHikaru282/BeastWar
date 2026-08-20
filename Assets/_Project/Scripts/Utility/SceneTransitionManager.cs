@@ -77,7 +77,6 @@ public class SceneTransitionManager : MonoBehaviour
     private IEnumerator TransitionRoutine(string sceneName)
     {
         isTransitioning = true;
-        bool completed = false;
         float startTime = Time.time;
 
         // Bật chặn raycast và force active CanvasGroup để chắc chắn nó hiển thị
@@ -282,6 +281,13 @@ public class SceneTransitionManager : MonoBehaviour
                     if (sp != null && sp.spawnId == pData.targetSpawnPointId)
                     {
                         GameObject player = GameObject.FindGameObjectWithTag("Player");
+                        if (player == null)
+                        {
+                            PlayerMapController pmc = Object.FindFirstObjectByType<PlayerMapController>();
+                            if (pmc != null) player = pmc.gameObject;
+                        }
+                        if (player == null) player = GameObject.Find("PF Player");
+
                         if (player != null)
                         {
                             player.transform.position = sp.transform.position;

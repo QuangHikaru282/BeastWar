@@ -110,6 +110,12 @@ public class ActionPanel : MonoBehaviour
         {
             ShowSkillPanelForBeast(selectedAttacker);
             SetGuide($"Lượt của {selectedAttacker.Data.baseBeast.beastName}! Hãy chọn kĩ năng.");
+
+            // Tự động khôi phục khung viền chọn vào chiêu thức đầu tiên khi tới lượt mới
+            if (BattleKeyboardNavigationUI.Instance != null)
+            {
+                BattleKeyboardNavigationUI.Instance.FocusFirstSkill();
+            }
         }
     }
 
