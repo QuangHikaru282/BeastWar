@@ -1,538 +1,538 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using Unity.VisualScripting;
-using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.UI;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Security.Cryptography;
+    using Unity.VisualScripting;
+    using UnityEngine;
+    using UnityEngine.Rendering;
+    using UnityEngine.UI;
 
-namespace Kinnly
-{
-    public class PlayerInventory : MonoBehaviour
+    namespace Kinnly
     {
-        [Header("Core")]
-        [SerializeField] GameObject inventoryUI;
-        [SerializeField] GameObject toolbarUI;
-        [SerializeField] List<GameObject> inventorySlot = new List<GameObject>();
-        public List<GameObject> InventorySlots => inventorySlot;
-
-        [SerializeField] List<GameObject> toolbarSlot = new List<GameObject>();
-        public List<GameObject> ToolbarSlots => toolbarSlot;
-
-        [Header("Prefabs")]
-        [SerializeField] GameObject inventoryItem;
-        [SerializeField] GameObject toolbarItem;
-        [SerializeField] GameObject itemDrop;
-
-        [Header("Config")]
-        public int MaxAmount;
-        [Tooltip("Kéo thả Cuốc, Bình tưới, Hạt giống vào đây để nhân vật có sẵn khi bắt đầu Game")]
-        public List<Item> startingItems = new List<Item>();
-
-        [HideInInspector] public GameObject CurrentlyHoveredInventorySlot;
-        [HideInInspector] public GameObject CurrentlyHoveredToolbarSlot;
-        [HideInInspector] public InventoryItem CurrentlySelectedInventoryItem;
-        [HideInInspector] public int CurrentlySelectedToolBar;
-        [HideInInspector] public bool IsHoveringDropBox;
-        [HideInInspector] public bool IsHoveringTrashcan;
-        [HideInInspector] public bool IsDragging;
-        [HideInInspector] public bool IsClicking;
-
-        /// <summary>Lưu toàn bộ kho đồ ngay lập tức (gọi trước khi chuyển scene).</summary>
-        public void SaveNow()
+        public class PlayerInventory : MonoBehaviour
         {
-            if (QuestManager.Instance != null && QuestManager.Instance.playerData != null)
+            [Header("Core")]
+            [SerializeField] GameObject inventoryUI;
+            [SerializeField] GameObject toolbarUI;
+            [SerializeField] List<GameObject> inventorySlot = new List<GameObject>();
+            public List<GameObject> InventorySlots => inventorySlot;
+
+            [SerializeField] List<GameObject> toolbarSlot = new List<GameObject>();
+            public List<GameObject> ToolbarSlots => toolbarSlot;
+
+            [Header("Prefabs")]
+            [SerializeField] GameObject inventoryItem;
+            [SerializeField] GameObject toolbarItem;
+            [SerializeField] GameObject itemDrop;
+
+            [Header("Config")]
+            public int MaxAmount;
+            [Tooltip("Kéo thả Cuốc, Bình tưới, Hạt giống vào đây để nhân vật có sẵn khi bắt đầu Game")]
+            public List<Item> startingItems = new List<Item>();
+
+            [HideInInspector] public GameObject CurrentlyHoveredInventorySlot;
+            [HideInInspector] public GameObject CurrentlyHoveredToolbarSlot;
+            [HideInInspector] public InventoryItem CurrentlySelectedInventoryItem;
+            [HideInInspector] public int CurrentlySelectedToolBar;
+            [HideInInspector] public bool IsHoveringDropBox;
+            [HideInInspector] public bool IsHoveringTrashcan;
+            [HideInInspector] public bool IsDragging;
+            [HideInInspector] public bool IsClicking;
+
+            /// <summary>Lưu toàn bộ kho đồ ngay lập tức (gọi trước khi chuyển scene).</summary>
+            public void SaveNow()
             {
-                // Tắt cờ tạm thời để đảm bảo save thành công (SaveNow luôn được gọi có chủ đích)
-                bool wasRestoring = QuestManager.Instance.playerData.isRestoringInventory;
-                QuestManager.Instance.playerData.isRestoringInventory = false;
-                QuestManager.Instance.playerData.SaveInventoryState(this);
-                QuestManager.Instance.playerData.isRestoringInventory = wasRestoring;
-            }
-        }
-
-        private void OnApplicationQuit()
-        {
-            // Lưu kho đồ khi thoát game
-            SaveNow();
-        }
-
-        private void OnApplicationPause(bool pause)
-        {
-            // Lưu kho đồ khi app vào background (Mobile)
-            if (pause) SaveNow();
-        }
-
-        private DialogBox dialogBox;
-
-        // Start is called before the first frame update
-        void Start()
-        {
-            MaxAmount = 999;
-            CurrentlySelectedToolBar = 0;
-            dialogBox = DialogBox.instance;
-
-            bool hasSavedData = QuestManager.Instance != null
-                && QuestManager.Instance.playerData != null
-                && QuestManager.Instance.playerData.savedInventoryItems != null
-                && QuestManager.Instance.playerData.savedInventoryItems.Count > 0
-                && QuestManager.Instance.playerData.currentMainQuestId > 0;
-
-            if (hasSavedData)
-            {
-                // Có dữ liệu lưu -> Khôi phục ngay lập tức (không cần đợi frame, không race condition)
-                var pd = QuestManager.Instance.playerData;
-                pd.isRestoringInventory = true;
-                try
+                if (QuestManager.Instance != null && QuestManager.Instance.playerData != null)
                 {
-                    // Nạp lại từng vật phẩm đã lưu (túi đang trống -> không cần clear)
-                    foreach (var saved in pd.savedInventoryItems)
+                    // Tắt cờ tạm thời để đảm bảo save thành công (SaveNow luôn được gọi có chủ đích)
+                    bool wasRestoring = QuestManager.Instance.playerData.isRestoringInventory;
+                    QuestManager.Instance.playerData.isRestoringInventory = false;
+                    QuestManager.Instance.playerData.SaveInventoryState(this);
+                    QuestManager.Instance.playerData.isRestoringInventory = wasRestoring;
+                }
+            }
+
+            private void OnApplicationQuit()
+            {
+                // Lưu kho đồ khi thoát game
+                SaveNow();
+            }
+
+            private void OnApplicationPause(bool pause)
+            {
+                // Lưu kho đồ khi app vào background (Mobile)
+                if (pause) SaveNow();
+            }
+
+            private DialogBox dialogBox;
+
+            // Start is called before the first frame update
+            void Start()
+            {
+                MaxAmount = 999;
+                CurrentlySelectedToolBar = 0;
+                dialogBox = DialogBox.instance;
+
+                bool hasSavedData = QuestManager.Instance != null
+                    && QuestManager.Instance.playerData != null
+                    && QuestManager.Instance.playerData.savedInventoryItems != null
+                    && QuestManager.Instance.playerData.savedInventoryItems.Count > 0
+                    && QuestManager.Instance.playerData.currentMainQuestId > 0;
+
+                if (hasSavedData)
+                {
+                    // Có dữ liệu lưu -> Khôi phục ngay lập tức (không cần đợi frame, không race condition)
+                    var pd = QuestManager.Instance.playerData;
+                    pd.isRestoringInventory = true;
+                    try
                     {
-                        Kinnly.Item matching = QuestManager.Instance.GetItemByName(saved.itemName);
-                        if (matching == null)
+                        // Nạp lại từng vật phẩm đã lưu (túi đang trống -> không cần clear)
+                        foreach (var saved in pd.savedInventoryItems)
                         {
-                            var all = Resources.LoadAll<Kinnly.Item>("");
-                            if (all != null) matching = System.Array.Find(all, x => x != null && x.name == saved.itemName);
+                            Kinnly.Item matching = QuestManager.Instance.GetItemByName(saved.itemName);
+                            if (matching == null)
+                            {
+                                var all = Resources.LoadAll<Kinnly.Item>("");
+                                if (all != null) matching = System.Array.Find(all, x => x != null && x.name == saved.itemName);
+                            }
+                            if (matching != null && saved.amount > 0)
+                                AddItem(matching, saved.amount);
                         }
-                        if (matching != null && saved.amount > 0)
-                            AddItem(matching, saved.amount);
+                    }
+                    finally
+                    {
+                        pd.isRestoringInventory = false;
                     }
                 }
-                finally
+                else
                 {
-                    pd.isRestoringInventory = false;
-                }
-            }
-            else
-            {
-                // Chưa có dữ liệu lưu (lần đầu chơi) -> Cấp đồ mặc định
-                foreach (var item in startingItems)
-                {
-                    if (item != null) AddItem(item, 1);
-                }
-            }
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-            //Num Key to switch selected Toolbar
-            int keyNumber = GetKeyNumber();
-            if (keyNumber != -1)
-            {
-                CurrentlySelectedToolBar = keyNumber;
-            }
-
-            //Mouse Scroll to switch selected Toolbar
-            if (Input.mouseScrollDelta.y < 0)
-            {
-                CurrentlySelectedToolBar += 1;
-                if (CurrentlySelectedToolBar > 11)
-                {
-                    CurrentlySelectedToolBar -= 12;
-                }
-            }
-            else if (Input.mouseScrollDelta.y > 0)
-            {
-                CurrentlySelectedToolBar -= 1;
-                if (CurrentlySelectedToolBar < 0)
-                {
-                    CurrentlySelectedToolBar += 12;
-                }
-            }
-
-            if (Input.GetKeyDown(KeyCode.B))
-            {
-                ToggleInventory();
-            }
-
-            if (Input.GetMouseButtonUp(0))
-            {
-                IsClicking = false;
-            }
-
-            UpdateCurrentlySelectedItem();
-        }
-
-        /// <summary>Inventory đang mở không?</summary>
-        public bool IsOpen => inventoryUI != null && inventoryUI.activeInHierarchy;
-
-        public void ToggleInventory()
-        {
-            if (IsDragging)
-            {
-                return;
-            }
-
-            if (inventoryUI.activeInHierarchy)
-            {
-                inventoryUI.SetActive(false);
-                toolbarUI.SetActive(true);
-                UpdateToolbar();
-            }
-            else
-            {
-                inventoryUI.SetActive(true);
-                toolbarUI.SetActive(false);
-            }
-        }
-
-        /// <summary>
-        /// Đóng inventory ngay lập tức (gọi khi gặp quái, chuyển scene, v.v.)
-        /// </summary>
-        public void ForceCloseInventory()
-        {
-            if (inventoryUI != null) inventoryUI.SetActive(false);
-            if (toolbarUI != null)
-            {
-                toolbarUI.SetActive(true);
-                UpdateToolbar();
-            }
-        }
-
-        public void AddItem(Item item, int amount)
-        {
-            foreach (GameObject slot in inventorySlot)
-            {
-                if (slot.gameObject.transform.childCount >= 1)
-                {
-                    InventoryItem inventoryItem = slot.gameObject.GetComponentInChildren<InventoryItem>();
-                    if (inventoryItem.Item.name == item.name && inventoryItem.Item.isStackable && inventoryItem.Amount < MaxAmount)
+                    // Chưa có dữ liệu lưu (lần đầu chơi) -> Cấp đồ mặc định
+                    foreach (var item in startingItems)
                     {
-                        int total = inventoryItem.Amount + amount;
-                        if (total <= MaxAmount)
-                        {
-                            inventoryItem.AddAmount(amount);
-                            UpdateToolbar();
-                            return;
-                        }
-                        else
-                        {
-                            inventoryItem.AddAmount(amount - (total - MaxAmount));
-                            SpawnItemDrop(item, amount - (amount - (total - MaxAmount)));
-                            UpdateToolbar();
-                            return;
-                        }
+                        if (item != null) AddItem(item, 1);
                     }
                 }
             }
 
-            foreach (GameObject slot in inventorySlot)
+            // Update is called once per frame
+            void Update()
             {
-                if (slot.gameObject.transform.childCount <= 0)
+                //Num Key to switch selected Toolbar
+                int keyNumber = GetKeyNumber();
+                if (keyNumber != -1)
                 {
-                    GameObject go = Instantiate(inventoryItem, slot.transform);
-                    go.GetComponent<InventoryItem>().SetItem(item, amount);
-                    UpdateToolbar();
+                    CurrentlySelectedToolBar = keyNumber;
+                }
+
+                //Mouse Scroll to switch selected Toolbar
+                if (Input.mouseScrollDelta.y < 0)
+                {
+                    CurrentlySelectedToolBar += 1;
+                    if (CurrentlySelectedToolBar > 11)
+                    {
+                        CurrentlySelectedToolBar -= 12;
+                    }
+                }
+                else if (Input.mouseScrollDelta.y > 0)
+                {
+                    CurrentlySelectedToolBar -= 1;
+                    if (CurrentlySelectedToolBar < 0)
+                    {
+                        CurrentlySelectedToolBar += 12;
+                    }
+                }
+
+                if (Input.GetKeyDown(KeyCode.B))
+                {
+                    ToggleInventory();
+                }
+
+                if (Input.GetMouseButtonUp(0))
+                {
+                    IsClicking = false;
+                }
+
+                UpdateCurrentlySelectedItem();
+            }
+
+            /// <summary>Inventory đang mở không?</summary>
+            public bool IsOpen => inventoryUI != null && inventoryUI.activeInHierarchy;
+
+            public void ToggleInventory()
+            {
+                if (IsDragging)
+                {
                     return;
                 }
+
+                if (inventoryUI.activeInHierarchy)
+                {
+                    inventoryUI.SetActive(false);
+                    toolbarUI.SetActive(true);
+                    UpdateToolbar();
+                }
+                else
+                {
+                    inventoryUI.SetActive(true);
+                    toolbarUI.SetActive(false);
+                }
             }
 
-            SpawnItemDrop(item, amount);
-        }
-
-        public void RemoveItem(InventoryItem inventoryItem, int amount)
-        {
-            inventoryItem.RemoveAmount(amount);
-            UpdateToolbar();
-        }
-
-        public bool IsSlotAvailable(Item item, int amount)
-        {
-            foreach (GameObject slot in inventorySlot)
+            /// <summary>
+            /// Đóng inventory ngay lập tức (gọi khi gặp quái, chuyển scene, v.v.)
+            /// </summary>
+            public void ForceCloseInventory()
             {
-                if (slot.gameObject.transform.childCount >= 1)
+                if (inventoryUI != null) inventoryUI.SetActive(false);
+                if (toolbarUI != null)
                 {
-                    InventoryItem inventoryItem = slot.gameObject.GetComponentInChildren<InventoryItem>();
-                    if (inventoryItem.Item.name == item.name && inventoryItem.Item.isStackable && inventoryItem.Amount < MaxAmount)
+                    toolbarUI.SetActive(true);
+                    UpdateToolbar();
+                }
+            }
+
+            public void AddItem(Item item, int amount)
+            {
+                foreach (GameObject slot in inventorySlot)
+                {
+                    if (slot.gameObject.transform.childCount >= 1)
+                    {
+                        InventoryItem inventoryItem = slot.gameObject.GetComponentInChildren<InventoryItem>();
+                        if (inventoryItem.Item.name == item.name && inventoryItem.Item.isStackable && inventoryItem.Amount < MaxAmount)
+                        {
+                            int total = inventoryItem.Amount + amount;
+                            if (total <= MaxAmount)
+                            {
+                                inventoryItem.AddAmount(amount);
+                                UpdateToolbar();
+                                return;
+                            }
+                            else
+                            {
+                                inventoryItem.AddAmount(amount - (total - MaxAmount));
+                                SpawnItemDrop(item, amount - (amount - (total - MaxAmount)));
+                                UpdateToolbar();
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                foreach (GameObject slot in inventorySlot)
+                {
+                    if (slot.gameObject.transform.childCount <= 0)
+                    {
+                        GameObject go = Instantiate(inventoryItem, slot.transform);
+                        go.GetComponent<InventoryItem>().SetItem(item, amount);
+                        UpdateToolbar();
+                        return;
+                    }
+                }
+
+                SpawnItemDrop(item, amount);
+            }
+
+            public void RemoveItem(InventoryItem inventoryItem, int amount)
+            {
+                inventoryItem.RemoveAmount(amount);
+                UpdateToolbar();
+            }
+
+            public bool IsSlotAvailable(Item item, int amount)
+            {
+                foreach (GameObject slot in inventorySlot)
+                {
+                    if (slot.gameObject.transform.childCount >= 1)
+                    {
+                        InventoryItem inventoryItem = slot.gameObject.GetComponentInChildren<InventoryItem>();
+                        if (inventoryItem.Item.name == item.name && inventoryItem.Item.isStackable && inventoryItem.Amount < MaxAmount)
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                foreach (GameObject slot in inventorySlot)
+                {
+                    if (slot.gameObject.transform.childCount <= 0)
                     {
                         return true;
                     }
                 }
+
+                dialogBox.Show("Inventory Full", 1f);
+                return false;
             }
 
-            foreach (GameObject slot in inventorySlot)
+            public void SpawnItemDrop(Item item, int amount)
             {
-                if (slot.gameObject.transform.childCount <= 0)
+                SpawnItemDropAtPosition(item, amount, transform.position);
+            }
+
+            public void SpawnItemDropAtPosition(Item item, int amount, Vector3 position)
+            {
+                // Spawn tại chính xác vị trí position, ItemDrop.cs sẽ tự xử lý hiệu ứng nảy ra xung quanh
+                GameObject go = Instantiate(itemDrop, position, transform.rotation);
+                go.GetComponent<SpriteRenderer>().sprite = item.image;
+                go.GetComponent<ItemDrop>().SetItem(item, amount);
+            }
+
+            public void SpawnInventoryItem(Item item, int amount)
+            {
+                GameObject go = Instantiate(inventoryItem, inventoryUI.transform.root);
+                InventoryItem inventory = go.GetComponent<InventoryItem>();
+                inventory.SetItem(item, amount);
+                inventory.IsDragging = true;
+                inventory.Amount = amount;
+                go.GetComponent<Image>().raycastTarget = false;
+                this.IsDragging = true;
+            }
+
+            private float RandomNumber(float minRange, float maxRange, float minExclude, float maxExclude)
+            {
+                float randomValue;
+                do
+                {
+                    randomValue = Random.Range(minRange, maxRange);
+                }
+                while (randomValue <= minExclude && randomValue >= maxExclude);
+
+                return randomValue;
+            }
+
+            private int GetKeyNumber()
+            {
+                for (int i = 0; i < 9; i++)
+                {
+                    if (Input.GetKeyDown((KeyCode)((int)KeyCode.Alpha1 + i)))
+                    {
+                        return i;
+                    }
+                }
+                if (Input.GetKeyDown(KeyCode.Alpha0))
+                {
+                    return 9;
+                }
+                if (Input.GetKeyDown(KeyCode.Minus))
+                {
+                    return 10;
+                }
+                if (Input.GetKeyDown(KeyCode.Equals))
+                {
+                    return 11;
+                }
+                return -1;
+            }
+
+            private void UpdateToolbar()
+            {
+                for (int i = 0; i < toolbarSlot.Count; i++)
+                {
+                    ToolbarItem[] components = toolbarSlot[i].GetComponentsInChildren<ToolbarItem>();
+                    foreach (var component in components)
+                    {
+                        Destroy(component.gameObject);
+                    }
+
+                    if (inventorySlot[i].gameObject.transform.childCount >= 1)
+                    {
+                        GameObject go = Instantiate(toolbarItem, toolbarSlot[i].transform);
+                        InventoryItem inventoryItem = inventorySlot[i].GetComponentInChildren<InventoryItem>();
+                        go.GetComponent<ToolbarItem>().SetItem(inventoryItem.Item, inventoryItem.Amount);
+                    }
+                }
+                UpdateCurrentlySelectedItem();
+            }
+
+            private void UpdateCurrentlySelectedItem()
+            {
+                try
+                {
+                    CurrentlySelectedInventoryItem = inventorySlot[CurrentlySelectedToolBar].GetComponentInChildren<InventoryItem>();
+                }
+                catch
+                {
+                    CurrentlySelectedInventoryItem = null;
+                }
+            }
+
+            // ===== CRAFTING SUPPORT - PHẦN MỚI =====
+            // Các hàm bên dưới chỉ hỗ trợ hệ thống chế tạo.
+            // Toàn bộ code Inventory cũ phía trên được giữ nguyên.
+
+            /// <summary>
+            /// Kiểm tra hai Item có phải cùng một loại hay không.
+            /// Ưu tiên cùng asset, sau đó ID, cuối cùng là tên.
+            /// </summary>
+            private bool IsSameItem(Item first, Item second)
+            {
+                if (first == null || second == null)
+                {
+                    return false;
+                }
+
+                if (first == second)
                 {
                     return true;
                 }
-            }
 
-            dialogBox.Show("Inventory Full", 1f);
-            return false;
-        }
-
-        public void SpawnItemDrop(Item item, int amount)
-        {
-            SpawnItemDropAtPosition(item, amount, transform.position);
-        }
-
-        public void SpawnItemDropAtPosition(Item item, int amount, Vector3 position)
-        {
-            // Spawn tại chính xác vị trí position, ItemDrop.cs sẽ tự xử lý hiệu ứng nảy ra xung quanh
-            GameObject go = Instantiate(itemDrop, position, transform.rotation);
-            go.GetComponent<SpriteRenderer>().sprite = item.image;
-            go.GetComponent<ItemDrop>().SetItem(item, amount);
-        }
-
-        public void SpawnInventoryItem(Item item, int amount)
-        {
-            GameObject go = Instantiate(inventoryItem, inventoryUI.transform.root);
-            InventoryItem inventory = go.GetComponent<InventoryItem>();
-            inventory.SetItem(item, amount);
-            inventory.IsDragging = true;
-            inventory.Amount = amount;
-            go.GetComponent<Image>().raycastTarget = false;
-            this.IsDragging = true;
-        }
-
-        private float RandomNumber(float minRange, float maxRange, float minExclude, float maxExclude)
-        {
-            float randomValue;
-            do
-            {
-                randomValue = Random.Range(minRange, maxRange);
-            }
-            while (randomValue <= minExclude && randomValue >= maxExclude);
-
-            return randomValue;
-        }
-
-        private int GetKeyNumber()
-        {
-            for (int i = 0; i < 9; i++)
-            {
-                if (Input.GetKeyDown((KeyCode)((int)KeyCode.Alpha1 + i)))
+                if (first.id != 0 && second.id != 0)
                 {
-                    return i;
-                }
-            }
-            if (Input.GetKeyDown(KeyCode.Alpha0))
-            {
-                return 9;
-            }
-            if (Input.GetKeyDown(KeyCode.Minus))
-            {
-                return 10;
-            }
-            if (Input.GetKeyDown(KeyCode.Equals))
-            {
-                return 11;
-            }
-            return -1;
-        }
-
-        private void UpdateToolbar()
-        {
-            for (int i = 0; i < toolbarSlot.Count; i++)
-            {
-                ToolbarItem[] components = toolbarSlot[i].GetComponentsInChildren<ToolbarItem>();
-                foreach (var component in components)
-                {
-                    Destroy(component.gameObject);
+                    return first.id == second.id;
                 }
 
-                if (inventorySlot[i].gameObject.transform.childCount >= 1)
+                return first.name == second.name;
+            }
+
+            /// <summary>
+            /// Lấy tất cả Item cùng tổng số lượng hiện có trong Inventory.
+            /// onlyWoodResources = true: chỉ lấy Item có isWoodResource.
+            /// </summary>
+            public Dictionary<Item, int> GetAllItemAmounts(bool onlyWoodResources = false)
+            {
+                Dictionary<Item, int> result = new Dictionary<Item, int>();
+
+                foreach (GameObject slot in inventorySlot)
                 {
-                    GameObject go = Instantiate(toolbarItem, toolbarSlot[i].transform);
-                    InventoryItem inventoryItem = inventorySlot[i].GetComponentInChildren<InventoryItem>();
-                    go.GetComponent<ToolbarItem>().SetItem(inventoryItem.Item, inventoryItem.Amount);
-                }
-            }
-            UpdateCurrentlySelectedItem();
-        }
-
-        private void UpdateCurrentlySelectedItem()
-        {
-            try
-            {
-                CurrentlySelectedInventoryItem = inventorySlot[CurrentlySelectedToolBar].GetComponentInChildren<InventoryItem>();
-            }
-            catch
-            {
-                CurrentlySelectedInventoryItem = null;
-            }
-        }
-
-        // ===== CRAFTING SUPPORT - PHẦN MỚI =====
-        // Các hàm bên dưới chỉ hỗ trợ hệ thống chế tạo.
-        // Toàn bộ code Inventory cũ phía trên được giữ nguyên.
-
-        /// <summary>
-        /// Kiểm tra hai Item có phải cùng một loại hay không.
-        /// Ưu tiên cùng asset, sau đó ID, cuối cùng là tên.
-        /// </summary>
-        private bool IsSameItem(Item first, Item second)
-        {
-            if (first == null || second == null)
-            {
-                return false;
-            }
-
-            if (first == second)
-            {
-                return true;
-            }
-
-            if (first.id != 0 && second.id != 0)
-            {
-                return first.id == second.id;
-            }
-
-            return first.name == second.name;
-        }
-
-        /// <summary>
-        /// Lấy tất cả Item cùng tổng số lượng hiện có trong Inventory.
-        /// onlyWoodResources = true: chỉ lấy Item có isWoodResource.
-        /// </summary>
-        public Dictionary<Item, int> GetAllItemAmounts(bool onlyWoodResources = false)
-        {
-            Dictionary<Item, int> result = new Dictionary<Item, int>();
-
-            foreach (GameObject slot in inventorySlot)
-            {
-                if (slot == null)
-                {
-                    continue;
-                }
-
-                InventoryItem storedItem = slot.GetComponentInChildren<InventoryItem>();
-
-                if (storedItem == null || storedItem.Item == null || storedItem.Amount <= 0)
-                {
-                    continue;
-                }
-
-                Item item = storedItem.Item;
-
-                if (onlyWoodResources && !item.isWoodResource)
-                {
-                    continue;
-                }
-
-                Item existingKey = null;
-
-                foreach (Item key in result.Keys)
-                {
-                    if (IsSameItem(key, item))
+                    if (slot == null)
                     {
-                        existingKey = key;
-                        break;
+                        continue;
+                    }
+
+                    InventoryItem storedItem = slot.GetComponentInChildren<InventoryItem>();
+
+                    if (storedItem == null || storedItem.Item == null || storedItem.Amount <= 0)
+                    {
+                        continue;
+                    }
+
+                    Item item = storedItem.Item;
+
+                    if (onlyWoodResources && !item.isWoodResource)
+                    {
+                        continue;
+                    }
+
+                    Item existingKey = null;
+
+                    foreach (Item key in result.Keys)
+                    {
+                        if (IsSameItem(key, item))
+                        {
+                            existingKey = key;
+                            break;
+                        }
+                    }
+
+                    if (existingKey != null)
+                    {
+                        result[existingKey] += storedItem.Amount;
+                    }
+                    else
+                    {
+                        result.Add(item, storedItem.Amount);
                     }
                 }
 
-                if (existingKey != null)
-                {
-                    result[existingKey] += storedItem.Amount;
-                }
-                else
-                {
-                    result.Add(item, storedItem.Amount);
-                }
+                return result;
             }
 
-            return result;
-        }
-
-        /// <summary>
-        /// Lấy tổng số lượng của một Item trong toàn bộ Inventory.
-        /// </summary>
-        public int GetItemAmount(Item item)
-        {
-            if (item == null)
+            /// <summary>
+            /// Lấy tổng số lượng của một Item trong toàn bộ Inventory.
+            /// </summary>
+            public int GetItemAmount(Item item)
             {
-                return 0;
+                if (item == null)
+                {
+                    return 0;
+                }
+
+                int totalAmount = 0;
+
+                foreach (GameObject slot in inventorySlot)
+                {
+                    if (slot == null)
+                    {
+                        continue;
+                    }
+
+                    InventoryItem storedItem = slot.GetComponentInChildren<InventoryItem>();
+
+                    if (storedItem == null || storedItem.Item == null)
+                    {
+                        continue;
+                    }
+
+                    if (IsSameItem(storedItem.Item, item))
+                    {
+                        totalAmount += storedItem.Amount;
+                    }
+                }
+
+                return totalAmount;
             }
 
-            int totalAmount = 0;
-
-            foreach (GameObject slot in inventorySlot)
+            /// <summary>
+            /// Kiểm tra Inventory có đủ số lượng Item được yêu cầu hay không.
+            /// </summary>
+            public bool HasItem(Item item, int amount)
             {
-                if (slot == null)
+                if (item == null || amount <= 0)
                 {
-                    continue;
+                    return false;
                 }
 
-                InventoryItem storedItem = slot.GetComponentInChildren<InventoryItem>();
-
-                if (storedItem == null || storedItem.Item == null)
-                {
-                    continue;
-                }
-
-                if (IsSameItem(storedItem.Item, item))
-                {
-                    totalAmount += storedItem.Amount;
-                }
+                return GetItemAmount(item) >= amount;
             }
 
-            return totalAmount;
-        }
-
-        /// <summary>
-        /// Kiểm tra Inventory có đủ số lượng Item được yêu cầu hay không.
-        /// </summary>
-        public bool HasItem(Item item, int amount)
-        {
-            if (item == null || amount <= 0)
+            /// <summary>
+            /// Trừ Item theo loại khỏi Inventory, kể cả khi Item nằm ở nhiều slot.
+            /// Hàm RemoveItem cũ phía trên vẫn được giữ nguyên.
+            /// </summary>
+            public bool TryRemoveItem(Item item, int amount)
             {
-                return false;
-            }
-
-            return GetItemAmount(item) >= amount;
-        }
-
-        /// <summary>
-        /// Trừ Item theo loại khỏi Inventory, kể cả khi Item nằm ở nhiều slot.
-        /// Hàm RemoveItem cũ phía trên vẫn được giữ nguyên.
-        /// </summary>
-        public bool TryRemoveItem(Item item, int amount)
-        {
-            if (item == null || amount <= 0)
-            {
-                return false;
-            }
-
-            if (!HasItem(item, amount))
-            {
-                return false;
-            }
-
-            int remainingAmount = amount;
-
-            foreach (GameObject slot in inventorySlot)
-            {
-                if (remainingAmount <= 0)
+                if (item == null || amount <= 0)
                 {
-                    break;
+                    return false;
                 }
 
-                if (slot == null)
+                if (!HasItem(item, amount))
                 {
-                    continue;
+                    return false;
                 }
 
-                InventoryItem storedItem = slot.GetComponentInChildren<InventoryItem>();
+                int remainingAmount = amount;
 
-                if (storedItem == null || storedItem.Item == null)
+                foreach (GameObject slot in inventorySlot)
                 {
-                    continue;
+                    if (remainingAmount <= 0)
+                    {
+                        break;
+                    }
+
+                    if (slot == null)
+                    {
+                        continue;
+                    }
+
+                    InventoryItem storedItem = slot.GetComponentInChildren<InventoryItem>();
+
+                    if (storedItem == null || storedItem.Item == null)
+                    {
+                        continue;
+                    }
+
+                    if (!IsSameItem(storedItem.Item, item))
+                    {
+                        continue;
+                    }
+
+                    int removeAmount = Mathf.Min(remainingAmount, storedItem.Amount);
+                    storedItem.RemoveAmount(removeAmount);
+                    remainingAmount -= removeAmount;
                 }
 
-                if (!IsSameItem(storedItem.Item, item))
-                {
-                    continue;
-                }
-
-                int removeAmount = Mathf.Min(remainingAmount, storedItem.Amount);
-                storedItem.RemoveAmount(removeAmount);
-                remainingAmount -= removeAmount;
+                UpdateToolbar();
+                return remainingAmount <= 0;
             }
-
-            UpdateToolbar();
-            return remainingAmount <= 0;
         }
     }
-}

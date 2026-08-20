@@ -1,52 +1,61 @@
 fileFormatVersion: 2
-guid: abef77e722a8b5248863628b86765fb6
+guid: 12cea209979efaa4db253671ee047754
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7995133764533767886
-    second: Throwing items_0
+      213: -4333720463083865623
+    second: 1 (2)_0
   - first:
-      213: -2236185023934388335
-    second: Throwing items_1
+      213: 4269922554074935032
+    second: 1 (2)_1
   - first:
-      213: -9007116404836208278
-    second: Throwing items_2
+      213: 4573098688234302397
+    second: 1 (2)_2
   - first:
-      213: -2439161776954008333
-    second: Throwing items_3
+      213: 6762365949365035362
+    second: 1 (2)_3
   - first:
-      213: 1962637212833777598
-    second: Throwing items_4
+      213: 9011420419543262271
+    second: 1 (2)_4
   - first:
-      213: 8641890690555609163
-    second: Throwing items_5
+      213: 6491310892697403332
+    second: 1 (2)_5
   - first:
-      213: -3828145189142794246
-    second: Throwing items_6
+      213: -5289321309717716879
+    second: 1 (2)_6
   - first:
-      213: 2662522506408275380
-    second: Throwing items_7
+      213: 6334181479416891370
+    second: 1 (2)_7
   - first:
-      213: -1544163923569830505
-    second: Throwing items_8
+      213: -2617494513751029441
+    second: 1 (2)_8
   - first:
-      213: 8703442693635308116
-    second: Throwing items_9
+      213: -355932143053845775
+    second: 1 (2)_9
   - first:
-      213: 271514828971877130
-    second: Throwing items_10
+      213: -1147818360682900936
+    second: 1 (2)_10
   - first:
-      213: -4313239939207967173
-    second: Throwing items_11
+      213: 4651075603607397300
+    second: 1 (2)_11
   - first:
-      213: -6351844325065305455
-    second: Throwing items_12
+      213: -8671559506060680419
+    second: 1 (2)_12
   - first:
-      213: 2571297976273051805
-    second: Throwing items_13
+      213: 6839170349528955106
+    second: 1 (2)_13
   - first:
-      213: -4360087868158674164
-    second: Throwing items_14
+      213: -8778141247672938773
+    second: 1 (2)_14
+  - first:
+      213: -2751355949733308991
+    second: 1 (2)_15
+  - first:
+      213: -345128218306023436
+    second: 1 (2)_16
+  - first:
+      213: 2613731094907260206
+    second: 1 (2)_17
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -79,7 +88,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -93,7 +102,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 16
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -117,7 +126,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -142,331 +151,397 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Throwing items_0
+      name: 1 (2)_0
       rect:
         serializedVersion: 2
-        x: 8
-        y: 69
-        width: 16
-        height: 22
+        x: 0
+        y: 400
+        width: 1254
+        height: 482
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ece44ce7ccb64fe60800000000000000
-      internalID: 7995133764533767886
+      spriteID: 9e97b0a23388bd3c0800000000000000
+      internalID: -4333720463083865623
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Throwing items_1
+      name: 1 (2)_1
       rect:
         serializedVersion: 2
-        x: 40
-        y: 69
-        width: 16
+        x: 183
+        y: 996
+        width: 6
+        height: 14
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8fea01e90ffc14b30800000000000000
+      internalID: 4269922554074935032
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 1 (2)_2
+      rect:
+        serializedVersion: 2
+        x: 362
+        y: 369
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dbba2031709e67f30800000000000000
+      internalID: 4573098688234302397
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 1 (2)_3
+      rect:
+        serializedVersion: 2
+        x: 997
+        y: 343
+        width: 13
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 261a91d9000c8dd50800000000000000
+      internalID: 6762365949365035362
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 1 (2)_4
+      rect:
+        serializedVersion: 2
+        x: 1007
+        y: 357
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f34e394802ffe0d70800000000000000
+      internalID: 9011420419543262271
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 1 (2)_5
+      rect:
+        serializedVersion: 2
+        x: 87
+        y: 328
+        width: 13
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4cf3add4dd4c51a50800000000000000
+      internalID: 6491310892697403332
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 1 (2)_6
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 339
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1702f57fa4e8896b0800000000000000
+      internalID: -5289321309717716879
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 1 (2)_7
+      rect:
+        serializedVersion: 2
+        x: 985
+        y: 335
+        width: 13
         height: 20
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 197a75c819977f0e0800000000000000
-      internalID: -2236185023934388335
+      spriteID: ae7808fde7887e750800000000000000
+      internalID: 6334181479416891370
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Throwing items_2
-      rect:
-        serializedVersion: 2
-        x: 72
-        y: 69
-        width: 16
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: a61f42ff95b400380800000000000000
-      internalID: -9007116404836208278
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Throwing items_3
+      name: 1 (2)_8
       rect:
         serializedVersion: 2
         x: 104
-        y: 69
-        width: 16
-        height: 18
+        y: 328
+        width: 6
+        height: 6
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3fc12fe794b562ed0800000000000000
-      internalID: -2439161776954008333
+      spriteID: f39065a9b9accabd0800000000000000
+      internalID: -2617494513751029441
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Throwing items_4
+      name: 1 (2)_9
       rect:
         serializedVersion: 2
-        x: 136
-        y: 69
-        width: 16
-        height: 21
+        x: 257
+        y: 321
+        width: 15
+        height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: eb78be58520bc3b10800000000000000
-      internalID: 1962637212833777598
+      spriteID: 1fac1290a997f0bf0800000000000000
+      internalID: -355932143053845775
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Throwing items_5
+      name: 1 (2)_10
       rect:
         serializedVersion: 2
-        x: 9
-        y: 37
-        width: 16
-        height: 22
+        x: 301
+        y: 324
+        width: 8
+        height: 8
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b40825edbc92ee770800000000000000
-      internalID: 8641890690555609163
+      spriteID: 83213d848412210f0800000000000000
+      internalID: -1147818360682900936
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Throwing items_6
+      name: 1 (2)_11
       rect:
         serializedVersion: 2
-        x: 41
-        y: 37
-        width: 16
-        height: 20
+        x: 866
+        y: 324
+        width: 11
+        height: 12
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: affe58c9b32bfdac0800000000000000
-      internalID: -3828145189142794246
+      spriteID: 4b321887e90fb8040800000000000000
+      internalID: 4651075603607397300
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Throwing items_7
+      name: 1 (2)_12
       rect:
         serializedVersion: 2
-        x: 73
-        y: 37
-        width: 16
+        x: 876
+        y: 320
+        width: 7
+        height: 12
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d136798b29e68a780800000000000000
+      internalID: -8671559506060680419
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 1 (2)_13
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 310
+        width: 25
         height: 17
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4bda2f8ec1e23f420800000000000000
-      internalID: 2662522506408275380
+      spriteID: 2e8be0a823d99ee50800000000000000
+      internalID: 6839170349528955106
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Throwing items_8
+      name: 1 (2)_14
       rect:
         serializedVersion: 2
-        x: 105
-        y: 37
-        width: 16
-        height: 18
+        x: 241
+        y: 307
+        width: 7
+        height: 10
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 79595a4c717029ae0800000000000000
-      internalID: -1544163923569830505
+      spriteID: bee00483b07cd2680800000000000000
+      internalID: -8778141247672938773
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Throwing items_9
+      name: 1 (2)_15
       rect:
         serializedVersion: 2
-        x: 137
-        y: 37
-        width: 16
-        height: 21
+        x: 1115
+        y: 302
+        width: 9
+        height: 25
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 45af91d5407d8c870800000000000000
-      internalID: 8703442693635308116
+      spriteID: 1c51d7d475831d9d0800000000000000
+      internalID: -2751355949733308991
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Throwing items_10
+      name: 1 (2)_16
       rect:
         serializedVersion: 2
-        x: 9
-        y: 5
-        width: 16
-        height: 22
+        x: 82
+        y: 300
+        width: 6
+        height: 6
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a03ae146c4d94c300800000000000000
-      internalID: 271514828971877130
+      spriteID: 4ffe7e9c6bbd53bf0800000000000000
+      internalID: -345128218306023436
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Throwing items_11
+      name: 1 (2)_17
       rect:
         serializedVersion: 2
-        x: 41
-        y: 5
-        width: 16
-        height: 20
+        x: 96
+        y: 71
+        width: 15
+        height: 6
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b3e4b78b02b4424c0800000000000000
-      internalID: -4313239939207967173
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Throwing items_12
-      rect:
-        serializedVersion: 2
-        x: 73
-        y: 5
-        width: 16
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 192d6e76d37b9d7a0800000000000000
-      internalID: -6351844325065305455
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Throwing items_13
-      rect:
-        serializedVersion: 2
-        x: 105
-        y: 5
-        width: 16
-        height: 20
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: d90af67d2e51fa320800000000000000
-      internalID: 2571297976273051805
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Throwing items_14
-      rect:
-        serializedVersion: 2
-        x: 137
-        y: 5
-        width: 16
-        height: 21
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c0b79e44f2bdd73c0800000000000000
-      internalID: -4360087868158674164
+      spriteID: e2d075a2596d54420800000000000000
+      internalID: 2613731094907260206
       vertices: []
       indices: 
       edges: []
@@ -475,7 +550,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 9f033e10843e6174eb0056e3e86d8b4b
     internalID: 0
     vertices: []
     indices: 
@@ -485,21 +560,24 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Throwing items_0: 7995133764533767886
-      Throwing items_1: -2236185023934388335
-      Throwing items_10: 271514828971877130
-      Throwing items_11: -4313239939207967173
-      Throwing items_12: -6351844325065305455
-      Throwing items_13: 2571297976273051805
-      Throwing items_14: -4360087868158674164
-      Throwing items_2: -9007116404836208278
-      Throwing items_3: -2439161776954008333
-      Throwing items_4: 1962637212833777598
-      Throwing items_5: 8641890690555609163
-      Throwing items_6: -3828145189142794246
-      Throwing items_7: 2662522506408275380
-      Throwing items_8: -1544163923569830505
-      Throwing items_9: 8703442693635308116
+      1 (2)_0: -4333720463083865623
+      1 (2)_1: 4269922554074935032
+      1 (2)_10: -1147818360682900936
+      1 (2)_11: 4651075603607397300
+      1 (2)_12: -8671559506060680419
+      1 (2)_13: 6839170349528955106
+      1 (2)_14: -8778141247672938773
+      1 (2)_15: -2751355949733308991
+      1 (2)_16: -345128218306023436
+      1 (2)_17: 2613731094907260206
+      1 (2)_2: 4573098688234302397
+      1 (2)_3: 6762365949365035362
+      1 (2)_4: 9011420419543262271
+      1 (2)_5: 6491310892697403332
+      1 (2)_6: -5289321309717716879
+      1 (2)_7: 6334181479416891370
+      1 (2)_8: -2617494513751029441
+      1 (2)_9: -355932143053845775
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

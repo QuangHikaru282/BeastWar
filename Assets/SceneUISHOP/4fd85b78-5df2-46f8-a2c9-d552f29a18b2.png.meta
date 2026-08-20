@@ -1,52 +1,55 @@
 fileFormatVersion: 2
-guid: abef77e722a8b5248863628b86765fb6
+guid: 2260f6ed849de624f9faca707f5c26a8
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7995133764533767886
-    second: Throwing items_0
+      213: -1747457450543378806
+    second: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_0
   - first:
-      213: -2236185023934388335
-    second: Throwing items_1
+      213: -4063017082916474183
+    second: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_1
   - first:
-      213: -9007116404836208278
-    second: Throwing items_2
+      213: 5394093567494352199
+    second: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_2
   - first:
-      213: -2439161776954008333
-    second: Throwing items_3
+      213: -6666422047729377699
+    second: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_3
   - first:
-      213: 1962637212833777598
-    second: Throwing items_4
+      213: 2441345024196971933
+    second: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_4
   - first:
-      213: 8641890690555609163
-    second: Throwing items_5
+      213: 2462726147571085619
+    second: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_5
   - first:
-      213: -3828145189142794246
-    second: Throwing items_6
+      213: 1220872857260077514
+    second: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_6
   - first:
-      213: 2662522506408275380
-    second: Throwing items_7
+      213: -8195131033734241044
+    second: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_7
   - first:
-      213: -1544163923569830505
-    second: Throwing items_8
+      213: 7600191093610083277
+    second: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_8
   - first:
-      213: 8703442693635308116
-    second: Throwing items_9
+      213: -3636645906659314077
+    second: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_9
   - first:
-      213: 271514828971877130
-    second: Throwing items_10
+      213: 5883023759604577936
+    second: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_10
   - first:
-      213: -4313239939207967173
-    second: Throwing items_11
+      213: 1758347373542882224
+    second: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_11
   - first:
-      213: -6351844325065305455
-    second: Throwing items_12
+      213: 6509658271423315728
+    second: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_12
   - first:
-      213: 2571297976273051805
-    second: Throwing items_13
+      213: -3750517504884793037
+    second: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_13
   - first:
-      213: -4360087868158674164
-    second: Throwing items_14
+      213: -7328653248119597991
+    second: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_14
+  - first:
+      213: 125326611768414265
+    second: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_15
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -79,7 +82,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -93,7 +96,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 16
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -117,7 +120,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -142,331 +145,353 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Throwing items_0
+      name: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_0
       rect:
         serializedVersion: 2
-        x: 8
-        y: 69
-        width: 16
-        height: 22
+        x: 0
+        y: 371
+        width: 1254
+        height: 546
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ece44ce7ccb64fe60800000000000000
-      internalID: 7995133764533767886
+      spriteID: a8e804805b8cfb7e0800000000000000
+      internalID: -1747457450543378806
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Throwing items_1
+      name: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_1
       rect:
         serializedVersion: 2
-        x: 40
-        y: 69
-        width: 16
-        height: 20
+        x: 1053
+        y: 1036
+        width: 7
+        height: 9
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 197a75c819977f0e0800000000000000
-      internalID: -2236185023934388335
+      spriteID: 9b27b686d734d97c0800000000000000
+      internalID: -4063017082916474183
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Throwing items_2
+      name: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_2
       rect:
         serializedVersion: 2
-        x: 72
-        y: 69
+        x: 1141
+        y: 990
+        width: 8
+        height: 10
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 74d68bf358babda40800000000000000
+      internalID: 5394093567494352199
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_3
+      rect:
+        serializedVersion: 2
+        x: 1145
+        y: 982
         width: 16
+        height: 12
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d5e1242c77c1c73a0800000000000000
+      internalID: -6666422047729377699
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_4
+      rect:
+        serializedVersion: 2
+        x: 1151
+        y: 990
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d9d8d6d5d5661e120800000000000000
+      internalID: 2441345024196971933
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_5
+      rect:
+        serializedVersion: 2
+        x: 1180
+        y: 980
+        width: 11
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3317a05126c5d2220800000000000000
+      internalID: 2462726147571085619
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_6
+      rect:
+        serializedVersion: 2
+        x: 762
+        y: 963
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac137ec256961f010800000000000000
+      internalID: 1220872857260077514
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_7
+      rect:
+        serializedVersion: 2
+        x: 906
+        y: 323
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce4ad769ebb054e80800000000000000
+      internalID: -8195131033734241044
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_8
+      rect:
+        serializedVersion: 2
+        x: 281
+        y: 280
+        width: 6
+        height: 9
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dc377b7388d497960800000000000000
+      internalID: 7600191093610083277
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_9
+      rect:
+        serializedVersion: 2
+        x: 950
+        y: 276
+        width: 14
+        height: 7
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 36671bfc0d9088dc0800000000000000
+      internalID: -3636645906659314077
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_10
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 256
+        width: 17
         height: 17
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a61f42ff95b400380800000000000000
-      internalID: -9007116404836208278
+      spriteID: 096f96490f2b4a150800000000000000
+      internalID: 5883023759604577936
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Throwing items_3
+      name: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_11
       rect:
         serializedVersion: 2
-        x: 104
-        y: 69
-        width: 16
-        height: 18
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 3fc12fe794b562ed0800000000000000
-      internalID: -2439161776954008333
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Throwing items_4
-      rect:
-        serializedVersion: 2
-        x: 136
-        y: 69
-        width: 16
-        height: 21
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: eb78be58520bc3b10800000000000000
-      internalID: 1962637212833777598
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Throwing items_5
-      rect:
-        serializedVersion: 2
-        x: 9
-        y: 37
-        width: 16
-        height: 22
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b40825edbc92ee770800000000000000
-      internalID: 8641890690555609163
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Throwing items_6
-      rect:
-        serializedVersion: 2
-        x: 41
-        y: 37
-        width: 16
+        x: 979
+        y: 258
+        width: 31
         height: 20
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: affe58c9b32bfdac0800000000000000
-      internalID: -3828145189142794246
+      spriteID: 0bbb3cfbe97e66810800000000000000
+      internalID: 1758347373542882224
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Throwing items_7
+      name: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_12
       rect:
         serializedVersion: 2
-        x: 73
-        y: 37
-        width: 16
+        x: 88
+        y: 240
+        width: 14
+        height: 10
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 01fbe5d45b3f65a50800000000000000
+      internalID: 6509658271423315728
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_13
+      rect:
+        serializedVersion: 2
+        x: 1095
+        y: 230
+        width: 15
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 331257d433c73fbc0800000000000000
+      internalID: -3750517504884793037
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_14
+      rect:
+        serializedVersion: 2
+        x: 1125
+        y: 194
+        width: 18
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 95491df13b46b4a90800000000000000
+      internalID: -7328653248119597991
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 4fd85b78-5df2-46f8-a2c9-d552f29a18b2_15
+      rect:
+        serializedVersion: 2
+        x: 1141
+        y: 208
+        width: 22
         height: 17
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4bda2f8ec1e23f420800000000000000
-      internalID: 2662522506408275380
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Throwing items_8
-      rect:
-        serializedVersion: 2
-        x: 105
-        y: 37
-        width: 16
-        height: 18
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 79595a4c717029ae0800000000000000
-      internalID: -1544163923569830505
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Throwing items_9
-      rect:
-        serializedVersion: 2
-        x: 137
-        y: 37
-        width: 16
-        height: 21
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 45af91d5407d8c870800000000000000
-      internalID: 8703442693635308116
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Throwing items_10
-      rect:
-        serializedVersion: 2
-        x: 9
-        y: 5
-        width: 16
-        height: 22
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: a03ae146c4d94c300800000000000000
-      internalID: 271514828971877130
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Throwing items_11
-      rect:
-        serializedVersion: 2
-        x: 41
-        y: 5
-        width: 16
-        height: 20
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b3e4b78b02b4424c0800000000000000
-      internalID: -4313239939207967173
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Throwing items_12
-      rect:
-        serializedVersion: 2
-        x: 73
-        y: 5
-        width: 16
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 192d6e76d37b9d7a0800000000000000
-      internalID: -6351844325065305455
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Throwing items_13
-      rect:
-        serializedVersion: 2
-        x: 105
-        y: 5
-        width: 16
-        height: 20
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: d90af67d2e51fa320800000000000000
-      internalID: 2571297976273051805
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Throwing items_14
-      rect:
-        serializedVersion: 2
-        x: 137
-        y: 5
-        width: 16
-        height: 21
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c0b79e44f2bdd73c0800000000000000
-      internalID: -4360087868158674164
+      spriteID: 9301c5fa3ef3db100800000000000000
+      internalID: 125326611768414265
       vertices: []
       indices: 
       edges: []
@@ -475,7 +500,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 9a8d5e51f5c70a645a90e70ef3c334ee
     internalID: 0
     vertices: []
     indices: 
@@ -485,21 +510,22 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Throwing items_0: 7995133764533767886
-      Throwing items_1: -2236185023934388335
-      Throwing items_10: 271514828971877130
-      Throwing items_11: -4313239939207967173
-      Throwing items_12: -6351844325065305455
-      Throwing items_13: 2571297976273051805
-      Throwing items_14: -4360087868158674164
-      Throwing items_2: -9007116404836208278
-      Throwing items_3: -2439161776954008333
-      Throwing items_4: 1962637212833777598
-      Throwing items_5: 8641890690555609163
-      Throwing items_6: -3828145189142794246
-      Throwing items_7: 2662522506408275380
-      Throwing items_8: -1544163923569830505
-      Throwing items_9: 8703442693635308116
+      4fd85b78-5df2-46f8-a2c9-d552f29a18b2_0: -1747457450543378806
+      4fd85b78-5df2-46f8-a2c9-d552f29a18b2_1: -4063017082916474183
+      4fd85b78-5df2-46f8-a2c9-d552f29a18b2_10: 5883023759604577936
+      4fd85b78-5df2-46f8-a2c9-d552f29a18b2_11: 1758347373542882224
+      4fd85b78-5df2-46f8-a2c9-d552f29a18b2_12: 6509658271423315728
+      4fd85b78-5df2-46f8-a2c9-d552f29a18b2_13: -3750517504884793037
+      4fd85b78-5df2-46f8-a2c9-d552f29a18b2_14: -7328653248119597991
+      4fd85b78-5df2-46f8-a2c9-d552f29a18b2_15: 125326611768414265
+      4fd85b78-5df2-46f8-a2c9-d552f29a18b2_2: 5394093567494352199
+      4fd85b78-5df2-46f8-a2c9-d552f29a18b2_3: -6666422047729377699
+      4fd85b78-5df2-46f8-a2c9-d552f29a18b2_4: 2441345024196971933
+      4fd85b78-5df2-46f8-a2c9-d552f29a18b2_5: 2462726147571085619
+      4fd85b78-5df2-46f8-a2c9-d552f29a18b2_6: 1220872857260077514
+      4fd85b78-5df2-46f8-a2c9-d552f29a18b2_7: -8195131033734241044
+      4fd85b78-5df2-46f8-a2c9-d552f29a18b2_8: 7600191093610083277
+      4fd85b78-5df2-46f8-a2c9-d552f29a18b2_9: -3636645906659314077
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
