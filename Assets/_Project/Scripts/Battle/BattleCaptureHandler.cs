@@ -84,9 +84,21 @@ public class BattleCaptureHandler : MonoBehaviour
             return;
         }
 
-        // Trừ 1 bóng trong kho đồ (nếu có)
+        // Kiểm tra xem người chơi còn bóng trong kho không
         if (BattleItemHandler.Instance != null)
         {
+            int pokeballCount = BattleItemHandler.Instance.GetItemCount("Pokeball");
+            if (pokeballCount <= 0)
+            {
+                Debug.LogWarning("[Capture] Đã hết Pokéball trong túi đồ!");
+                if (BattleUIManager.Instance != null && BattleUIManager.Instance.ActionPanel != null)
+                {
+                    BattleUIManager.Instance.ActionPanel.SetGuide("Bạn đã hết Pokéball! Hãy mua thêm ở Cửa Hàng.");
+                }
+                return;
+            }
+
+            // Trừ 1 bóng trong kho đồ
             BattleItemHandler.Instance.UseItemByName("Pokeball");
         }
 
@@ -140,6 +152,10 @@ public class BattleCaptureHandler : MonoBehaviour
     {
         isThrowingInProgress = true;
         targetEnemy = enemy;
+
+        // Lưu lại kích thước ban đầu của quái (thường là 3, 3, 3) để khôi phục chính xác nếu thoát bóng
+        Vector3 originalEnemyScale = enemy != null ? enemy.transform.localScale : new Vector3(3f, 3f, 3f);
+        if (originalEnemyScale == Vector3.zero) originalEnemyScale = new Vector3(3f, 3f, 3f);
 
         if (BattleUIManager.Instance != null && BattleUIManager.Instance.ActionPanel != null)
         {
@@ -280,11 +296,17 @@ public class BattleCaptureHandler : MonoBehaviour
             // Bóng biến mất
             Destroy(ballObj);
 
-            // Quái xuất hiện trở lại
+            // Quái xuất hiện trở lại - dừng mọi DOTween đang chạy trên quái trước
+            DG.Tweening.DOTween.Kill(enemy.transform);
             enemy.gameObject.SetActive(true);
             enemy.transform.localScale = Vector3.zero;
-            enemy.transform.DOScale(Vector3.one, 0.3f).SetEase(Ease.OutBack);
-            if (enemySR != null) enemySR.color = Color.white;
+            if (enemySR != null)
+            {
+                DG.Tweening.DOTween.Kill(enemySR);
+                enemySR.color = Color.white;
+            }
+            // Phóng to quái về kích thước gốc ban đầu
+            enemy.transform.DOScale(originalEnemyScale, 0.4f).SetEase(Ease.OutBack);
 
             // Hồi lại 20% lượng máu đã mất
             int missingHP = enemy.Data.MaxHP - enemy.CurrentHP;

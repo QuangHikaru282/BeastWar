@@ -205,17 +205,94 @@ public class TempSceneLoaderCoroutine : MonoBehaviour
         for (int i = 0; i < scenesToLoad.Length; i++)
         {
             string sName = scenesToLoad[i].Trim();
+            if (string.IsNullOrEmpty(sName)) continue;
+
             if (i == 0)
             {
                 var asyncLoad = SceneManager.LoadSceneAsync(sName, LoadSceneMode.Single);
-                while (!asyncLoad.isDone) yield return null;
+                while (asyncLoad != null && !asyncLoad.isDone) yield return null;
             }
             else
             {
                 var asyncLoad = SceneManager.LoadSceneAsync(sName, LoadSceneMode.Additive);
-                while (!asyncLoad.isDone) yield return null;
+                while (asyncLoad != null && !asyncLoad.isDone) yield return null;
             }
         }
+
+        // Đặt scene phụ (ví dụ Lau1) hoặc scene đầu làm Active Scene
+        if (scenesToLoad.Length > 1)
+        {
+            string subScene = scenesToLoad[1].Trim();
+            Scene s = SceneManager.GetSceneByName(subScene);
+            if (s.IsValid() && s.isLoaded)
+            {
+                SceneManager.SetActiveScene(s);
+            }
+        }
+
+        // Đợi 2 frame để toàn bộ các component và SpawnPoint trong các Scene được Start() hoàn tất
+        yield return null;
+        yield return null;
+
+        // Tìm PlayerData
+        PlayerData pData = QuestManager.Instance != null && QuestManager.Instance.playerData != null
+            ? QuestManager.Instance.playerData
+            : Resources.Load<PlayerData>("PlayerData");
+
+        string targetId = pData != null && !string.IsNullOrEmpty(pData.targetSpawnPointId) 
+            ? pData.targetSpawnPointId 
+            : PlayerPrefs.GetString("TargetSpawnPointId", "1");
+
+        // Tìm tất cả điểm MapSpawnPoint trong Scene
+        MapSpawnPoint[] allSpawns = Object.FindObjectsByType<MapSpawnPoint>(FindObjectsSortMode.None);
+        MapSpawnPoint chosenSpawn = null;
+
+        if (allSpawns != null && allSpawns.Length > 0)
+        {
+            foreach (var sp in allSpawns)
+            {
+                if (sp != null && sp.spawnId == targetId)
+                {
+                    chosenSpawn = sp;
+                    break;
+                }
+            }
+
+            // Nếu không khớp ID, lấy spawn point đầu tiên tìm thấy
+            if (chosenSpawn == null && allSpawns.Length > 0)
+            {
+                chosenSpawn = allSpawns[0];
+            }
+        }
+
+        // Tìm Player
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player == null)
+        {
+            PlayerMapController pmc = Object.FindFirstObjectByType<PlayerMapController>();
+            if (pmc != null) player = pmc.gameObject;
+        }
+        if (player == null) player = GameObject.Find("PF Player");
+
+        if (player != null && chosenSpawn != null)
+        {
+            player.transform.position = chosenSpawn.transform.position;
+            Debug.Log($"[TempSceneLoader] Đã đưa Player về điểm Spawn: {chosenSpawn.spawnId} ({chosenSpawn.transform.position})");
+        }
+
+        // Snap Camera về Player
+        CameraMovement cam = Object.FindFirstObjectByType<CameraMovement>();
+        if (cam != null)
+        {
+            cam.ResetBounds();
+            if (player != null) cam.target = player.transform;
+            cam.SnapToTarget();
+        }
+
+        if (pData != null) pData.targetSpawnPointId = "";
+        PlayerPrefs.SetString("TargetSpawnPointId", "");
+        PlayerPrefs.Save();
+
         Destroy(gameObject);
     }
 }

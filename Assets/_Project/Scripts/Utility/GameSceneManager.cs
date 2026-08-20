@@ -71,6 +71,13 @@ public class GameSceneManager : MonoBehaviour
         if (currentInv != null)
         {
             currentInv.SaveNow();
+
+            // Đồng bộ sang PlayerData.savedInventoryItems để BattleItemHandler đọc đúng số lượng
+            if (QuestManager.Instance != null && QuestManager.Instance.playerData != null)
+            {
+                QuestManager.Instance.playerData.SaveInventoryState(currentInv);
+                Debug.Log("[GameSceneManager] Đã sync inventory sang PlayerData trước khi vào trận.");
+            }
         }
 
         PlayerPrefs.SetString("SceneBeforeBattle", scenes);

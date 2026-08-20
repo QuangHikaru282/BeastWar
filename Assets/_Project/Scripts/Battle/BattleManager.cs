@@ -54,6 +54,16 @@ public class BattleManager : MonoBehaviour
     private BeastUnit   chosenTarget;
     private RuntimeMoveData    chosenMove;
 
+    private void Awake()
+    {
+        if (Instance == null) Instance = this;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
     private void Start()
     {
         // ─── CHẾ ĐỘ TRAINER BATTLE ───

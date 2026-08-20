@@ -190,9 +190,13 @@ public class PlayerData : ScriptableObject
                     var invItem = slot.GetComponentInChildren<Kinnly.InventoryItem>(true);
                     if (invItem != null && invItem.Item != null && invItem.Amount > 0)
                     {
+                        // Lấy tên file Asset (ví dụ: "Potion", "Super Potion", "Antidote") thay vì display name
+                        string assetName = ((UnityEngine.Object)invItem.Item).name;
+                        if (string.IsNullOrEmpty(assetName)) assetName = invItem.Item.name;
+
                         savedInventoryItems.Add(new SavedItem
                         {
-                            itemName = invItem.Item.name,
+                            itemName = assetName,
                             amount = invItem.Amount
                         });
                     }

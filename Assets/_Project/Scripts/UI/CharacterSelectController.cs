@@ -324,6 +324,7 @@ public class CharacterSelectController : MonoBehaviour
         // Lưu dự phòng qua PlayerPrefs (để các scene khác đọc được)
         PlayerPrefs.SetString("PlayerName", inputName);
         PlayerPrefs.SetString("SelectedCharacter", gender);
+        PlayerPrefs.SetString("TargetSpawnPointId", "1");
         PlayerPrefs.Save();
 
         Debug.Log($"[CharSelect] Đã chọn: {gender} | Tên: {inputName}");
@@ -356,9 +357,10 @@ public class CharacterSelectController : MonoBehaviour
         }
         else
         {
-            UnityEngine.SceneManagement.SceneManager.LoadScene(
-                gameSceneName.Split(',')[0].Trim()
-            );
+            GameObject runnerObj = new GameObject("TempSceneLoader");
+            DontDestroyOnLoad(runnerObj);
+            var runner = runnerObj.AddComponent<TempSceneLoaderCoroutine>();
+            runner.StartLoading(gameSceneName);
         }
     }
 

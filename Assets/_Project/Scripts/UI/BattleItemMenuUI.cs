@@ -211,14 +211,8 @@ public class BattleItemMenuUI : MonoBehaviour
         else
         {
             int inventoryCount = BattleItemHandler.Instance != null ? BattleItemHandler.Instance.GetItemCount("Pokeball") : 0;
-            if (inventoryCount > 0)
-            {
-                qtyText = $"x{inventoryCount}";
-            }
-            else
-            {
-                qtyText = "∞";
-            }
+            qtyText = $"x{inventoryCount}";
+            interactable = inventoryCount > 0;
         }
 
         GameObject slotObj = Instantiate(itemSlotPrefab, itemsContainer);
