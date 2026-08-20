@@ -12,22 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4081ce30a195e3a4f8cac15b400cafb6, type: 3}
   m_Name: PlayerData
   m_EditorClassIdentifier: Assembly-CSharp::PlayerData
-  ownedBeasts:
-  - baseBeast: {fileID: 11400000, guid: 3acbddf267f83e7469cba9feab372e46, type: 2}
-    currentLevel: 0
-    currentExp: 0
-    moves: []
-  - baseBeast: {fileID: 11400000, guid: 77ffd46e6580f2443b9d3138b5c99b5d, type: 2}
-    currentLevel: 0
-    currentExp: 0
-    moves: []
+  ownedBeasts: []
   currentFormation: []
   characterGender: Male
+  playerName: Trainer
   currentMainQuestId: 0
-  unlockedMaps:
-  - City
+  unlockedMaps: []
   targetSpawnPointId: 
   defeatedTrainers: []
+  gymBadges: []
   gold: 0
   savedInventoryItems: []
   isRestoringInventory: 0
