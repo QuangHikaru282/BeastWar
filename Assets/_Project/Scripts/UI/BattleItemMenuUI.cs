@@ -1,157 +1,305 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
-using DG.Tweening;
 
 /// <summary>
-/// Menu vong tron hien ra cac icon binh thuoc khi hover chuot vao nut Balo.
-/// Gan script nay vao nut Backpack (BackpackBtn).
+/// Quản lý Menu Balo trong trận đấu.
+/// Toàn bộ UI và Reference đều được gán THỦ CÔNG 100% qua Inspector.
 /// </summary>
-public class BattleItemMenuUI : MonoBehaviour, IPointerEnterHandler
+public class BattleItemMenuUI : MonoBehaviour
 {
-    [Header("Prefab cua tung nut item trong menu vong tron")]
-    [SerializeField] private GameObject itemButtonPrefab;
+    public static BattleItemMenuUI Instance { get; private set; }
 
-    [Header("Container chua cac nut item")]
-    [SerializeField] private Transform menuContainer;
+    [Header("1. Gán thủ công qua Inspector")]
+    [Tooltip("Kéo Panel tổng của Balo vào đây (để Bật/Tắt khi mở Balo)")]
+    [SerializeField] private GameObject menuPanel;
 
-    [Header("Ban kinh vong tron (pixels)")]
-    [SerializeField] private float radius = 100f;
+    [Tooltip("Kéo Transform/GameObject chứa danh sách các ô vật phẩm vào đây")]
+    [SerializeField] private Transform itemsContainer;
 
-    [Header("Goc bat dau phat tia (0 = ben phai)")]
-    [SerializeField] private float startAngle = 90f;
+    [Tooltip("Kéo Prefab ô vật phẩm (ItemSlot) vào đây")]
+    [SerializeField] private GameObject itemSlotPrefab;
 
-    private List<GameObject> spawnedButtons = new List<GameObject>();
+    [Tooltip("Kéo nút Balo vào đây để nhận sự kiện bấm chuột")]
+    [SerializeField] private Button backpackButton;
+
+    [Tooltip("Kéo nút Đóng/Exit vào đây (nếu có)")]
+    [SerializeField] private Button closeButton;
+
+    [Header("2. Cài đặt Pokéball")]
+    [SerializeField] private bool includePokeball = true;
+    [SerializeField] private Sprite pokeballIcon;
+    [SerializeField] private string pokeballDisplayName = "Bóng Bắt Thú";
+
+    [Header("3. Phím tắt")]
+    [SerializeField] private KeyCode toggleHotkey = KeyCode.B;
+
+    private List<GameObject> spawnedSlots = new List<GameObject>();
     private bool isOpen = false;
+    private int lastToggleFrame = -1;
+
+    public bool IsOpen => menuPanel != null ? menuPanel.activeSelf : isOpen;
+    public List<GameObject> SpawnedSlots => spawnedSlots;
+
+    private void Awake()
+    {
+        if (Instance == null) Instance = this;
+    }
 
     private void Start()
     {
-        if (menuContainer != null)
-            menuContainer.gameObject.SetActive(false);
-        BuildMenu();
-    }
-
-    private void BuildMenu()
-    {
-        if (BattleItemHandler.Instance == null) return;
-        if (itemButtonPrefab == null) return;
-        if (menuContainer == null) return;
-
-        // Xoa cac nut cu
-        foreach (var b in spawnedButtons) Destroy(b);
-        spawnedButtons.Clear();
-
-        var items = BattleItemHandler.Instance.BattleItems;
-        int count = items.Count;
-
-        for (int i = 0; i < count; i++)
+        // Gán sự kiện cho nút Balo được kéo thả thủ công
+        if (backpackButton != null)
         {
-            var item = items[i];
-            float angle = startAngle + (i * (360f / count));
-            float rad = angle * Mathf.Deg2Rad;
-            Vector2 pos = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)) * radius;
-
-            GameObject btn = Instantiate(itemButtonPrefab, menuContainer);
-            btn.GetComponent<RectTransform>().anchoredPosition = pos;
-
-            // Dat icon (Tim Image o obj con, bo qua Image hinh nen cua Button)
-            Image img = null;
-            foreach (Transform child in btn.transform)
-            {
-                img = child.GetComponent<Image>();
-                if (img != null) break;
-            }
-            if (img != null && item.icon != null) img.sprite = item.icon;
-
-            // Dat tooltip / text
-            var txt = btn.GetComponentInChildren<TMPro.TextMeshProUGUI>();
-            if (txt != null) txt.text = item.displayName;
-            var txtLeg = btn.GetComponentInChildren<Text>();
-            if (txtLeg != null) txtLeg.text = item.displayName;
-
-            // Gan su kien click
-            var capturedItem = item;
-            var button = btn.GetComponent<Button>();
-            if (button != null)
-            {
-                button.onClick.AddListener(() => OnItemClicked(capturedItem));
-            }
-
-            // Mo nhat neu het hang
-            int qty = BattleItemHandler.Instance.GetItemCount(item.itemName);
-            if (button != null) button.interactable = qty > 0;
-
-            spawnedButtons.Add(btn);
+            backpackButton.onClick.RemoveListener(ToggleMenu);
+            backpackButton.onClick.AddListener(ToggleMenu);
         }
+
+        // Gán sự kiện cho nút Đóng được kéo thả thủ công
+        if (closeButton != null)
+        {
+            closeButton.onClick.RemoveListener(CloseMenu);
+            closeButton.onClick.AddListener(CloseMenu);
+        }
+
+        // Đảm bảo ban đầu panel ở trạng thái ẩn
+        if (menuPanel != null)
+        {
+            menuPanel.SetActive(false);
+        }
+        isOpen = false;
     }
 
-    private void OnItemClicked(BattleItemHandler.BattleItem item)
+    /// <summary>
+    /// Bật / Tắt Menu Balo (Có chống gọi đúp 2 lần trong 1 frame)
+    /// </summary>
+    public void ToggleMenu()
     {
-        BattleItemHandler.Instance?.UseItem(item);
-        CloseMenu();
-        // Rebuild de cap nhat so luong
-        BuildMenu();
+        // Không cho mở Balo nếu bảng xác nhận thoát đang mở
+        if (BattleActionIconsUI.Instance != null && BattleActionIconsUI.Instance.IsEscapeConfirmOpen)
+        {
+            return;
+        }
+
+        if (Time.frameCount == lastToggleFrame) return;
+        lastToggleFrame = Time.frameCount;
+
+        if (IsOpen)
+        {
+            CloseMenu();
+        }
+        else
+        {
+            OpenMenu();
+        }
     }
 
     public void OpenMenu()
     {
-        if (isOpen) return;
-        isOpen = true;
-        menuContainer.gameObject.SetActive(true);
-        BuildMenu(); // Cap nhat so luong moi nhat
-
-        // Animation mo ra
-        foreach (var btn in spawnedButtons)
+        // Không cho mở Balo nếu bảng xác nhận thoát đang mở
+        if (BattleActionIconsUI.Instance != null && BattleActionIconsUI.Instance.IsEscapeConfirmOpen)
         {
-            var rt = btn.GetComponent<RectTransform>();
-            Vector2 target = rt.anchoredPosition;
-            rt.anchoredPosition = Vector2.zero;
-            rt.DOAnchorPos(target, 0.25f).SetEase(Ease.OutBack);
+            return;
+        }
 
-            var cg = btn.GetComponent<CanvasGroup>();
-            if (cg == null) cg = btn.AddComponent<CanvasGroup>();
-            cg.alpha = 0;
-            cg.DOFade(1f, 0.2f);
+        isOpen = true;
+
+        if (menuPanel != null)
+        {
+            menuPanel.SetActive(true);
+        }
+
+        BuildSlots();
+
+        // Ép LayoutGroup tính toán vị trí ô ngay lập tức
+        if (itemsContainer is RectTransform rt)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rt);
+        }
+        Canvas.ForceUpdateCanvases();
+
+        // Tự động đưa khung viền vào ô đầu tiên trong Balo
+        if (BattleKeyboardNavigationUI.Instance != null)
+        {
+            BattleKeyboardNavigationUI.Instance.FocusFirstBackpackSlot();
         }
     }
 
     public void CloseMenu()
     {
-        if (!isOpen) return;
         isOpen = false;
-        menuContainer.gameObject.SetActive(false);
+
+        if (menuPanel != null)
+        {
+            menuPanel.SetActive(false);
+        }
+
+        // Tự động tắt khung viền hoặc trả tiêu điểm về thanh chính
+        if (BattleKeyboardNavigationUI.Instance != null)
+        {
+            BattleKeyboardNavigationUI.Instance.BuildMainBarList();
+        }
+        else if (UISelectionCursor.Instance != null)
+        {
+            UISelectionCursor.Instance.Hide();
+        }
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
+    /// <summary>
+    /// Sinh các ô vật phẩm vào itemsContainer
+    /// </summary>
+    public void BuildSlots()
     {
-        OpenMenu();
+        if (itemSlotPrefab == null || itemsContainer == null)
+        {
+            Debug.LogWarning("[BattleItemMenuUI] Vui lòng kéo thả 'Item Slot Prefab' và 'Items Container' vào Inspector của Backpack!");
+            return;
+        }
+
+        // Dọn dẹp các ô cũ
+        foreach (var slot in spawnedSlots)
+        {
+            if (slot != null) Destroy(slot);
+        }
+        spawnedSlots.Clear();
+
+        // 1. Ô Pokéball
+        if (includePokeball)
+        {
+            CreatePokeballSlot();
+        }
+
+        // 2. Các ô bình thuốc từ BattleItemHandler
+        if (BattleItemHandler.Instance != null && BattleItemHandler.Instance.BattleItems != null)
+        {
+            var items = BattleItemHandler.Instance.BattleItems;
+            for (int i = 0; i < items.Count; i++)
+            {
+                CreatePotionSlot(items[i]);
+            }
+        }
+    }
+
+    private void CreatePokeballSlot()
+    {
+        BattleTransferData bData = Resources.Load<BattleTransferData>("BattleTransferData");
+        bool isTrainerOrGym = bData != null && (bData.isTrainerBattle || bData.isGymLeaderBattle);
+
+        Sprite icon = pokeballIcon;
+        if (icon == null)
+        {
+            var pokeballAsset = Resources.Load<Kinnly.Item>("Item/Pokeball");
+            if (pokeballAsset != null && pokeballAsset.image != null)
+            {
+                icon = pokeballAsset.image;
+            }
+        }
+
+        string qtyText;
+        bool interactable = true;
+
+        if (isTrainerOrGym)
+        {
+            qtyText = "X";
+            interactable = false;
+        }
+        else if (BattleCaptureHandler.Instance != null && BattleCaptureHandler.Instance.IsCaptureSessionActive)
+        {
+            qtyText = $"{BattleCaptureHandler.Instance.ThrowsLeft}/3";
+            interactable = BattleCaptureHandler.Instance.ThrowsLeft > 0;
+        }
+        else
+        {
+            int inventoryCount = BattleItemHandler.Instance != null ? BattleItemHandler.Instance.GetItemCount("Pokeball") : 0;
+            if (inventoryCount > 0)
+            {
+                qtyText = $"x{inventoryCount}";
+            }
+            else
+            {
+                qtyText = "∞";
+            }
+        }
+
+        GameObject slotObj = Instantiate(itemSlotPrefab, itemsContainer);
+        slotObj.SetActive(true);
+
+        BattleItemSlotUI slotUI = slotObj.GetComponent<BattleItemSlotUI>();
+        if (slotUI != null)
+        {
+            slotUI.Setup(icon, pokeballDisplayName, qtyText, interactable, OnPokeballClicked);
+        }
+
+        spawnedSlots.Add(slotObj);
+    }
+
+    private void CreatePotionSlot(BattleItemHandler.BattleItem item)
+    {
+        if (item == null) return;
+
+        int qty = BattleItemHandler.Instance != null ? BattleItemHandler.Instance.GetItemCount(item.itemName) : 0;
+        string qtyText = $"x{qty}";
+        bool interactable = qty > 0;
+
+        GameObject slotObj = Instantiate(itemSlotPrefab, itemsContainer);
+        slotObj.SetActive(true);
+
+        BattleItemSlotUI slotUI = slotObj.GetComponent<BattleItemSlotUI>();
+        if (slotUI != null)
+        {
+            var capturedItem = item;
+            slotUI.Setup(item.icon, item.displayName, qtyText, interactable, () => OnPotionClicked(capturedItem));
+        }
+
+        spawnedSlots.Add(slotObj);
+    }
+
+    private void OnPokeballClicked()
+    {
+        CloseMenu();
+        if (BattleCaptureHandler.Instance != null)
+        {
+            BattleCaptureHandler.Instance.OnPokeballButtonPressed();
+            BattleCaptureHandler.Instance.RefreshPokeballUI();
+        }
+    }
+
+    private void OnPotionClicked(BattleItemHandler.BattleItem item)
+    {
+        if (BattleItemHandler.Instance != null)
+        {
+            bool used = BattleItemHandler.Instance.UseItem(item);
+            if (used)
+            {
+                CloseMenu();
+            }
+            else
+            {
+                BuildSlots();
+                if (BattleKeyboardNavigationUI.Instance != null)
+                {
+                    BattleKeyboardNavigationUI.Instance.FocusFirstBackpackSlot();
+                }
+            }
+        }
     }
 
     private void Update()
     {
-        if (!isOpen) return;
-
-        // Chuyen doi vi tri chuot tu Screen Space sang Local Space cua nut nay
-        // De khong bi anh huong boi do phan giai hay Canvas Scaler
-        Canvas canvas = GetComponentInParent<Canvas>();
-        Camera cam = null;
-        if (canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+        // Nếu Panel xác nhận thoát đang mở -> Chặn hoàn toàn phím B
+        if (BattleActionIconsUI.Instance != null && BattleActionIconsUI.Instance.IsEscapeConfirmOpen)
         {
-            cam = canvas.worldCamera;
+            return;
         }
 
-        Vector2 localMousePos;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            GetComponent<RectTransform>(),
-            Input.mousePosition,
-            cam,
-            out localMousePos);
-        
-        float distance = localMousePos.magnitude;
-        float closeRadius = radius * 2.5f; // Vung an toan (gap 2.5 lan ban kinh) de tha ho di chuot
+        // Phím tắt B
+        if (Input.GetKeyDown(toggleHotkey))
+        {
+            ToggleMenu();
+        }
 
-        if (distance > closeRadius)
+        // Phím Escape để đóng
+        if (IsOpen && Input.GetKeyDown(KeyCode.Escape))
         {
             CloseMenu();
         }

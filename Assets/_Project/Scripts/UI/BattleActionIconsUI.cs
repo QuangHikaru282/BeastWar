@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
@@ -31,6 +31,8 @@ public class BattleActionIconsUI : MonoBehaviour
     [SerializeField] private BattleTransferData battleTransferData;
 
     private BattleItemMenuUI itemMenuUI;
+
+    public bool IsEscapeConfirmOpen => escapeConfirmPanel != null && escapeConfirmPanel.activeInHierarchy;
 
     private void Awake()
     {
@@ -81,9 +83,13 @@ public class BattleActionIconsUI : MonoBehaviour
             escapeConfirmNoBtn.onClick.AddListener(OnEscapeCancelled);
         }
 
-        // Tim BattleItemMenuUI tu BackpackBtn
+        // Tim BattleItemMenuUI tu BackpackBtn va gan su kien Click
         if (backpackBtn != null)
+        {
             itemMenuUI = backpackBtn.GetComponent<BattleItemMenuUI>();
+            backpackBtn.onClick.RemoveAllListeners();
+            backpackBtn.onClick.AddListener(OnBackpackClicked);
+        }
 
         // Goi BattleCaptureHandler cap nhat UI Pokeball
         if (BattleCaptureHandler.Instance != null)
@@ -118,12 +124,35 @@ public class BattleActionIconsUI : MonoBehaviour
             BattleItemHandler.Instance.OnItemUsed -= HandleItemUsed;
     }
 
+    private void Update()
+    {
+        // Xử lý phím tắt Escape bàn phím
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            // Nếu Balo đang mở -> Đóng Balo lại trước (đã xử lý trong BattleItemMenuUI)
+            if ((itemMenuUI != null && itemMenuUI.IsOpen) || (BattleItemMenuUI.Instance != null && BattleItemMenuUI.Instance.IsOpen))
+            {
+                return;
+            }
+
+            // Nếu Panel xác nhận thoát đang mở -> bấm Esc để hủy/đóng panel
+            if (escapeConfirmPanel != null && escapeConfirmPanel.activeSelf)
+            {
+                OnClickNoEscape();
+            }
+            else
+            {
+                // Mở panel xác nhận thoát
+                OnEscapeClicked();
+            }
+        }
+    }
+
     // ─── Pokeball ────────────────────────────────────────────────────
 
     private void OnPokeballClicked()
     {
         BattleCaptureHandler.Instance?.OnPokeballButtonPressed();
-        // Cap nhat so luong hien thi
         BattleCaptureHandler.Instance?.RefreshPokeballUI();
     }
 
@@ -131,12 +160,10 @@ public class BattleActionIconsUI : MonoBehaviour
     {
         if (success)
         {
-            // Bat thanh cong -> ket thuc tran (ve map)
             BattleManager.Instance?.OnCaptureBeastSuccess();
         }
         else
         {
-            // Quai bo di -> ket thuc tran
             BattleManager.Instance?.OnWildBeastFled();
         }
     }
@@ -145,7 +172,6 @@ public class BattleActionIconsUI : MonoBehaviour
 
     private void HandleItemUsed()
     {
-        // Bao BattleManager tieu 1 luot cua nguoi choi
         BattleManager.Instance?.OnPlayerUsedItem();
     }
 
@@ -153,8 +179,26 @@ public class BattleActionIconsUI : MonoBehaviour
 
     public void OnEscapeClicked()
     {
+        // Nếu Balo đang mở -> Tự động đóng Balo lại trước để không bị chồng chéo
+        if (itemMenuUI != null && itemMenuUI.IsOpen)
+        {
+            itemMenuUI.CloseMenu();
+        }
+        else if (BattleItemMenuUI.Instance != null && BattleItemMenuUI.Instance.IsOpen)
+        {
+            BattleItemMenuUI.Instance.CloseMenu();
+        }
+
         if (escapeConfirmPanel != null)
+        {
             escapeConfirmPanel.SetActive(true);
+
+            // Đưa khung chọn 4 góc vào nút Yes ngay lập tức
+            if (BattleKeyboardNavigationUI.Instance != null)
+            {
+                BattleKeyboardNavigationUI.Instance.FocusEscapeDialog();
+            }
+        }
     }
 
     public void OnClickYesEscape()
@@ -201,11 +245,33 @@ public class BattleActionIconsUI : MonoBehaviour
     {
         if (escapeConfirmPanel != null)
             escapeConfirmPanel.SetActive(false);
+
+        // Trả tiêu điểm về thanh chính sau khi đóng bảng thoát
+        if (BattleKeyboardNavigationUI.Instance != null)
+        {
+            BattleKeyboardNavigationUI.Instance.BuildMainBarList();
+        }
     }
 
     private void OnEscapeCancelled()
     {
         OnClickNoEscape();
+    }
+
+    // ─── Backpack ────────────────────────────────────────────────────
+
+    public void OnBackpackClicked()
+    {
+        if (IsEscapeConfirmOpen) return;
+
+        if (itemMenuUI != null)
+        {
+            itemMenuUI.ToggleMenu();
+        }
+        else if (BattleItemMenuUI.Instance != null)
+        {
+            BattleItemMenuUI.Instance.ToggleMenu();
+        }
     }
 
     /// <summary>Tat/bat 3 nut (goi khi khong phai luot nguoi choi).</summary>
@@ -214,5 +280,17 @@ public class BattleActionIconsUI : MonoBehaviour
         if (pokeballBtn != null) pokeballBtn.interactable = interactable;
         if (backpackBtn != null) backpackBtn.interactable = interactable;
         if (escapeBtn != null) escapeBtn.interactable = interactable;
+
+        if (!interactable)
+        {
+            if (itemMenuUI != null && itemMenuUI.IsOpen)
+            {
+                itemMenuUI.CloseMenu();
+            }
+            else if (BattleItemMenuUI.Instance != null && BattleItemMenuUI.Instance.IsOpen)
+            {
+                BattleItemMenuUI.Instance.CloseMenu();
+            }
+        }
     }
 }
