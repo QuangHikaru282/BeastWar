@@ -2442,6 +2442,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5628018141983903104, guid: ef67ba864d1ecc042b5f4cf48455c0a6, type: 3}
       insertIndex: -1
       addedObject: {fileID: 716609118}
+    - targetCorrespondingSourceObject: {fileID: 441839637394255062, guid: ef67ba864d1ecc042b5f4cf48455c0a6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1732502330}
     - targetCorrespondingSourceObject: {fileID: 8248558570036665481, guid: ef67ba864d1ecc042b5f4cf48455c0a6, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1686276325}
@@ -5769,6 +5772,28 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1006261263163963152, guid: db11338bbc0e78640a1ac895b42f8845, type: 3}
   m_PrefabInstance: {fileID: 38635596808753478}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1732502328 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 441839637394255062, guid: ef67ba864d1ecc042b5f4cf48455c0a6, type: 3}
+  m_PrefabInstance: {fileID: 716609116}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1732502330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1732502328}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7b320dee5421b845a68200b005e2ed4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraMovement
+  target: {fileID: 716609119}
+  offset: {x: 0, y: 0, z: -10}
+  smoothfactor: 5
+  minValue: {x: 0, y: 0, z: 0}
+  maxValue: {x: 0, y: 0, z: 0}
 --- !u!1001 &1822651926
 PrefabInstance:
   m_ObjectHideFlags: 0

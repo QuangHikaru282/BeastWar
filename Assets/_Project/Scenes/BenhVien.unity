@@ -5399,7 +5399,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -2129135029
   m_SortingLayer: 7
-  m_SortingOrder: 0
+  m_SortingOrder: 7
   m_MaskInteraction: 0
   m_Sprite: {fileID: 3988228689165918035, guid: 700b3d2612767ad4595bcfeddca1cae1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -5420,7 +5420,7 @@ Transform:
   m_GameObject: {fileID: 623212897}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 107.41, y: -9.94, z: 0}
+  m_LocalPosition: {x: 109.59, y: -9.94, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5740,7 +5740,7 @@ Transform:
   m_GameObject: {fileID: 765960379}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 109.08, y: -9.3, z: 0}
+  m_LocalPosition: {x: 107.89, y: -9.39, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5878,7 +5878,7 @@ Transform:
   m_GameObject: {fileID: 890742534}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 107.41, y: -8.84, z: 0}
+  m_LocalPosition: {x: 109.6, y: -8.84, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5969,7 +5969,7 @@ Transform:
   m_GameObject: {fileID: 903548537}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 108.37, y: -17.24, z: 0}
+  m_LocalPosition: {x: 108.37, y: -17.36, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9282,8 +9282,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: -2129135029
-  m_SortingLayer: 7
+  m_SortingLayerID: 1020758281
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 5658024235281805701, guid: acdc543c543f21c4da746dc5e489976c, type: 3}
@@ -9671,12 +9671,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8397941ab55eebc47bf3a8de753a2b7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HouseDoorInteractable
-  targetSceneName: HubTownNew
-  targetSpawnPointId: Outside_House2
+  targetSceneName: HoangDa2
+  targetSpawnPointId: Outside_BenhVien
   playerData: {fileID: 11400000, guid: 86002785663fef148821f3bc0a8c1986, type: 2}
   requireQuestUnlock: 0
   requiredQuestId: 0
   lockedMessage: "C\u1EEDa n\xE0y \u0111ang kh\xF3a!"
+  isRespawnCheckpoint: 0
+  outsideRespawnSpawnPointId: FromTown
 --- !u!61 &1027396559
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -9711,7 +9713,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 0.4633554}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -9721,7 +9723,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 4.5, y: 2.625}
+  m_Size: {x: 4.5, y: 1.1124414}
   m_EdgeRadius: 0
 --- !u!212 &1027396560
 SpriteRenderer:
@@ -9768,8 +9770,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: -2129135029
-  m_SortingLayer: 7
+  m_SortingLayerID: 1020758281
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 5658024235281805701, guid: acdc543c543f21c4da746dc5e489976c, type: 3}
@@ -13217,6 +13219,9 @@ MonoBehaviour:
     c\xF3 m\u1ED9t h\xE0nh tr\xECnh may m\u1EAFn!"
   healSound: {fileID: 0}
   audioSource: {fileID: 0}
+  updateRespawnCheckpoint: 0
+  checkpointSceneName: 
+  checkpointSpawnPointId: 
 --- !u!61 &2006633689
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -13577,7 +13582,6 @@ SceneRoots:
   - {fileID: 890742536}
   - {fileID: 623212899}
   - {fileID: 926946863}
-  - {fileID: 1027396561}
   - {fileID: 971891065}
   - {fileID: 765960381}
   - {fileID: 604429868}
@@ -13614,4 +13618,5 @@ SceneRoots:
   - {fileID: 1810531345}
   - {fileID: 1771695911}
   - {fileID: 903548539}
+  - {fileID: 1027396561}
   - {fileID: 2006633691}

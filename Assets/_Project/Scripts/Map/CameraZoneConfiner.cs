@@ -13,12 +13,6 @@ public class CameraZoneConfiner : MonoBehaviour
     private BoxCollider2D zoneCollider;
     private CameraMovement camMovement;
 
-    [Header("Tuỳ chọn giới hạn Player")]
-    [Tooltip("Nếu bật: Nhân vật cũng sẽ bị giữ chặt bên trong khung này, không thể đi xuyên ra ngoài.")]
-    [SerializeField] private bool clampPlayerInsideZone = true;
-
-    private Transform playerTransform;
-
     private void Awake()
     {
         zoneCollider = GetComponent<BoxCollider2D>();
@@ -27,42 +21,46 @@ public class CameraZoneConfiner : MonoBehaviour
 
     private void Start()
     {
-        // Tự động áp dụng bounds khi scene vừa load lên
+        // Tự động áp dụng bounds khi scene vừa load lên nếu người chơi đang ở trong zone này
         GameObject player = GameObject.FindWithTag("Player");
+        if (player == null)
+        {
+            var pmc = Object.FindFirstObjectByType<PlayerMapController>();
+            if (pmc != null) player = pmc.gameObject;
+        }
+
         if (player != null && zoneCollider != null)
         {
             if (zoneCollider.bounds.Contains(player.transform.position))
             {
-                playerTransform = player.transform;
                 ApplyZoneCameraBounds();
             }
         }
     }
 
-    private void LateUpdate()
-    {
-        // Giữ nhân vật không đi vượt ra ngoài mép collider
-        if (clampPlayerInsideZone && playerTransform != null && zoneCollider != null)
-        {
-            Bounds b = zoneCollider.bounds;
-            Vector3 pos = playerTransform.position;
-            float clampedX = Mathf.Clamp(pos.x, b.min.x + 0.3f, b.max.x - 0.3f);
-            float clampedY = Mathf.Clamp(pos.y, b.min.y + 0.3f, b.max.y - 0.3f);
-            playerTransform.position = new Vector3(clampedX, clampedY, pos.z);
-        }
-    }
-
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") || other.GetComponent<PlayerMapController>() != null)
         {
-            playerTransform = other.transform;
             ApplyZoneCameraBounds();
         }
     }
 
+    private void OnTriggerStay2D(Collider2D other)
+    {
+        // Đảm bảo nếu camera bounds bị reset khi chuyển scene, zone hiện tại sẽ gán lại
+        if (other.CompareTag("Player") || other.GetComponent<PlayerMapController>() != null)
+        {
+            if (camMovement == null) camMovement = Object.FindFirstObjectByType<CameraMovement>();
+            if (camMovement != null && camMovement.minValue == Vector3.zero && camMovement.maxValue == Vector3.zero)
+            {
+                ApplyZoneCameraBounds();
+            }
+        }
+    }
+
     /// <summary>
-    /// Tự động tính toán toạ độ Min / Max từ kích thước BoxCollider2D và gán cho CameraMovement.
+    /// Tự động tính toán toạ độ Min / Max từ kích thước BoxCollider2D (đã trừ kích thước khung nhìn Camera) và gán cho CameraMovement.
     /// </summary>
     public void ApplyZoneCameraBounds()
     {
@@ -71,15 +69,46 @@ public class CameraZoneConfiner : MonoBehaviour
             camMovement = Object.FindFirstObjectByType<CameraMovement>();
         }
 
+        if (zoneCollider == null)
+        {
+            zoneCollider = GetComponent<BoxCollider2D>();
+        }
+
         if (camMovement != null && zoneCollider != null)
         {
             Bounds b = zoneCollider.bounds;
 
-            // Tính Min và Max dựa vào toạ độ thực tế của Collider khu vực
-            camMovement.minValue = new Vector3(b.min.x, b.min.y, camMovement.minValue.z);
-            camMovement.maxValue = new Vector3(b.max.x, b.max.y, camMovement.maxValue.z);
+            Camera cam = Camera.main;
+            if (cam == null && camMovement != null)
+            {
+                cam = camMovement.GetComponent<Camera>();
+            }
 
-            Debug.Log($"<color=cyan>[CameraZone]</color> Đã chuyển Camera sang {gameObject.name} | Min({b.min.x:F1}, {b.min.y:F1}) -> Max({b.max.x:F1}, {b.max.y:F1})");
+            float minX = b.min.x;
+            float maxX = b.max.x;
+            float minY = b.min.y;
+            float maxY = b.max.y;
+
+            // Trừ đi nửa chiều rộng và nửa chiều cao của Camera để mép màn hình không vượt ra ngoài biên Collider
+            if (cam != null && cam.orthographic)
+            {
+                float vertExtent = cam.orthographicSize;
+                float horzExtent = vertExtent * cam.aspect;
+
+                minX = b.min.x + horzExtent;
+                maxX = b.max.x - horzExtent;
+                minY = b.min.y + vertExtent;
+                maxY = b.max.y - vertExtent;
+
+                // Nếu khu vực nhỏ hơn khung nhìn Camera, giữ Camera cố định ở tâm
+                if (minX > maxX) minX = maxX = (b.min.x + b.max.x) / 2f;
+                if (minY > maxY) minY = maxY = (b.min.y + b.max.y) / 2f;
+            }
+
+            camMovement.minValue = new Vector3(minX, minY, camMovement.minValue.z);
+            camMovement.maxValue = new Vector3(maxX, maxY, camMovement.maxValue.z);
+
+            Debug.Log($"<color=cyan>[CameraZone]</color> Đã chuyển Camera sang {gameObject.name} | Bounds: Min({minX:F1}, {minY:F1}) -> Max({maxX:F1}, {maxY:F1})");
         }
     }
 

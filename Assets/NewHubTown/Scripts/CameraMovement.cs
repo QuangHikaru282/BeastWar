@@ -1,33 +1,72 @@
-
 using UnityEngine;
 
+/// <summary>
+/// Điều khiển Camera di chuyển mượt mà bám theo Player và giới hạn trong khung toạ độ Min / Max của Map.
+/// </summary>
 public class CameraMovement : MonoBehaviour
 {
-
     public Transform target;
+    public Vector3 offset = new Vector3(0f, 0f, -10f);
     
-    public Vector3 offset;
-    [Range(1,10)]
-    public float smoothfactor;
+    [Range(1, 20)]
+    public float smoothfactor = 5f;
     public Vector3 minValue, maxValue;
-    // public Vector2 maxPosition;
-    // public Vector2 minPosition;
-    // Start is called before the first frame update
-    private void FixedUpdate(){
+
+    private void Awake()
+    {
+        // Nếu Camera đang bị lồng làm con của Player trong Prefab, tách ra để Camera có thể dừng lại ở rìa map độc lập với nhân vật
+        if (transform.parent != null)
+        {
+            transform.SetParent(null);
+            DontDestroyOnLoad(gameObject);
+        }
+    }
+
+    private void Start()
+    {
+        FindPlayerTarget();
+    }
+
+    private void LateUpdate()
+    {
         Follow();
     }
 
-    void Follow(){
-        if (target == null) return;
+    private void FindPlayerTarget()
+    {
+        if (target == null)
+        {
+            GameObject p = GameObject.FindWithTag("Player");
+            if (p == null)
+            {
+                var pmc = Object.FindFirstObjectByType<PlayerMapController>();
+                if (pmc != null) p = pmc.gameObject;
+            }
+            if (p != null) target = p.transform;
+        }
+    }
+
+    void Follow()
+    {
+        if (target == null)
+        {
+            FindPlayerTarget();
+            if (target == null) return;
+        }
+
         Vector3 targetPosition = target.position + offset;
         
-        // Nếu min/max chưa được thiết lập hoặc bằng nhau, bám theo target không clamp
-        float clampedX = (minValue.x < maxValue.x) ? Mathf.Clamp(targetPosition.x, minValue.x, maxValue.x) : targetPosition.x;
-        float clampedY = (minValue.y < maxValue.y) ? Mathf.Clamp(targetPosition.y, minValue.y, maxValue.y) : targetPosition.y;
-        float clampedZ = targetPosition.z;
+        // Nếu có thiết lập giới hạn min/max
+        bool hasLimitX = minValue.x <= maxValue.x && (minValue.x != 0 || maxValue.x != 0);
+        float clampedX = hasLimitX ? Mathf.Clamp(targetPosition.x, minValue.x, maxValue.x) : targetPosition.x;
+
+        bool hasLimitY = minValue.y <= maxValue.y && (minValue.y != 0 || maxValue.y != 0);
+        float clampedY = hasLimitY ? Mathf.Clamp(targetPosition.y, minValue.y, maxValue.y) : targetPosition.y;
+
+        float clampedZ = targetPosition.z != 0 ? targetPosition.z : -10f;
 
         Vector3 boundPosition = new Vector3(clampedX, clampedY, clampedZ);
-        Vector3 smoothedPosition = Vector3.Lerp(transform.position, boundPosition, smoothfactor * Time.fixedDeltaTime);
+        Vector3 smoothedPosition = Vector3.Lerp(transform.position, boundPosition, smoothfactor * Time.deltaTime);
         transform.position = smoothedPosition;
     }
 
@@ -47,15 +86,18 @@ public class CameraMovement : MonoBehaviour
     {
         if (target == null)
         {
-            GameObject p = GameObject.FindWithTag("Player");
-            if (p != null) target = p.transform;
+            FindPlayerTarget();
         }
 
         if (target != null)
         {
             Vector3 targetPosition = target.position + offset;
-            float clampedX = (minValue.x < maxValue.x) ? Mathf.Clamp(targetPosition.x, minValue.x, maxValue.x) : targetPosition.x;
-            float clampedY = (minValue.y < maxValue.y) ? Mathf.Clamp(targetPosition.y, minValue.y, maxValue.y) : targetPosition.y;
+            bool hasLimitX = minValue.x <= maxValue.x && (minValue.x != 0 || maxValue.x != 0);
+            float clampedX = hasLimitX ? Mathf.Clamp(targetPosition.x, minValue.x, maxValue.x) : targetPosition.x;
+
+            bool hasLimitY = minValue.y <= maxValue.y && (minValue.y != 0 || maxValue.y != 0);
+            float clampedY = hasLimitY ? Mathf.Clamp(targetPosition.y, minValue.y, maxValue.y) : targetPosition.y;
+
             transform.position = new Vector3(clampedX, clampedY, targetPosition.z != 0 ? targetPosition.z : -10f);
         }
     }
