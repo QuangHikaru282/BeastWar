@@ -25,6 +25,7 @@ public class CameraMovement : MonoBehaviour
     private void Start()
     {
         FindPlayerTarget();
+        SnapToTarget();
     }
 
     private void LateUpdate()
@@ -46,6 +47,42 @@ public class CameraMovement : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Tìm vùng CameraZoneConfiner thực sự chứa vị trí hiện tại của nhân vật.
+    /// Nếu không nằm trong bất kỳ Zone nào (như Shop, Nhà, phòng nhỏ), sẽ tự động xóa giới hạn cũ để camera tự do theo Player.
+    /// </summary>
+    public void RefreshCurrentZone()
+    {
+        if (target == null) FindPlayerTarget();
+        if (target == null) return;
+
+        CameraZoneConfiner[] allZones = Object.FindObjectsByType<CameraZoneConfiner>(FindObjectsSortMode.None);
+        CameraZoneConfiner matchedZone = null;
+
+        foreach (var z in allZones)
+        {
+            if (z != null && z.gameObject.activeInHierarchy)
+            {
+                BoxCollider2D col = z.GetComponent<BoxCollider2D>();
+                if (col != null && col.bounds.Contains(target.position))
+                {
+                    matchedZone = z;
+                    break;
+                }
+            }
+        }
+
+        if (matchedZone != null)
+        {
+            matchedZone.ApplyZoneCameraBounds();
+        }
+        else
+        {
+            // Không nằm trong Zone nào -> Xóa toàn bộ giới hạn của Map cũ
+            ResetBounds();
+        }
+    }
+
     void Follow()
     {
         if (target == null)
@@ -56,13 +93,20 @@ public class CameraMovement : MonoBehaviour
 
         Vector3 targetPosition = target.position + offset;
         
-        // Nếu có thiết lập giới hạn min/max
         bool hasLimitX = minValue.x <= maxValue.x && (minValue.x != 0 || maxValue.x != 0);
-        float clampedX = hasLimitX ? Mathf.Clamp(targetPosition.x, minValue.x, maxValue.x) : targetPosition.x;
-
         bool hasLimitY = minValue.y <= maxValue.y && (minValue.y != 0 || maxValue.y != 0);
-        float clampedY = hasLimitY ? Mathf.Clamp(targetPosition.y, minValue.y, maxValue.y) : targetPosition.y;
 
+        // Nếu Player đi ra ngoài vùng giới hạn hiện tại, tự động tìm và đổi sang Zone mới chứa Player
+        if (hasLimitX && (targetPosition.x < minValue.x - 1f || targetPosition.x > maxValue.x + 1f) ||
+            hasLimitY && (targetPosition.y < minValue.y - 1f || targetPosition.y > maxValue.y + 1f))
+        {
+            RefreshCurrentZone();
+            hasLimitX = minValue.x <= maxValue.x && (minValue.x != 0 || maxValue.x != 0);
+            hasLimitY = minValue.y <= maxValue.y && (minValue.y != 0 || maxValue.y != 0);
+        }
+
+        float clampedX = hasLimitX ? Mathf.Clamp(targetPosition.x, minValue.x, maxValue.x) : targetPosition.x;
+        float clampedY = hasLimitY ? Mathf.Clamp(targetPosition.y, minValue.y, maxValue.y) : targetPosition.y;
         float clampedZ = targetPosition.z != 0 ? targetPosition.z : -10f;
 
         Vector3 boundPosition = new Vector3(clampedX, clampedY, clampedZ);
@@ -80,7 +124,7 @@ public class CameraMovement : MonoBehaviour
     }
 
     /// <summary>
-    /// Đưa camera lập tức đến vị trí nhân vật (tránh bị kẹt ở map cũ).
+    /// Đưa camera lập tức đến vị trí nhân vật (tránh bị kẹt ở map cũ hoặc zone cũ).
     /// </summary>
     public void SnapToTarget()
     {
@@ -91,6 +135,8 @@ public class CameraMovement : MonoBehaviour
 
         if (target != null)
         {
+            RefreshCurrentZone();
+
             Vector3 targetPosition = target.position + offset;
             bool hasLimitX = minValue.x <= maxValue.x && (minValue.x != 0 || maxValue.x != 0);
             float clampedX = hasLimitX ? Mathf.Clamp(targetPosition.x, minValue.x, maxValue.x) : targetPosition.x;

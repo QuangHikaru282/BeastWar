@@ -310,21 +310,12 @@ public class SceneTransitionManager : MonoBehaviour
                 playerCtrl.SetCanMove(true);
             }
 
-            // Đồng bộ Camera ngay lập tức về vị trí Player (tránh camera bị kẹt ở tọa độ của scene cũ)
+            // Đồng bộ Camera ngay lập tức về vị trí Player (tránh camera bị kẹt ở tọa độ của scene cũ hoặc zone cũ)
             CameraMovement camMovement = Object.FindFirstObjectByType<CameraMovement>();
             if (camMovement != null)
             {
-                camMovement.ResetBounds(); // Xóa khung giới hạn của map cũ
-
-                // Tìm xem map mới có CameraZoneConfiner không để tự động gán khung mới
-                CameraZoneConfiner zone = Object.FindFirstObjectByType<CameraZoneConfiner>();
-                if (zone != null)
-                {
-                    zone.ApplyZoneCameraBounds();
-                }
-
                 camMovement.target = playerObj.transform;
-                camMovement.SnapToTarget();
+                camMovement.SnapToTarget(); // SnapToTarget sẽ tự động tìm đúng Zone chứa nhân vật và căn chỉnh Camera ngay lập tức
             }
         }
 
