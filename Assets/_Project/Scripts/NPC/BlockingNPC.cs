@@ -1,16 +1,12 @@
+using System.Collections.Generic;
 using UnityEngine;
 using Kinnly;
 
 /// <summary>
-/// NPC chặn đường theo cơ chế 3 giai đoạn kiểu Pokémon:
-///   GĐ 1: NPC đứng chắn, đòi một món đồ từ Shop.
+/// NPC chặn đường theo cơ chế 3 giai đoạn chuẩn Pokémon:
+///   GĐ 1: NPC đứng chắn, đòi một món đồ từ Shop (ví dụ: Cà Phê).
 ///   GĐ 2: Người chơi mua đồ, quay lại đưa cho NPC.
-///   GĐ 3: NPC nhận đồ → khen thưởng + dạy bắt thú → tự ẩn đi để mở đường.
-/// 
-/// Cách dùng:
-///   1. Kéo script này lên GameObject NPC (phải có Collider2D Is Trigger = true).
-///   2. Điền các trường trong Inspector.
-///   3. Kéo Collider2D "chặn đường vật lý" (không phải trigger) vào ô blockingCollider.
+///   GĐ 3: NPC nhận đồ → Khen thưởng, trao Bóng Thu Phục → Kích hoạt trận đấu thị phạm thực chiến để người chơi thực hành ném bóng bắt thú → Ẩn NPC và mở đường vĩnh viễn.
 /// </summary>
 public class BlockingNPC : MonoBehaviour, IInteractable
 {
@@ -18,6 +14,10 @@ public class BlockingNPC : MonoBehaviour, IInteractable
     [Header("Thông tin NPC")]
     [SerializeField] private string npcName = "Ông Lão";
     [SerializeField] private Sprite npcAvatar;
+
+    [Header("Mã định danh duy nhất (Save Key)")]
+    [Tooltip("ID dùng để lưu trạng thái đã hoàn thành của NPC này")]
+    [SerializeField] private string uniqueNpcId = "BlockingNPC_Town";
 
     [Header("Vật phẩm cần đem lại")]
     [Tooltip("Kéo Item ScriptableObject mà người chơi phải mang lại (ví dụ: Cà Phê)")]
@@ -27,11 +27,21 @@ public class BlockingNPC : MonoBehaviour, IInteractable
     [SerializeField] private int requiredAmount = 1;
 
     [Header("Phần thưởng khi hoàn thành")]
-    [Tooltip("Item tặng khi hoàn thành (thường là Bóng Thu Phục)")]
+    [Tooltip("Item tặng khi hoàn thành (Bóng Thu Phục)")]
     [SerializeField] private Item rewardItem;
 
     [Tooltip("Số lượng phần thưởng")]
     [SerializeField] private int rewardAmount = 5;
+
+    [Header("Trận Đấu Thị Phạm Bắt Thú")]
+    [Tooltip("Tích chọn để tự động mở trận chiến sau khi thoại xong, giúp người chơi thực hành ném bóng bắt thú")]
+    [SerializeField] private bool triggerTutorialBattle = true;
+
+    [Tooltip("Kéo BeastData của thú mẫu sẽ xuất hiện trong trận đấu (ví dụ: Rat, Slime...)")]
+    [SerializeField] private BeastData tutorialBeast;
+
+    [Tooltip("Level của thú mẫu (nên để level 2-3 để vừa sức)")]
+    [SerializeField] private int tutorialBeastLevel = 2;
 
     [Header("Collider chặn đường vật lý")]
     [Tooltip("Kéo BoxCollider2D (isTrigger=false) của NPC vào đây — collider này sẽ bị tắt khi mở đường")]
@@ -46,40 +56,48 @@ public class BlockingNPC : MonoBehaviour, IInteractable
     [TextArea(2, 4)]
     [SerializeField] private string[] dialoguePhase1 = new string[]
     {
-        "Này... ta đứng đây mà mắt mờ, chân yếu quá. Cháu có thể mua cho ta một tách Cà Phê từ Cửa Hàng trong làng không?",
-        "Mang Cà Phê lại cho ta, ta sẽ chỉ cháu cách bắt những chú Thú hoang dã đấy nhé!"
+        "Này... ta đứng đây mà đói lả, mắt mờ chân yếu quá. Cháu có thể mua giúp ta một tách Cà Phê từ Cửa Hàng trong làng không?",
+        "Mang Cà Phê lại cho ta, ta sẽ chỉ cháu bí quyết và đưa cháu vào thực hành bắt những chú Thú hoang dã đấy nhé!"
     };
 
     [Header("Thoại Giai Đoạn 2 — Chưa mang đủ đồ")]
     [TextArea(2, 4)]
     [SerializeField] private string[] dialoguePhase2 = new string[]
     {
-        "Ồ... cháu chưa mang Cà Phê lại cho ta à? Cửa Hàng ngay trong làng đó, đừng quên nhé!"
+        "Ồ... cháu chưa mang Cà Phê lại cho ta à? Cửa Hàng ở ngay phía dưới làng đó, đừng quên nhé!"
     };
 
-    [Header("Thoại Giai Đoạn 3 — Nhận đồ, dạy bắt thú, mở đường")]
+    [Header("Thoại Giai Đoạn 3 — Nhận đồ, dạy bắt thú & vào trận đấu")]
     [TextArea(2, 4)]
     [SerializeField] private string[] dialoguePhase3 = new string[]
     {
-        "Ồ! Cháu tốt bụng quá! Đây đúng là thứ ta cần rồi. Uống xong tỉnh hẳn người!",
-        "Ta sẽ dạy cháu bí quyết bắt Thú:\n★ Máu quái càng thấp → Tỉ lệ bắt càng cao!\n★ Dùng Kỹ Năng làm yếu quái trước khi ném Bóng.\n★ Cứ thử vài lần — Bóng có thể thất bại, đừng nản!",
-        "Bây giờ ta tặng cháu {0} Bóng Thu Phục để bắt đầu hành trình nhé!\nChúc cháu may mắn! Đường phía trước đã rộng mở rồi đó!"
+        "Ồ! Cháu tốt bụng quá! Cà Phê nóng thơm lừng, uống xong tỉnh táo hẳn người!",
+        "Ta tặng cháu {0} Bóng Thu Phục để bắt đầu hành trình. Bây giờ ta sẽ đưa cháu vào một trận đấu thực tế để thực hành bắt Thú luôn nhé!",
+        "BÍ QUYẾT BẮT THÚ:\n★ Dùng Kỹ Năng đánh cho MÁU QUÁI CÀNG THẤP → TỈ LỆ BẮT CÀNG CAO!\n★ Khi quái yếu máu: Mở Balo/Túi đồ → Chọn Bóng Thu Phục để ném bắt nó!\n★ Sẵn sàng chưa? Hãy vào trận và thử ném bóng ngay nào!"
     };
 
     // ─── Private State ───────────────────────────────────────────────
     private bool hasCompleted = false;
     private const string SAVE_KEY_PREFIX = "BlockingNPC_Done_";
-    private string SaveKey => SAVE_KEY_PREFIX + gameObject.name + "_" + gameObject.GetInstanceID();
+    private string SaveKey => SAVE_KEY_PREFIX + (string.IsNullOrEmpty(uniqueNpcId) ? gameObject.name : uniqueNpcId);
 
     // ─── Unity Lifecycle ─────────────────────────────────────────────
-    private void Start()
+    private void Awake()
     {
-        // Tải trạng thái đã hoàn thành từ lần chơi trước
+        // Kiểm tra ngay khi GameObject được khởi tạo
         hasCompleted = PlayerPrefs.GetInt(SaveKey, 0) == 1;
-
         if (hasCompleted)
         {
-            // Đã hoàn thành trước đó → ẩn NPC và mở đường ngay
+            OpenPath();
+        }
+    }
+
+    private void Start()
+    {
+        // Kiểm tra lại lần nữa khi Start
+        hasCompleted = PlayerPrefs.GetInt(SaveKey, 0) == 1;
+        if (hasCompleted)
+        {
             OpenPath();
         }
     }
@@ -89,11 +107,7 @@ public class BlockingNPC : MonoBehaviour, IInteractable
     {
         if (hasCompleted)
         {
-            // NPC đã nhường đường, nói vài câu bình thường
-            ShowDialogue(new string[]
-            {
-                "Haha, cháu vẫn ổn chứ? Hãy cẩn thận khi đi sâu vào hoang dã nhé, đặc biệt là nhớ làm yếu Thú trước khi ném Bóng!"
-            }, null);
+            OpenPath();
             return;
         }
 
@@ -101,15 +115,13 @@ public class BlockingNPC : MonoBehaviour, IInteractable
 
         if (!playerHasItem)
         {
-            // Giai đoạn 1 & 2: Chưa có đồ
             ShowDialogue(dialoguePhase1, null);
         }
         else
         {
-            // Giai đoạn 3: Có đồ → thu đồ, tặng thưởng, mở đường
             ShowDialogue(BuildPhase3Dialogue(), () =>
             {
-                CompleteQuest(playerInventory);
+                CompleteQuestAndStartBattle(playerInventory);
             });
         }
     }
@@ -124,15 +136,12 @@ public class BlockingNPC : MonoBehaviour, IInteractable
         return count >= requiredAmount;
     }
 
-    /// <summary>
-    /// Đếm số lượng một Item trong toàn bộ Inventory + Toolbar của người chơi.
-    /// </summary>
     private int CountItemInInventory(PlayerInventory playerInventory, Item targetItem)
     {
         if (playerInventory == null || targetItem == null) return 0;
 
         int total = 0;
-        var allSlots = new System.Collections.Generic.List<GameObject>();
+        var allSlots = new List<GameObject>();
         if (playerInventory.InventorySlots != null) allSlots.AddRange(playerInventory.InventorySlots);
         if (playerInventory.ToolbarSlots != null) allSlots.AddRange(playerInventory.ToolbarSlots);
 
@@ -153,15 +162,15 @@ public class BlockingNPC : MonoBehaviour, IInteractable
     }
 
     /// <summary>
-    /// Thu đồ, tặng thưởng, tăng Quest ID, ẩn NPC mở đường.
+    /// Thu Cà Phê, tặng 5 Bóng Thu Phục, mở đường và kích hoạt Trận đấu thực chiến.
     /// </summary>
-    private void CompleteQuest(PlayerInventory playerInventory)
+    private void CompleteQuestAndStartBattle(PlayerInventory playerInventory)
     {
         // 1. Thu item từ người chơi
         if (requiredItem != null && playerInventory != null)
         {
             int remaining = requiredAmount;
-            var allSlots = new System.Collections.Generic.List<GameObject>();
+            var allSlots = new List<GameObject>();
             if (playerInventory.InventorySlots != null) allSlots.AddRange(playerInventory.InventorySlots);
             if (playerInventory.ToolbarSlots != null) allSlots.AddRange(playerInventory.ToolbarSlots);
 
@@ -195,23 +204,74 @@ public class BlockingNPC : MonoBehaviour, IInteractable
             {
                 QuestManager.Instance.playerData.currentMainQuestId = questIdToUnlockAfter;
                 QuestManager.Instance.playerData.Save();
-                Debug.Log($"<color=cyan>[BlockingNPC]</color> Quest tiến đến ID: {questIdToUnlockAfter}");
             }
         }
 
-        // 4. Đánh dấu đã hoàn thành và lưu
+        // 4. Đánh dấu đã hoàn thành và lưu vĩnh viễn
         hasCompleted = true;
         PlayerPrefs.SetInt(SaveKey, 1);
         PlayerPrefs.Save();
+        Debug.Log($"<color=yellow>[BlockingNPC]</color> Đã lưu hoàn thành NPC với SaveKey: {SaveKey}");
 
-        // 5. Mở đường
         OpenPath();
-        Debug.Log($"<color=yellow>[BlockingNPC]</color> {npcName} đã nhường đường!");
+
+        // 5. Vào Trận Đấu Thực Chiến Thị Phạm
+        if (triggerTutorialBattle)
+        {
+            StartTutorialBattle(playerInventory);
+        }
     }
 
-    /// <summary>
-    /// Tắt Collider vật lý và ẩn NPC để mở đường cho người chơi đi qua.
-    /// </summary>
+    private void StartTutorialBattle(PlayerInventory playerInventory)
+    {
+        BattleTransferData battleData = Resources.Load<BattleTransferData>("BattleTransferData");
+        if (battleData == null)
+        {
+            battleData = ScriptableObject.CreateInstance<BattleTransferData>();
+        }
+
+        Vector3 playerPos = playerInventory != null ? playerInventory.transform.position : transform.position;
+
+        battleData.ResetData();
+        battleData.originScene = BattleTransferData.OriginScene.Map;
+        battleData.lastPlayerPosition = playerPos;
+        battleData.returnToLastPosition = true;
+
+        // Trận đấu hoang dã (không phải Trainer) để được quyền ném bóng bắt thú!
+        battleData.isTrainerBattle = false;
+        battleData.isGymLeaderBattle = false;
+        battleData.isSingleBattle = false;
+
+        // Tìm quái mẫu: ưu tiên tutorialBeast được kéo vào, nếu không thì tự load quái có sẵn trong Resources
+        BeastData enemyBeast = tutorialBeast;
+        if (enemyBeast == null)
+        {
+            enemyBeast = Resources.Load<BeastData>("Rat");
+            if (enemyBeast == null) enemyBeast = Resources.Load<BeastData>("Slime");
+            if (enemyBeast == null)
+            {
+                var all = Resources.LoadAll<BeastData>("");
+                if (all != null && all.Length > 0) enemyBeast = all[0];
+            }
+        }
+
+        List<RuntimeBeastData> enemyTeam = new List<RuntimeBeastData>();
+        if (enemyBeast != null)
+        {
+            enemyTeam.Add(new RuntimeBeastData(enemyBeast, Mathf.Max(1, tutorialBeastLevel)));
+            Debug.Log($"<color=cyan>[BlockingNPC]</color> Tạo trận đấu thị phạm với: {enemyBeast.beastName} (Lv.{tutorialBeastLevel})");
+        }
+        else
+        {
+            Debug.LogWarning("[BlockingNPC] Chưa gán tutorialBeast cho NPC!");
+        }
+
+        battleData.SetEnemyTeam(enemyTeam);
+
+        // Chuyển sang Battle Scene
+        GameSceneManager.GoToBattle();
+    }
+
     private void OpenPath()
     {
         if (blockingCollider != null)
@@ -219,9 +279,8 @@ public class BlockingNPC : MonoBehaviour, IInteractable
             blockingCollider.enabled = false;
         }
 
-        // Giữ NPC visible nhưng cho phép đi xuyên qua
-        // (hoặc comment dòng dưới nếu muốn NPC tự đi sang một bên)
-        // gameObject.SetActive(false);
+        // Ẩn hoàn toàn GameObject của Ông Lão để biến mất khỏi bản đồ
+        gameObject.SetActive(false);
     }
 
     private string[] BuildPhase3Dialogue()
@@ -247,7 +306,6 @@ public class BlockingNPC : MonoBehaviour, IInteractable
         }
     }
 
-    // ─── Gizmo để dễ nhìn trong Scene View ──────────────────────────
     private void OnDrawGizmos()
     {
         Gizmos.color = hasCompleted ? Color.green : Color.red;

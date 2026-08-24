@@ -1,7 +1,9 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Điều khiển Camera di chuyển mượt mà bám theo Player và giới hạn trong khung toạ độ Min / Max của Map.
+/// Tự động Snap tức thì khi chuyển Scene/Dịch chuyển để không bị kéo lướt từ xa, nhưng vẫn giữ hiệu ứng mượt mà khi di chuyển bình thường.
 /// </summary>
 public class CameraMovement : MonoBehaviour
 {
@@ -12,6 +14,12 @@ public class CameraMovement : MonoBehaviour
     public float smoothfactor = 5f;
     public Vector3 minValue, maxValue;
 
+    // Số frame khóa cứng vị trí camera ngay sau khi vừa chuyển Scene
+    private int instantSnapFrames = 15;
+
+    // Ngưỡng khoảng cách phát hiện Dịch chuyển / Chuyển Scene (nếu khoảng cách > 6 đơn vị thì snap ngay lập tức, không lerp từ xa)
+    private const float TELEPORT_DISTANCE_THRESHOLD = 6f;
+
     private void Awake()
     {
         // Nếu Camera đang bị lồng làm con của Player trong Prefab, tách ra để Camera có thể dừng lại ở rìa map độc lập với nhân vật
@@ -20,6 +28,22 @@ public class CameraMovement : MonoBehaviour
             transform.SetParent(null);
             DontDestroyOnLoad(gameObject);
         }
+    }
+
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // Khi scene vừa load xong, đưa camera đến ngay nhân vật tức thì
+        SnapToTarget();
     }
 
     private void Start()
@@ -110,6 +134,18 @@ public class CameraMovement : MonoBehaviour
         float clampedZ = targetPosition.z != 0 ? targetPosition.z : -10f;
 
         Vector3 boundPosition = new Vector3(clampedX, clampedY, clampedZ);
+
+        // 1. Nếu vừa chuyển Scene (instantSnapFrames > 0) hoặc vừa dịch chuyển xa (> 6 đơn vị):
+        //    -> Đặt camera NGAY LẬP TỨC tại nhân vật, không dùng Lerp để tránh bị trôi/kéo từ xa!
+        float currentDistance = Vector2.Distance(new Vector2(transform.position.x, transform.position.y), new Vector2(boundPosition.x, boundPosition.y));
+        if (instantSnapFrames > 0 || currentDistance > TELEPORT_DISTANCE_THRESHOLD)
+        {
+            transform.position = boundPosition;
+            if (instantSnapFrames > 0) instantSnapFrames--;
+            return;
+        }
+
+        // 2. Khi nhân vật đi bộ bình thường -> Di chuyển mượt mà với Lerp
         Vector3 smoothedPosition = Vector3.Lerp(transform.position, boundPosition, smoothfactor * Time.deltaTime);
         transform.position = smoothedPosition;
     }
@@ -124,14 +160,11 @@ public class CameraMovement : MonoBehaviour
     }
 
     /// <summary>
-    /// Đưa camera lập tức đến vị trí nhân vật (tránh bị kẹt ở map cũ hoặc zone cũ).
+    /// Đưa camera lập tức đến vị trí nhân vật (tránh bị kéo lướt từ xa khi vừa chuyển cảnh).
     /// </summary>
     public void SnapToTarget()
     {
-        if (target == null)
-        {
-            FindPlayerTarget();
-        }
+        FindPlayerTarget();
 
         if (target != null)
         {
@@ -144,7 +177,9 @@ public class CameraMovement : MonoBehaviour
             bool hasLimitY = minValue.y <= maxValue.y && (minValue.y != 0 || maxValue.y != 0);
             float clampedY = hasLimitY ? Mathf.Clamp(targetPosition.y, minValue.y, maxValue.y) : targetPosition.y;
 
-            transform.position = new Vector3(clampedX, clampedY, targetPosition.z != 0 ? targetPosition.z : -10f);
+            Vector3 snapPos = new Vector3(clampedX, clampedY, targetPosition.z != 0 ? targetPosition.z : -10f);
+            transform.position = snapPos;
+            instantSnapFrames = 15; // Khóa cứng vị trí camera trong 15 frame đầu để không bao giờ bị kéo từ xa
         }
     }
 }

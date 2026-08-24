@@ -62,7 +62,7 @@ public class PlayerData : ScriptableObject
     }
 
     [Tooltip("Số vàng hiện có")]
-    public int gold = 0;
+    public int gold = 50;
 
     [Tooltip("Index Starter đã chọn (0=Cỏ, 1=Lửa, 2=Nước). Dùng cho Rival.")]
     public int lastStarterChoiceIndex = 0;
@@ -117,7 +117,7 @@ public class PlayerData : ScriptableObject
         defeatedTrainers.Clear();
         gymBadges.Clear();
         savedInventoryItems.Clear(); // Xóa sạch dữ liệu kho đồ đã lưu
-        gold = 0;
+        gold = 50;
         characterGender = "Male";
         currentMainQuestId = 0;
         respawnSceneName = "Lau1";

@@ -95,6 +95,22 @@ public class SceneTransitionManager : MonoBehaviour
             yield return new WaitForSeconds(fadeDuration);
         }
 
+        // Tự động bảo vệ GameCore nếu GameCore đang chạy (tránh việc mất Player, Canvas, Managers khi chuyển cảnh)
+        bool isGameCoreCurrentlyLoaded = false;
+        for (int j = 0; j < SceneManager.sceneCount; j++)
+        {
+            if (SceneManager.GetSceneAt(j).name == "GameCore")
+            {
+                isGameCoreCurrentlyLoaded = true;
+                break;
+            }
+        }
+
+        if (isGameCoreCurrentlyLoaded && !sceneName.Contains("GameCore") && !sceneName.Contains("MainMenu") && !sceneName.Contains("Battle"))
+        {
+            sceneName = "GameCore," + sceneName;
+        }
+
         // Hỗ trợ Multi-Scene Editing (chuỗi sceneName có dạng "Scene1,Scene2")
         string[] scenesToLoad = sceneName.Split(',');
         for (int i = 0; i < scenesToLoad.Length; i++)
@@ -310,12 +326,20 @@ public class SceneTransitionManager : MonoBehaviour
                 playerCtrl.SetCanMove(true);
             }
 
-            // Đồng bộ Camera ngay lập tức về vị trí Player (tránh camera bị kẹt ở tọa độ của scene cũ hoặc zone cũ)
+            // Đồng bộ Camera ngay lập tức về vị trí Player trong lúc màn hình còn đang đen
             CameraMovement camMovement = Object.FindFirstObjectByType<CameraMovement>();
             if (camMovement != null)
             {
                 camMovement.target = playerObj.transform;
-                camMovement.SnapToTarget(); // SnapToTarget sẽ tự động tìm đúng Zone chứa nhân vật và căn chỉnh Camera ngay lập tức
+                camMovement.SnapToTarget();
+            }
+
+            // Chờ 1 frame trong lúc màn hình VẪN ĐANG ĐEN để Camera và Physics hoàn toàn ổn định tại tọa độ mới
+            yield return null;
+
+            if (camMovement != null)
+            {
+                camMovement.SnapToTarget();
             }
         }
 
