@@ -12842,7 +12842,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MapPortalTrigger
   targetMapName: HoangDa3
   targetSceneName: HoangDa3
-  targetSpawnPointId: From_HubTown
+  targetSpawnPointId: From_PokemonTown
   requiredQuestIdToUnlock: 0
   notificationText: {fileID: 0}
   lockedMessage: "Khu v\u1EF1c n\xE0y ch\u01B0a \u0111\u01B0\u1EE3c m\u1EDF kh\xF3a!"
@@ -12880,7 +12880,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: -7.8740587}
+  m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -12890,7 +12890,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 16.748117}
+  m_Size: {x: 1.5, y: 3}
   m_EdgeRadius: 0
 --- !u!4 &1143702872
 Transform:
@@ -67428,7 +67428,7 @@ Tilemap:
       - {fileID: 155882333, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: 1328193532, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: 494449804, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
-      m_AnimationSpeed: 3
+      m_AnimationSpeed: 3.0000002
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: -24, y: 4, z: 0}
@@ -67458,7 +67458,7 @@ Tilemap:
       - {fileID: -989134415111674395, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: -3644940872334523152, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: 4845831617191762501, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
-      m_AnimationSpeed: 3.0000002
+      m_AnimationSpeed: 3
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: 7, y: 4, z: 0}
@@ -67528,7 +67528,7 @@ Tilemap:
       - {fileID: 3291914812987065182, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: -3155058853054514227, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
       - {fileID: 7670101274396148412, guid: db810ac1d35ad42428aa4ca6f96261ac, type: 3}
-      m_AnimationSpeed: 3.0000002
+      m_AnimationSpeed: 3
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: 21, y: 8, z: 0}
@@ -171128,7 +171128,7 @@ Tilemap:
       - {fileID: 77814912, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
       - {fileID: -1987085635, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
       - {fileID: -2108022486, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
-      m_AnimationSpeed: 10
+      m_AnimationSpeed: 10.000001
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: -42, y: 21, z: 0}
@@ -171383,7 +171383,7 @@ Tilemap:
       - {fileID: -1292787718, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
       - {fileID: 95385775, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
       - {fileID: -1106776944, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
-      m_AnimationSpeed: 10.000001
+      m_AnimationSpeed: 10
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: -40, y: 25, z: 0}
@@ -180984,7 +180984,7 @@ Tilemap:
       - {fileID: -900767852, guid: 83ffe9d2606aa8444a8240427c56ec6c, type: 3}
       - {fileID: 271069464, guid: 83ffe9d2606aa8444a8240427c56ec6c, type: 3}
       - {fileID: 1484065226, guid: 83ffe9d2606aa8444a8240427c56ec6c, type: 3}
-      m_AnimationSpeed: 5.0000005
+      m_AnimationSpeed: 5
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: -10, y: -35, z: 0}
@@ -182766,7 +182766,7 @@ Tilemap:
       - {fileID: 1606770360, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
       - {fileID: -1556094043, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
       - {fileID: -161819268, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
-      m_AnimationSpeed: 10
+      m_AnimationSpeed: 10.000001
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: -5, y: 0, z: 0}
@@ -182781,7 +182781,7 @@ Tilemap:
       - {fileID: 77814912, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
       - {fileID: -1987085635, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
       - {fileID: -2108022486, guid: 10a1e54b9a9c1474eadb1d33ca8d2251, type: 3}
-      m_AnimationSpeed: 10.000001
+      m_AnimationSpeed: 10
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: -36, y: 1, z: 0}

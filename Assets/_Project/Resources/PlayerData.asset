@@ -12,15 +12,74 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4081ce30a195e3a4f8cac15b400cafb6, type: 3}
   m_Name: PlayerData
   m_EditorClassIdentifier: Assembly-CSharp::PlayerData
-  ownedBeasts: []
-  currentFormation: []
+  ownedBeasts:
+  - baseBeast: {fileID: 11400000, guid: e9575f40717b3fe4b9c633e4f5f7fd8a, type: 2}
+    currentLevel: 1
+    currentExp: 75
+    currentHP: 25
+    moves:
+    - baseMove: {fileID: 11400000, guid: 886039c2f8442594fa07da311d33c4e0, type: 2}
+      currentLevel: 1
+      power: 20
+    - baseMove: {fileID: 11400000, guid: f801682ef75054c499bbb8f0f7ca71bf, type: 2}
+      currentLevel: 1
+      power: 100
+  - baseBeast: {fileID: 11400000, guid: 3ad7a1ef5c30d4841a7171644b4b2936, type: 2}
+    currentLevel: 3
+    currentExp: 25
+    currentHP: 120
+    moves:
+    - baseMove: {fileID: 11400000, guid: 886039c2f8442594fa07da311d33c4e0, type: 2}
+      currentLevel: 1
+      power: 20
+    - baseMove: {fileID: 11400000, guid: f801682ef75054c499bbb8f0f7ca71bf, type: 2}
+      currentLevel: 1
+      power: 100
+  currentFormation:
+  - baseBeast: {fileID: 11400000, guid: e9575f40717b3fe4b9c633e4f5f7fd8a, type: 2}
+    currentLevel: 1
+    currentExp: 75
+    currentHP: 25
+    moves:
+    - baseMove: {fileID: 11400000, guid: 886039c2f8442594fa07da311d33c4e0, type: 2}
+      currentLevel: 1
+      power: 20
+    - baseMove: {fileID: 11400000, guid: f801682ef75054c499bbb8f0f7ca71bf, type: 2}
+      currentLevel: 1
+      power: 100
+  - baseBeast: {fileID: 11400000, guid: 3ad7a1ef5c30d4841a7171644b4b2936, type: 2}
+    currentLevel: 3
+    currentExp: 25
+    currentHP: 120
+    moves:
+    - baseMove: {fileID: 11400000, guid: 886039c2f8442594fa07da311d33c4e0, type: 2}
+      currentLevel: 1
+      power: 20
+    - baseMove: {fileID: 11400000, guid: f801682ef75054c499bbb8f0f7ca71bf, type: 2}
+      currentLevel: 1
+      power: 100
   characterGender: Male
-  playerName: Trainer
-  currentMainQuestId: 0
-  unlockedMaps: []
+  playerName: hung
+  currentMainQuestId: 3
+  unlockedMaps:
+  - City
   targetSpawnPointId: 
-  defeatedTrainers: []
+  respawnSceneName: Lau1
+  respawnSpawnPointId: 1
+  defeatedTrainers:
+  - Rival_Lab_Phase1
   gymBadges: []
-  gold: 50
-  savedInventoryItems: []
+  gold: 96500
+  lastStarterChoiceIndex: 0
+  savedInventoryItems:
+  - itemName: Pokeball
+    amount: 31
+  - itemName: Kinnly_Hoe
+    amount: 1
+  - itemName: Kinnly_TomatoSeed
+    amount: 3
+  - itemName: Kinnly_WaterCan
+    amount: 1
+  - itemName: Kinnly_Tomato_Fruit
+    amount: 1
   isRestoringInventory: 0
