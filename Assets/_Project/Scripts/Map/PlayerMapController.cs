@@ -73,7 +73,6 @@ public class PlayerMapController : MonoBehaviour
         rb.gravityScale = 0f;
         rb.freezeRotation = true;
     }
-    x
     private void Start()
     {
         HidePushText();
