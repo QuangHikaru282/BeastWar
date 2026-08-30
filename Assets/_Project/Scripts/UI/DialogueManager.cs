@@ -25,9 +25,11 @@ public class DialogueManager : MonoBehaviour
 
     [Tooltip("Text hiển thị tên NPC")]
     [SerializeField] private TextMeshProUGUI nameText;
+    [SerializeField] private Text legacyNameText;
 
     [Tooltip("Text hiển thị nội dung câu thoại")]
     [SerializeField] private TextMeshProUGUI dialogueText;
+    [SerializeField] private Text legacyDialogueText;
 
     [Tooltip("Icon/Avatar đại diện của NPC (Tùy chọn)")]
     [SerializeField] private Image avatarImage;
@@ -105,10 +107,8 @@ public class DialogueManager : MonoBehaviour
         onDialogueCompleteCallback = onComplete;
 
         // 1. Cập nhật tên & Avatar NPC
-        if (nameText != null)
-        {
-            nameText.text = string.IsNullOrEmpty(npcName) ? "???" : npcName;
-        }
+        if (nameText != null) nameText.text = string.IsNullOrEmpty(npcName) ? "???" : npcName;
+        if (legacyNameText != null) legacyNameText.text = string.IsNullOrEmpty(npcName) ? "???" : npcName;
 
         if (avatarImage != null)
         {
@@ -173,7 +173,8 @@ public class DialogueManager : MonoBehaviour
         if (isTyping)
         {
             StopAllCoroutines();
-            dialogueText.text = currentSentence;
+            if (dialogueText != null) dialogueText.text = currentSentence;
+            if (legacyDialogueText != null) legacyDialogueText.text = currentSentence;
             isTyping = false;
 
             if (continueIndicator != null)
@@ -286,16 +287,20 @@ public class DialogueManager : MonoBehaviour
     private IEnumerator TypeSentence(string sentence)
     {
         isTyping = true;
-        dialogueText.text = "";
+        if (dialogueText != null) dialogueText.text = "";
+        if (legacyDialogueText != null) legacyDialogueText.text = "";
 
         if (continueIndicator != null)
         {
             continueIndicator.SetActive(false);
         }
 
+        string currentTyped = "";
         foreach (char letter in sentence.ToCharArray())
         {
-            dialogueText.text += letter;
+            currentTyped += letter;
+            if (dialogueText != null) dialogueText.text = currentTyped;
+            if (legacyDialogueText != null) legacyDialogueText.text = currentTyped;
             yield return new WaitForSeconds(typingSpeed);
         }
 

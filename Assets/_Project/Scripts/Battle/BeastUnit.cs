@@ -27,8 +27,9 @@ public class BeastUnit : MonoBehaviour
     public bool IsPlayerTeam { get; private set; }
 
     // ─── Status Effects ──────────────────────────────────────────────
-    public enum StatusEffect { None, Poisoned, Paralyzed, Stunned }
+    public enum StatusEffect { None, Poisoned, Paralyzed, Stunned, Burned }
     public StatusEffect CurrentStatus { get; private set; } = StatusEffect.None;
+
 
     [Header("Status Effect UI (optional)")]
     [SerializeField] private StatusEffectUI statusEffectUI;
@@ -213,7 +214,11 @@ public class BeastUnit : MonoBehaviour
         transform.DOShakePosition(0.3f, strength: new Vector3(0.15f, 0f, 0f), vibrato: 8)
                  .SetEase(Ease.OutQuad);
 
+        // Hiệu ứng nhấp nháy Pokémon chớp tắt
+        StartCoroutine(FlashPokemonBlink());
+
         if (isCritical)
+
             OnCritLanded?.Invoke(); // Thông báo để FruitBuffManager đếm
 
         if (CurrentHP <= 0)
@@ -223,6 +228,21 @@ public class BeastUnit : MonoBehaviour
         }
         return false;
     }
+
+    private System.Collections.IEnumerator FlashPokemonBlink()
+    {
+        var sr = GetComponentInChildren<SpriteRenderer>();
+        if (sr == null) yield break;
+
+        for (int i = 0; i < 3; i++)
+        {
+            sr.enabled = false;
+            yield return new WaitForSeconds(0.06f);
+            sr.enabled = true;
+            yield return new WaitForSeconds(0.06f);
+        }
+    }
+
 
     private void Die()
     {
@@ -304,6 +324,15 @@ public class BeastUnit : MonoBehaviour
     {
         switch (CurrentStatus)
         {
+            case StatusEffect.Burned:
+                int burnDmg = Mathf.Max(1, Mathf.RoundToInt(Data.MaxHP * 0.10f));
+                CurrentHP = Mathf.Max(0, CurrentHP - burnDmg);
+                hpBar?.UpdateHP(CurrentHP);
+                DamagePopup.Create(transform.position + Vector3.up * 0.5f, burnDmg, false);
+                Debug.Log($"[Status] {Data.baseBeast.beastName} mất {burnDmg} HP vì bị thiêu đốt!");
+                if (CurrentHP <= 0) Die();
+                return false; // Thiêu đốt không bỏ lượt
+
             case StatusEffect.Poisoned:
                 int poisonDmg = Mathf.Max(1, Mathf.RoundToInt(Data.MaxHP * 0.08f));
                 CurrentHP = Mathf.Max(0, CurrentHP - poisonDmg);
@@ -312,6 +341,7 @@ public class BeastUnit : MonoBehaviour
                 Debug.Log($"[Status] {Data.baseBeast.beastName} mất {poisonDmg} HP vì độc.");
                 if (CurrentHP <= 0) Die();
                 return false; // Độc không bỏ lượt
+
 
             case StatusEffect.Paralyzed:
                 bool skipTurn = UnityEngine.Random.value < 0.3f; // 30% bỏ lượt
@@ -355,24 +385,42 @@ public class BeastUnit : MonoBehaviour
     }
 
     /// <summary>Tính sát thương gây ra cho target theo chiêu thức.</summary>
-    public int CalculateDamage(BeastUnit target, RuntimeMoveData move)
+    public int CalculateDamage(BeastUnit target, RuntimeMoveData move, out string effectivenessMsg)
     {
+        effectivenessMsg = "";
         int raw = Mathf.RoundToInt(Data.Attack * move.power / 50f) - target.Data.Defense;
         raw = Mathf.Max(1, raw);
 
         // Áp dụng hệ số khắc hệ
         var typeChart = Resources.Load<ElementTypeChart>("ElementTypeChart");
+        if (typeChart == null) typeChart = Resources.Load<ElementTypeChart>("ElementTypeChart/ElementTypeChart");
+
         if (typeChart != null)
         {
             float multiplier = typeChart.GetMultiplier(move.baseMove.moveElement, target.Data.baseBeast.element);
             raw = Mathf.RoundToInt(raw * multiplier);
             
-            if (multiplier > 1.1f) Debug.Log($"Đòn đánh SIÊU HIỆU QUẢ! (x{multiplier})");
-            else if (multiplier < 0.9f) Debug.Log($"Đòn đánh KHÔNG HIỆU QUẢ LẮM... (x{multiplier})");
+            if (multiplier > 1.1f) effectivenessMsg = $"Đòn đánh SIÊU HIỆU QUẢ! (x{multiplier})";
+            else if (multiplier < 0.9f) effectivenessMsg = $"Đòn đánh KHÔNG HIỆU QUẢ LẮM... (x{multiplier})";
+
+        }
+
+        // Nếu bản thân kẻ tấn công bị Thiêu Đốt (Burned) -> Giảm 25% sát thương gây ra
+        if (CurrentStatus == StatusEffect.Burned)
+        {
+            raw = Mathf.RoundToInt(raw * 0.75f);
+            Debug.Log($"[Burned] Sát thương của {Data.baseBeast.beastName} bị giảm 25% vì đang bị Thiêu Đốt!");
         }
 
         return Mathf.Max(1, raw);
     }
+
+
+    public int CalculateDamage(BeastUnit target, RuntimeMoveData move)
+    {
+        return CalculateDamage(target, move, out _);
+    }
+
 
     /// <summary>Tính sát thương tấn công thường (không dùng chiêu).</summary>
     public int CalculateBaseDamage(BeastUnit target)

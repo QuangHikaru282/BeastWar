@@ -213,6 +213,9 @@ public class PetUIManager : MonoBehaviour
             return;
         }
 
+        // Đảm bảo gameObject cha luôn BẬT để PetUIManager luôn sẵn sàng
+        gameObject.SetActive(true);
+
         if (hidePetUIAtStart)
         {
             petUIRoot.SetActive(false);
@@ -223,6 +226,7 @@ public class PetUIManager : MonoBehaviour
             Initialize();
         }
     }
+
 
     private void OnDestroy()
     {
@@ -1189,7 +1193,21 @@ public class PetUIManager : MonoBehaviour
         // Luôn rebuild + refresh để chắc chắn hiển thị đúng
         RebuildPetList();
         ShowTab(currentTab);
+
+        // Đảm bảo ở lần bấm đầu tiên, tất cả các component con đã Awake/Start xong và hiển thị đủ ngay
+        StartCoroutine(RefreshNextFrame());
     }
+
+    private System.Collections.IEnumerator RefreshNextFrame()
+    {
+        yield return null;
+        if (gameObject.activeInHierarchy)
+        {
+            RebuildPetList();
+            ShowTab(currentTab);
+        }
+    }
+
 
     public void ClosePetUI()
     {
@@ -1197,14 +1215,13 @@ public class PetUIManager : MonoBehaviour
         if (petUIRoot != null)
             petUIRoot.SetActive(false);
 
-        // Tắt luôn PetUI (object chứa manager) để không còn nền đen
-        gameObject.SetActive(false);
-
-        // Khôi phục sortingOrder về ban đầu
-        Canvas cv2 = petUIRoot?.GetComponentInParent<Canvas>();
-        if (cv2 != null) cv2.sortingOrder = originalSortingOrder;
-
         InteractHintManager.Instance?.RegisterPanelClose();
+
+        Canvas cv = petUIRoot != null ? petUIRoot.GetComponentInParent<Canvas>() : null;
+        if (cv != null && originalSortingOrder != -1)
+        {
+            cv.sortingOrder = originalSortingOrder;
+        }
     }
 
     #endregion

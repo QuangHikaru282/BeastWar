@@ -69,7 +69,8 @@ public class DamagePopup : MonoBehaviour
             damageText = GetComponent<TMP_Text>();
 
         damageText.text = isHeal ? $"+{amount}" : $"-{amount}";
-        damageText.color = isHeal ? Color.green : (isCritical ? Color.yellow : Color.white);
+        damageText.color = isHeal ? Color.green : (isCritical ? Color.red : Color.white);
+
 
         transform.localScale = Vector3.one * (isCritical ? 1.4f : 1f);
 

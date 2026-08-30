@@ -10,6 +10,13 @@
 #
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
 #
+# QLDATN Tracker (Personal Tracker files)
+Assets/QLDATNTracker*
+Assets/**/QLDATNTracker*
+
+# Build Outputs / Test Builds
+Testcheo/
+
 .utmp/
 /[Ll]ibrary/
 /[Tt]emp/
@@ -105,3 +112,8 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+Assets/Editor/QLDATNTracker_*.cs
+Assets/Editor/QLDATNTracker_*.cs.meta
+Assets/Editor/QLDATNSceneTracker.cs
+Assets/Editor/QLDATNSceneTracker.cs.meta
+Assets/Editor/QLDATNSceneTracker.cs.download

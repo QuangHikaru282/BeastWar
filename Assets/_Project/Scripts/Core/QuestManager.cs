@@ -12,6 +12,27 @@ public class QuestManager : MonoBehaviour
     public static QuestManager Instance { get; private set; }
 
     public static event Action OnQuestAdvanced;
+    public static event Action OnQuestChanged;
+
+    /// <summary>Trả về tổng số nhiệm vụ.</summary>
+    public int GetQuestCount()
+    {
+        return questDescriptions != null ? questDescriptions.Length : 0;
+    }
+
+    /// <summary>Trả về mô tả của Quest theo ID.</summary>
+    public string GetQuestDescription(int id)
+    {
+        if (questDescriptions == null || id < 0 || id >= questDescriptions.Length) return "";
+        return questDescriptions[id];
+    }
+
+    /// <summary>Kích hoạt sự kiện khi nhiệm vụ thay đổi.</summary>
+    public void NotifyQuestChanged()
+    {
+        OnQuestChanged?.Invoke();
+    }
+
 
     [Header("Data References")]
     [Tooltip("Kéo PlayerData vào đây")]
@@ -95,8 +116,8 @@ public class QuestManager : MonoBehaviour
         /* 6  */ "Khám phá Rừng Xanh: Đánh bại 3 Wild Beast.",
         /* 7  */ "Xây dựng đội hình: Sở hữu 3 loài Thú khác nhau.",
         /* 8  */ "Đến Hồ Thần Bí và bắt một con Thú hệ Nước.",
-        /* 9  */ "Đến Xưởng thủ công: Chế tạo Mồi Nhử (Bait) từ nông sản.",
-        /* 10 */ "Dùng Mồi Nhử bắt một con Thú Quý Hiếm (Rare Beast).",
+        /* 9  */ "Rèn luyện đội hình và chuẩn bị thu phục Thú Quý Hiếm.",
+        /* 10 */ "Bắt một con Thú Quý Hiếm (Rare Beast).",
         /* 11 */ "Chuẩn bị tinh thần: Kẻ thù truyền kiếp (Rival) thách đấu!",
         /* 12 */ "Tiến vào Rừng Sâu để tìm kiếm các Nhà Huấn Luyện.",
         /* 13 */ "Đánh bại 3 Nhà Huấn Luyện (Trainer) chặn đường trong Rừng Sâu.",
@@ -111,7 +132,11 @@ public class QuestManager : MonoBehaviour
         /* 22 */ "Mang Gỗ thu thập được bán cho Cửa Hàng để kiếm 150 Vàng.",
         /* 23 */ "Thú Cưng Tăng Cấp: Tăng cấp cho bạn đồng hành.",
         /* 24 */ "Khám Phá Hang Động: Đi tới Hang Động.",
-        /* 25 */ "Đến gặp Trưởng Làng để nhận hướng dẫn và chuẩn bị thu phục Thú."
+        /* 25 */ "Đến gặp Trưởng Làng để nhận hướng dẫn và chuẩn bị thu phục Thú.",
+        /* 26 */ "Khiêu chiến Gym Leader Đá (Gym 1): Đánh bại Trưởng Gym Đá để giành Huy Hiệu Đá.",
+        /* 27 */ "Khiêu chiến Gym Leader Nước (Gym 2): Đánh bại Trưởng Gym Nước để giành Huy Hiệu Nước.",
+        /* 28 */ "Khiêu chiến Gym Leader Cỏ (Gym 3): Đánh bại Trưởng Gym Cỏ để giành Huy Hiệu Cỏ.",
+        /* 29 */ "Bản Lĩnh Huấn Luyện Viên: Thu thập đủ 3 Huy Hiệu Gym để trở thành Huyền Thoại."
     };
 
     // Mảng tiêu đề cho các nhiệm vụ
@@ -142,7 +167,11 @@ public class QuestManager : MonoBehaviour
         /* 22 */ "Bán Gỗ Kiếm Tiền",
         /* 23 */ "Thú Cưng Tăng Cấp",
         /* 24 */ "Khám Phá Hang Động",
-        /* 25 */ "Gặp Trưởng Làng"
+        /* 25 */ "Gặp Trưởng Làng",
+        /* 26 */ "Huy Hiệu Đá",
+        /* 27 */ "Huy Hiệu Nước",
+        /* 28 */ "Huy Hiệu Cỏ",
+        /* 29 */ "Huyền Thoại Trainer"
     };
 
 
@@ -315,6 +344,14 @@ public class QuestManager : MonoBehaviour
         return questTitles[id];
     }
 
+    /// <summary>Trả về tiêu đề của Quest theo ID.</summary>
+    public string GetQuestTitle(int id)
+    {
+        if (id < 0 || id >= questTitles.Length) return $"Nhiệm vụ {id}";
+        return questTitles[id];
+    }
+
+
     /// <summary>Trả về mô tả của Quest hiện tại.</summary>
     public string GetCurrentQuestDescription()
     {
@@ -383,6 +420,7 @@ public class QuestManager : MonoBehaviour
         // Trao phần thưởng và chuyển sang nhiệm vụ tiếp theo
         GiveRewardForQuest(completedQuestId);
         isCurrentQuestCompleted = false;
+        OnQuestChanged?.Invoke();
         return true;
     }
 
@@ -524,6 +562,10 @@ public class QuestManager : MonoBehaviour
             {
                 playerData.currentMainQuestId = 8; // Sau Quest 25 (Gặp Trưởng Làng) -> Nhảy sang Quest 8 (Thu phục Thú hệ Nước)
             }
+            else if (questId == 8)
+            {
+                playerData.currentMainQuestId = 26; // Sau Quest 8 (Bắt Thú Hệ Nước) -> Bỏ giai đoạn 3, nhảy thẳng sang Quest 26 (Gym Leader Đá)
+            }
             else
             {
                 playerData.currentMainQuestId++;
@@ -547,28 +589,47 @@ public class QuestManager : MonoBehaviour
         if (playerData == null) return;
         int id = playerData.currentMainQuestId;
 
-        // Bỏ qua nhiệm vụ 9 (chế tạo mồi) theo yêu cầu
-        if (id == 9)
+        // Bỏ qua toàn bộ Giai đoạn 3 (Quest 6, 7, 10, 11, 12, 13, 14, 15) -> Nhảy thẳng sang Quest 26 (Gym Leader)
+        if ((id >= 6 && id <= 7) || (id >= 10 && id <= 15))
         {
-            playerData.currentMainQuestId = 10;
+            playerData.currentMainQuestId = 26;
             playerData.Save();
             CheckQuestImmediate();
             return;
         }
 
-        // Bỏ qua nhiệm vụ 17 (Demo ending) để đi tiếp sang câu cá
-        if (id == 17)
+        // Quest 0: Gặp Trưởng Làng để nhận Pet — Nếu đã có Pet rồi thì hoàn thành tự động
+        if (id == 0 && playerData.ownedBeasts != null && playerData.ownedBeasts.Count > 0)
         {
-            playerData.currentMainQuestId = 18;
-            playerData.Save();
-            CheckQuestImmediate();
+            MarkCurrentQuestCompleted();
             return;
         }
 
-        // Quest 7: Sở hữu 3 loài Thú khác nhau — có thể đã đủ từ trước
-        if (id == 7 && playerData.ownedBeasts.Count >= 3)
+        // Quest 26: Đánh bại Gym Leader Đá -> Đã nhận Huy Hiệu Đá
+        if (id == 26 && playerData.gymBadges != null && playerData.gymBadges.Contains("BoulderBadge"))
         {
-            AdvanceQuest();
+            MarkCurrentQuestCompleted();
+            return;
+        }
+
+        // Quest 27: Đánh bại Gym Leader Nước -> Đã nhận Huy Hiệu Nước
+        if (id == 27 && playerData.gymBadges != null && playerData.gymBadges.Contains("CascadeBadge"))
+        {
+            MarkCurrentQuestCompleted();
+            return;
+        }
+
+        // Quest 28: Đánh bại Gym Leader Cỏ -> Đã nhận Huy Hiệu Cỏ
+        if (id == 28 && playerData.gymBadges != null && playerData.gymBadges.Contains("ThunderBadge"))
+        {
+            MarkCurrentQuestCompleted();
+            return;
+        }
+
+        // Quest 29: Thu thập đủ 3 Huy hiệu Gym
+        if (id == 29 && playerData.gymBadges != null && playerData.gymBadges.Count >= 3)
+        {
+            MarkCurrentQuestCompleted();
             return;
         }
 

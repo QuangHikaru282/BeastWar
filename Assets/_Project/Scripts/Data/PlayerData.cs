@@ -20,6 +20,10 @@ public class PlayerData : ScriptableObject
     [Tooltip("Male hoặc Female")]
     public string characterGender = "Male";
 
+    [Header("Tên nhân vật")]
+    [Tooltip("Tên do người chơi đặt, hiển thị trong hội thoại")]
+    public string playerName = "Trainer";
+
     [Header("Tiến Trình Nhiệm Vụ Chính")]
     public int currentMainQuestId = 0; 
 
@@ -31,6 +35,24 @@ public class PlayerData : ScriptableObject
     
     [Header("Trainer đã đánh bại")]
     public List<string> defeatedTrainers = new List<string>();
+
+    [Header("Huy hiệu Gym (Gym Badges)")]
+    [Tooltip("Danh sách ID huy hiệu Gym đã thu thập")]
+    public List<string> gymBadges = new List<string>();
+
+    /// <summary>Thêm Huy hiệu Gym mới nếu chưa có.</summary>
+    public bool AddGymBadge(string badgeId)
+    {
+        if (string.IsNullOrEmpty(badgeId)) return false;
+        if (!gymBadges.Contains(badgeId))
+        {
+            gymBadges.Add(badgeId);
+            Save();
+            Debug.Log($"<color=yellow>[PlayerData]</color> Đã nhận Huy hiệu Gym mới: {badgeId}. Tổng số huy hiệu: {gymBadges.Count}");
+            return true;
+        }
+        return false;
+    }
 
     [Tooltip("Số vàng hiện có")]
     public int gold = 0;
@@ -83,6 +105,7 @@ public class PlayerData : ScriptableObject
         currentFormation.Clear();
         unlockedMaps.Clear();
         defeatedTrainers.Clear();
+        gymBadges.Clear();
         savedInventoryItems.Clear(); // Xóa sạch dữ liệu kho đồ đã lưu
         gold = 0;
         characterGender = "Male";
@@ -103,6 +126,7 @@ public class PlayerData : ScriptableObject
         public int gold;
         public List<string> unlockedMaps;
         public List<string> defeatedTrainers;
+        public List<string> gymBadges;
         public List<SavedItem> savedInventoryItems;
     }
 
@@ -259,6 +283,7 @@ public class PlayerData : ScriptableObject
             gold = this.gold,
             unlockedMaps = this.unlockedMaps,
             defeatedTrainers = this.defeatedTrainers,
+            gymBadges = this.gymBadges,
             savedInventoryItems = this.savedInventoryItems
         };
 
@@ -295,6 +320,7 @@ public class PlayerData : ScriptableObject
         this.gold = data.gold;
         if (data.unlockedMaps != null) this.unlockedMaps = data.unlockedMaps;
         if (data.defeatedTrainers != null) this.defeatedTrainers = data.defeatedTrainers;
+        if (data.gymBadges != null) this.gymBadges = data.gymBadges;
         if (data.savedInventoryItems != null)
         {
             this.savedInventoryItems = data.savedInventoryItems;

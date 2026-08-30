@@ -12,10 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f258cfcff2745844b8fc8ff19e0842ae, type: 3}
   m_Name: DanhThuong
   m_EditorClassIdentifier: Assembly-CSharp::MoveData
-  moveName: MAI
+  moveName: "K\u1EF9 "
   moveType: 0
+  moveElement: 0
   icon: {fileID: 0}
   description: 
   power: 20
+  statusToApply: 0
+  statusChance: 0
   vfxPrefab: {fileID: 0}
   vfxSpawnType: 0
+  maxLevel: 10
+  baseUpgradeCost: 100

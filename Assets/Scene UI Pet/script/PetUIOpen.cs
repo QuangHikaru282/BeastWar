@@ -18,9 +18,13 @@ public sealed class PetUIOpen : MonoBehaviour
         openButton = GetComponent<Button>();
         openButton.onClick.AddListener(OpenPetUI);
 
-        // Khi bắt đầu game, giao diện Pet sẽ được ẩn.
-        if (petUIRoot != null)
+        AutoFindReferences();
+
+        // Chỉ ẩn PetPanel con khi bắt đầu game, không ẩn PetUI cha
+        if (petUIRoot != null && petUIRoot.name != "PetUI")
+        {
             petUIRoot.SetActive(false);
+        }
     }
 
     private void OnDestroy()
@@ -36,20 +40,20 @@ public sealed class PetUIOpen : MonoBehaviour
             petUIManager = FindFirstObjectByType<PetUIManager>(FindObjectsInactive.Include);
         }
 
-        if (petUIRoot == null)
+        if (petUIRoot == null || petUIRoot.name == "PetUI")
         {
-            if (petUIManager != null)
+            GameObject panelObj = GameObject.Find("PetPanel");
+            if (panelObj != null)
             {
-                petUIRoot = petUIManager.gameObject;
+                petUIRoot = panelObj;
             }
-            else
+            else if (petUIManager != null && petUIManager.transform.childCount > 0)
             {
-                GameObject rootObj = GameObject.Find("PetPanel");
-                if (rootObj == null) rootObj = GameObject.Find("PetUI");
-                if (rootObj != null) petUIRoot = rootObj;
+                petUIRoot = petUIManager.transform.GetChild(0).gameObject;
             }
         }
     }
+
 
     public void OpenPetUI()
     {

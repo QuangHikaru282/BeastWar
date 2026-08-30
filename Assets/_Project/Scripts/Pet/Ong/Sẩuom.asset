@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b72f15b89a08de468adc0ad91b2dda1, type: 3}
+  m_Name: "S\u1EA9uom"
+  m_EditorClassIdentifier: Assembly-CSharp::BeastData
+  beastName: "S\xE2u r\xF3m"
+  element: 3
+  enhanceElement: 3
+  isRare: 0
+  frontSprite: {fileID: -6463663569546402909, guid: 5d6c2ff7c2712904e871d8572ba8f301, type: 3}
+  backSprite: {fileID: -162500218350287264, guid: 17f0568ff0e10bf4f93405c195c59b6e, type: 3}
+  image2: {fileID: 0}
+  animatorController: {fileID: 0}
+  maxHP: 66
+  attack: 39
+  defense: 18
+  speed: 21
+  captureRate: 1
+  moves:
+  - {fileID: 11400000, guid: 886039c2f8442594fa07da311d33c4e0, type: 2}
+  - {fileID: 11400000, guid: 936bb3bd263d4f74a94410faa2dc90f3, type: 2}
+  evolveTarget: {fileID: 11400000, guid: 4fd46a656b371a74da6f153b26ff2e40, type: 2}
+  evolveLevel: 1
+  evolveGoldCost: 50
+  rewardGold: 25
+  rewardExp: 0

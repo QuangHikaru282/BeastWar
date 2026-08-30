@@ -10,6 +10,14 @@ public class PlayIntroVideo : MonoBehaviour
     [SerializeField] private GameObject characterSelectPanel;
     [SerializeField] private GameObject introVideoPanel;
 
+    [Header("Character Select Controller mới")]
+    [Tooltip("Kéo GameObject chứa CharacterSelectController vào đây")]
+    [SerializeField] private CharacterSelectController charSelectController;
+
+    [Header("Dữ liệu Người Chơi")]
+    [Tooltip("Kéo PlayerData asset vào đây để reset khi bắt đầu game mới")]
+    [SerializeField] private PlayerData playerData;
+
     [Header("Video")]
     [SerializeField] private VideoPlayer videoPlayer;
     [SerializeField] private RawImage videoRawImage;
@@ -21,9 +29,9 @@ public class PlayIntroVideo : MonoBehaviour
 
     private void Start()
     {
-        buttonContainer.SetActive(true);
-        characterSelectPanel.SetActive(false);
-        introVideoPanel.SetActive(false);
+        if (buttonContainer != null) buttonContainer.SetActive(true);
+        if (characterSelectPanel != null) characterSelectPanel.SetActive(false);
+        if (introVideoPanel != null) introVideoPanel.SetActive(false);
 
         if (videoRawImage != null)
             videoRawImage.enabled = false;
@@ -45,8 +53,26 @@ public class PlayIntroVideo : MonoBehaviour
         if (isStartingGame)
             return;
 
-        buttonContainer.SetActive(false);
-        characterSelectPanel.SetActive(true);
+        // Nếu có CharacterSelectController mới, dùng nó
+        if (charSelectController != null)
+        {
+            // Reset toàn bộ dữ liệu người chơi để đảm bảo ElderNPC hiện bảng chọn Pet
+            if (playerData != null)
+            {
+                playerData.ResetData();
+                Debug.Log("[PlayIntroVideo] Đã reset PlayerData cho game mới!");
+            }
+
+            SaveLoadSystem.DeleteSave();
+
+            if (buttonContainer != null) buttonContainer.SetActive(false);
+            charSelectController.StartCharacterSelect();
+            return;
+        }
+
+        // Fallback: dùng CharSelectPanel cũ
+        if (buttonContainer != null) buttonContainer.SetActive(false);
+        if (characterSelectPanel != null) characterSelectPanel.SetActive(true);
     }
 
     // Gắn trực tiếp vào nút Male
@@ -78,25 +104,28 @@ public class PlayIntroVideo : MonoBehaviour
 
     private void StartTrailer()
     {
-        characterSelectPanel.SetActive(false);
-        buttonContainer.SetActive(false);
+        if (characterSelectPanel != null) characterSelectPanel.SetActive(false);
+        if (buttonContainer != null) buttonContainer.SetActive(false);
+
+        // Nếu introVideoPanel bị xóa hoặc không gán VideoPlayer, vào game trực tiếp luôn
+        if (introVideoPanel == null || videoPlayer == null)
+        {
+            Debug.Log("Không có Video Trailer. Vào game trực tiếp...");
+            LoadGameScene();
+            return;
+        }
+
         introVideoPanel.SetActive(true);
 
         if (videoRawImage != null)
             videoRawImage.enabled = false;
-
-        if (videoPlayer == null)
-        {
-            Debug.LogError("Chưa gán VideoPlayer.");
-            LoadGameScene();
-            return;
-        }
 
         videoPlayer.Stop();
         videoPlayer.Prepare();
 
         Debug.Log("Đang chuẩn bị trailer...");
     }
+
 
     private void OnVideoPrepared(VideoPlayer player)
     {
