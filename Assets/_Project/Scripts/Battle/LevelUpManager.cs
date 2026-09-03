@@ -64,7 +64,7 @@ public class LevelUpManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Logic Tăng Cấp: Tăng các chỉ số cơ bản của thú.
+    /// Logic Tăng Cấp: Tăng cấp và kiểm tra xem có chiêu mới nào cần học không.
     /// </summary>
     private void LevelUp(RuntimeBeastData beast)
     {
@@ -78,7 +78,57 @@ public class LevelUpManager : MonoBehaviour
             global::QuestManager.Instance.OnBeastLevelUp();
         }
 
-        // TODO: Mở khóa chiêu thức hoặc Tiến hóa có thể kiểm tra ở đây
+        // ── Kiểm tra chiêu mới theo level ────────────────────────────────────
+        CheckLearnableMoves(beast, beast.currentLevel);
+
+        // ── Kiểm tra tiến hóa tự động theo level ──────────────────────────────
+        CheckEvolution(beast);
+    }
+
+    private void CheckEvolution(RuntimeBeastData beast)
+    {
+        if (beast?.baseBeast == null) return;
+
+        if (beast.baseBeast.evolveTarget != null && beast.baseBeast.evolveLevel > 0 && beast.currentLevel >= beast.baseBeast.evolveLevel)
+        {
+            EvolutionQueue.Enqueue(beast, beast.baseBeast.evolveTarget);
+            Debug.Log($"<color=cyan>[LevelUpManager] {beast.baseBeast.beastName} đã đủ điều kiện tiến hóa thành {beast.baseBeast.evolveTarget.beastName} (Lv.{beast.currentLevel}/{beast.baseBeast.evolveLevel})!</color>");
+        }
+    }
+
+    /// <summary>
+    /// Kiểm tra bảng learnableMoves của Beast: nếu có chiêu cần học ở level này
+    /// thì đưa vào LearnMoveQueue để xử lý sau trận (tránh gián đoạn flow trận đấu).
+    /// </summary>
+    private void CheckLearnableMoves(RuntimeBeastData beast, int newLevel)
+    {
+        if (beast?.baseBeast?.learnableMoves == null) return;
+
+        foreach (var entry in beast.baseBeast.learnableMoves)
+        {
+            if (entry.move == null) continue;
+            if (entry.levelRequired != newLevel) continue;
+
+            // Đã có chiêu này rồi thì bỏ qua
+            bool alreadyHas = false;
+            if (beast.moves != null)
+            {
+                foreach (var m in beast.moves)
+                {
+                    if (m != null && m.baseMove == entry.move)
+                    {
+                        alreadyHas = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!alreadyHas)
+            {
+                LearnMoveQueue.Enqueue(beast, entry.move);
+                Debug.Log($"[LevelUpManager] {beast.baseBeast.beastName} sắp học được chiêu mới: {entry.move.moveName} (Lv.{newLevel})");
+            }
+        }
     }
 
     /// <summary>

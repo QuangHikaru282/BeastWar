@@ -20,9 +20,12 @@ public class PlayerData : ScriptableObject
     [Tooltip("Male hoặc Female")]
     public string characterGender = "Male";
 
-    [Header("Tên nhân vật")]
+    [Header("Tên nhân vật & Mã số Trainer")]
     [Tooltip("Tên do người chơi đặt, hiển thị trong hội thoại")]
     public string playerName = "Trainer";
+
+    [Tooltip("Mã số Huấn Luyện Viên (IDNo.) hiển thị trên Thẻ Trainer")]
+    public int trainerId = 58392;
 
     [Header("Tiến Trình Nhiệm Vụ Chính")]
     public int currentMainQuestId = 0; 
@@ -46,6 +49,23 @@ public class PlayerData : ScriptableObject
     [Header("Huy hiệu Gym (Gym Badges)")]
     [Tooltip("Danh sách ID huy hiệu Gym đã thu thập")]
     public List<string> gymBadges = new List<string>();
+
+    [Header("Vật phẩm đặc biệt & Phương tiện di chuyển")]
+    [Tooltip("Đã nhận Giày Chạy (Running Shoes) chưa")]
+    public bool hasRunningShoes = false;
+
+    [Tooltip("Đã nhận Phiếu Giảm Giá Xe Đạp (Bike Voucher) từ Bill chưa")]
+    public bool hasBikeVoucher = false;
+
+    [Tooltip("Đã sở hữu Xe Đạp (Bicycle) chưa")]
+    public bool hasBicycle = false;
+
+    [Tooltip("Đang kích hoạt chế độ đi Xe Đạp")]
+    public bool isRidingBicycle = false;
+
+    [Header("BeastDex (Danh sách Beast đã thấy/bắt)")]
+    [Tooltip("Danh sách ID hoặc Tên các Beast người chơi đã từng nhìn thấy")]
+    public List<string> seenBeasts = new List<string>();
 
     /// <summary>Thêm Huy hiệu Gym mới nếu chưa có.</summary>
     public bool AddGymBadge(string badgeId)
@@ -77,11 +97,39 @@ public class PlayerData : ScriptableObject
             ownedBeasts.Add(beast);
         Debug.Log($"[PlayerData] Đã thêm {(beast.baseBeast != null ? beast.baseBeast.beastName : "Unknown")} vào bộ sưu tập. Tổng: {ownedBeasts.Count}");
         
+        if (beast.baseBeast != null)
+        {
+            RegisterSeenBeast(beast.baseBeast.name);
+        }
+
         // Báo cho hệ thống Quest biết để cập nhật nhiệm vụ
         if (QuestManager.Instance != null && beast.baseBeast != null)
         {
             QuestManager.Instance.OnBeastCaught(beast);
         }
+    }
+
+    /// <summary>Ghi nhận đã nhìn thấy Beast này trong tự nhiên / trận đấu</summary>
+    public void RegisterSeenBeast(string beastAssetName)
+    {
+        if (string.IsNullOrEmpty(beastAssetName)) return;
+        if (!seenBeasts.Contains(beastAssetName))
+        {
+            seenBeasts.Add(beastAssetName);
+            Save();
+        }
+    }
+
+    public bool HasSeenBeast(string beastAssetName)
+    {
+        if (string.IsNullOrEmpty(beastAssetName)) return false;
+        return seenBeasts.Contains(beastAssetName) || HasCaughtBeast(beastAssetName);
+    }
+
+    public bool HasCaughtBeast(string beastAssetName)
+    {
+        if (string.IsNullOrEmpty(beastAssetName)) return false;
+        return ownedBeasts.Exists(b => b != null && b.baseBeast != null && b.baseBeast.name == beastAssetName);
     }
 
     /// <summary>Lưu đội hình hiện tại.</summary>
@@ -116,6 +164,11 @@ public class PlayerData : ScriptableObject
         unlockedMaps.Clear();
         defeatedTrainers.Clear();
         gymBadges.Clear();
+        hasRunningShoes = false;
+        hasBikeVoucher = false;
+        hasBicycle = false;
+        isRidingBicycle = false;
+        seenBeasts.Clear();
         savedInventoryItems.Clear(); // Xóa sạch dữ liệu kho đồ đã lưu
         gold = 50;
         characterGender = "Male";
@@ -139,6 +192,10 @@ public class PlayerData : ScriptableObject
         public List<string> unlockedMaps;
         public List<string> defeatedTrainers;
         public List<string> gymBadges;
+        public bool hasRunningShoes;
+        public bool hasBikeVoucher;
+        public bool hasBicycle;
+        public List<string> seenBeasts;
         public List<SavedItem> savedInventoryItems;
         public string respawnSceneName;
         public string respawnSpawnPointId;
@@ -305,6 +362,10 @@ public class PlayerData : ScriptableObject
             unlockedMaps = this.unlockedMaps,
             defeatedTrainers = this.defeatedTrainers,
             gymBadges = this.gymBadges,
+            hasRunningShoes = this.hasRunningShoes,
+            hasBikeVoucher = this.hasBikeVoucher,
+            hasBicycle = this.hasBicycle,
+            seenBeasts = this.seenBeasts,
             savedInventoryItems = this.savedInventoryItems,
             respawnSceneName = this.respawnSceneName,
             respawnSpawnPointId = this.respawnSpawnPointId
@@ -336,14 +397,16 @@ public class PlayerData : ScriptableObject
         SaveData data = SaveLoadSystem.LoadData<SaveData>();
         if (data == null) return;
 
-        if (data == null) return;
-
         this.characterGender = data.characterGender;
         this.currentMainQuestId = data.currentMainQuestId;
         this.gold = data.gold;
         if (data.unlockedMaps != null) this.unlockedMaps = data.unlockedMaps;
         if (data.defeatedTrainers != null) this.defeatedTrainers = data.defeatedTrainers;
         if (data.gymBadges != null) this.gymBadges = data.gymBadges;
+        this.hasRunningShoes = data.hasRunningShoes;
+        this.hasBikeVoucher = data.hasBikeVoucher;
+        this.hasBicycle = data.hasBicycle;
+        if (data.seenBeasts != null) this.seenBeasts = data.seenBeasts;
         if (data.savedInventoryItems != null)
         {
             this.savedInventoryItems = data.savedInventoryItems;

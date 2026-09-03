@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 544a5f300dc099a4fa67d60ad20c24be, type: 3}
+  m_Name: Carrot_Crop
+  m_EditorClassIdentifier: Assembly-CSharp::BeastBall.Farming.Crop
+  UniqueID: crop_carrot
+  GrowthStagesTiles:
+  - {fileID: 11400000, guid: df012403490611b4f9464b9591cbd9a8, type: 2}
+  - {fileID: 11400000, guid: ed6430b2fbb2b4b4580d9c8a3b662406, type: 2}
+  - {fileID: 11400000, guid: 595621107329b634b932d0ced0f4477f, type: 2}
+  - {fileID: 11400000, guid: 32d0bd5622bc52e4da9091356d81e7ac, type: 2}
+  - {fileID: 11400000, guid: 11f76000d70cdfb42ac1e37d1b5340db, type: 2}
+  - {fileID: 11400000, guid: 4a0d415ea81cc654ea4cb12bd46440c1, type: 2}
+  Produce: {fileID: 0}
+  GrowthTime: 60
+  NumberOfHarvest: 1
+  StageAfterHarvest: 1
+  ProductPerHarvest: 2
+  DryDeathTimer: 120
+  HarvestEffect: {fileID: 0}

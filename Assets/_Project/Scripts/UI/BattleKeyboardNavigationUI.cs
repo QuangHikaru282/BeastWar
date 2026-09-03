@@ -21,6 +21,9 @@ public class BattleKeyboardNavigationUI : MonoBehaviour
     [Tooltip("Kéo nút Thoát vào đây")]
     [SerializeField] private Button escapeButton;
 
+    [Tooltip("Kéo nút Đổi Pet / Đội hình vào đây")]
+    [SerializeField] private Button partyButton;
+
     [Tooltip("Kéo các nút Kĩ năng vào đây theo thứ tự từ trái qua phải")]
     [SerializeField] private Button[] skillButtons;
 
@@ -55,6 +58,9 @@ public class BattleKeyboardNavigationUI : MonoBehaviour
 
         if (backpackButton != null && backpackButton.gameObject.activeInHierarchy)
             activeList.Add(backpackButton);
+
+        if (partyButton != null && partyButton.gameObject.activeInHierarchy)
+            activeList.Add(partyButton);
 
         if (escapeButton != null && escapeButton.gameObject.activeInHierarchy)
             activeList.Add(escapeButton);
@@ -116,6 +122,27 @@ public class BattleKeyboardNavigationUI : MonoBehaviour
 
     private void Update()
     {
+        // Phím P để mở nhanh Bảng Party / Đổi Pet
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            if (BattlePartyUI.Instance != null && !BattlePartyUI.Instance.IsOpen)
+            {
+                BattleActionIconsUI.Instance?.OnPartyButtonClicked();
+                return;
+            }
+        }
+
+        // 0. NẾU BẢNG PARTY HOẶC BẢNG HỌC CHIÊU ĐANG MỞ -> Nhường quyền điều khiển
+        if (BattlePartyUI.Instance != null && BattlePartyUI.Instance.IsOpen)
+        {
+            return;
+        }
+
+        if (LearnMoveUI.Instance != null && (LearnMoveUI.Instance.IsChoicePanelActive || LearnMoveUI.Instance.IsMoveReplaceScreenActive))
+        {
+            return;
+        }
+
         // 1. NẾU PANEL XÁC NHẬN THOÁT ĐANG MỞ
         if (escapeConfirmPanel != null && escapeConfirmPanel.activeInHierarchy)
         {
@@ -133,6 +160,8 @@ public class BattleKeyboardNavigationUI : MonoBehaviour
         // 3. THANH CHÍNH TRẬN ĐẤU (Hàng ngang - Dùng A / D)
         HandleMainBarNavigation();
     }
+
+
 
     // ─────────────────────────────────────────────────────────────────────────────
     // 1. THANH CHÍNH (HÀNG NGANG: A / D)

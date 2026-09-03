@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
@@ -17,6 +17,8 @@ public class BattleActionIconsUI : MonoBehaviour
     [SerializeField] private Button pokeballBtn;
     [SerializeField] private Button backpackBtn;
     [SerializeField] private Button escapeBtn;
+    [Tooltip("Nút Đổi Pet / Mở Đội Hình trong trận")]
+    [SerializeField] private Button partyBtn;
 
     [Header("Pokeball count text (optional)")]
     [SerializeField] private Text pokeballCountText;
@@ -71,6 +73,12 @@ public class BattleActionIconsUI : MonoBehaviour
             escapeBtn.onClick.AddListener(OnEscapeClicked);
         }
 
+        if (partyBtn != null)
+        {
+            partyBtn.onClick.RemoveAllListeners();
+            partyBtn.onClick.AddListener(OnPartyButtonClicked);
+        }
+
         if (escapeConfirmYesBtn != null)
         {
             escapeConfirmYesBtn.onClick.RemoveAllListeners();
@@ -90,6 +98,7 @@ public class BattleActionIconsUI : MonoBehaviour
             backpackBtn.onClick.RemoveAllListeners();
             backpackBtn.onClick.AddListener(OnBackpackClicked);
         }
+
 
         // Goi BattleCaptureHandler cap nhat UI Pokeball
         if (BattleCaptureHandler.Instance != null)
@@ -281,6 +290,8 @@ public class BattleActionIconsUI : MonoBehaviour
         if (backpackBtn != null) backpackBtn.interactable = interactable;
         if (escapeBtn != null) escapeBtn.interactable = interactable;
 
+        if (partyBtn != null) partyBtn.interactable = interactable;
+
         if (!interactable)
         {
             if (itemMenuUI != null && itemMenuUI.IsOpen)
@@ -293,4 +304,30 @@ public class BattleActionIconsUI : MonoBehaviour
             }
         }
     }
+
+    // ─── Party / Đổi Pet ─────────────────────────────────────────────
+
+    public void OnPartyButtonClicked()
+    {
+        if (IsEscapeConfirmOpen) return;
+        if (itemMenuUI != null && itemMenuUI.IsOpen) itemMenuUI.CloseMenu();
+
+        if (BattlePartyUI.Instance != null)
+        {
+            BattlePartyUI.Instance.OpenParty(
+                onSelected: (chosenPet) =>
+                {
+                    BattleManager.Instance?.RequestPlayerSwitchBeast(chosenPet);
+                },
+                onCancel: () =>
+                {
+                    if (BattleKeyboardNavigationUI.Instance != null)
+                    {
+                        BattleKeyboardNavigationUI.Instance.FocusFirstSkill();
+                    }
+                }
+            );
+        }
+    }
 }
+

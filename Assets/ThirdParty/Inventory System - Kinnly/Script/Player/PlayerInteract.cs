@@ -165,6 +165,16 @@ namespace Kinnly
                 {
                     var farmingItem = playerInventory.CurrentlySelectedInventoryItem.Item.farmingItemDelegate;
                     
+                    if (farmingItem is BeastBall.Farming.Hoe)
+                    {
+                        var hoeAction = GetComponent<PlayerHoeAction>();
+                        if (hoeAction != null)
+                        {
+                            // Nhường việc cuốc đất cho PlayerHoeAction để đồng bộ đúng lúc lưỡi cuốc chạm đất
+                            return;
+                        }
+                    }
+
                     if (farmingItem.CanUse(cellPos))
                     {
                         bool success = farmingItem.Use(cellPos);
@@ -191,9 +201,29 @@ namespace Kinnly
             {
                 if (insideTrigger != null)
                 {
-                    if (insideTrigger.GetComponent<IInteractable>() != null)
+                    // Lấy TẤT CẢ IInteractable trên GameObject, rồi chọn script đầu tiên còn enabled.
+                    // Điều này cho phép NPCDialogue tự tắt mình sau khi thoại xong,
+                    // và lần sau nhấn F sẽ tự động gọi script tiếp theo (ví dụ: NurseJoyHealerNPC).
+                    IInteractable activeInteractable = null;
+                    foreach (var interactable in insideTrigger.GetComponents<IInteractable>())
                     {
-                        insideTrigger.GetComponent<IInteractable>().Interact(playerInventory);
+                        // MonoBehaviour có thuộc tính isActiveAndEnabled
+                        if (interactable is MonoBehaviour mb && mb.enabled)
+                        {
+                            activeInteractable = interactable;
+                            break;
+                        }
+                        // Fallback: nếu không phải MonoBehaviour thì dùng luôn
+                        else if (!(interactable is MonoBehaviour))
+                        {
+                            activeInteractable = interactable;
+                            break;
+                        }
+                    }
+
+                    if (activeInteractable != null)
+                    {
+                        activeInteractable.Interact(playerInventory);
                         if (playerMovement != null) playerMovement.SetDirection(this.transform.localPosition);
                     }
                 }
@@ -202,6 +232,7 @@ namespace Kinnly
             {
                 insideTrigger = null;
             }
+
 
         }
 

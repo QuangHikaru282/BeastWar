@@ -20,6 +20,12 @@ public class RuntimeMoveData : ISerializationCallbackReceiver
     [Min(0)]
     public int power;
 
+    [Header("Số lần dùng (PP)")]
+    [Min(0)]
+    public int currentPP = -1; // -1 nghĩa là chưa khởi tạo, mặc định bằng MaxPP
+
+    public int MaxPP => baseMove != null ? baseMove.maxPP : 35;
+
     /// <summary>
     /// Constructor rỗng để Unity có thể serialize dữ liệu.
     /// </summary>
@@ -50,6 +56,7 @@ public class RuntimeMoveData : ISerializationCallbackReceiver
     {
         baseMove = baseData;
         currentLevel = Mathf.Max(1, level);
+        currentPP = MaxPP;
 
         ClampLevel();
         RecalculatePower();

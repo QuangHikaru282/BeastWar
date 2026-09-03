@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fa3c59b908c17f468de2d04e00f9531, type: 3}
+  m_Name: Kinnly_PotatoSeed
+  m_EditorClassIdentifier: Assembly-CSharp::Kinnly.Item
+  id: 0
+  name: "H\u1EA1t Khoai T\xE2y"
+  description: "C\u1EE7 m\u1EA7m khoai t\xE2y d\u1EC5 tr\u1ED3ng, sinh tr\u01B0\u1EDFng
+    t\u1ED1t."
+  price: 40
+  image: {fileID: 5536827405519278002, guid: 08e43f672552c884dab78693f43e1fd0, type: 3}
+  isStackable: 1
+  isSpecialItem: 0
+  isConsumable: 1
+  isBuildable: 0
+  building: {fileID: 0}
+  isTools: 0
+  isAxe: 0
+  isPickaxe: 0
+  farmingItemDelegate: {fileID: 11400000, guid: 7b090d1bfe076e54dab8eeca4404f15a, type: 2}
+  isWoodResource: 0
+  woodResourceRarity: 0
+  axeIndicatorSpeedMultiplier: 1
+  axeRareDropBonus: 0

@@ -249,12 +249,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8397941ab55eebc47bf3a8de753a2b7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HouseDoorInteractable
-  targetSceneName: HoangDa2
+  targetSceneName: MainMap
   targetSpawnPointId: Lab_Out
   playerData: {fileID: 11400000, guid: 86002785663fef148821f3bc0a8c1986, type: 2}
   requireQuestUnlock: 0
   requiredQuestId: 0
   lockedMessage: "C\u1EEDa n\xE0y \u0111ang kh\xF3a!"
+  isRespawnCheckpoint: 0
+  outsideRespawnSpawnPointId: FromTown
 --- !u!61 &611389072
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -802,6 +804,8 @@ MonoBehaviour:
     Pet \u0111\u1EC3 kh\u1EDFi \u0111\u1EA7u "
   - "\u0110\u1EBFn c\xE1i b\xE0n \u0111\u1EB1ng kia v\xE0 ch\u1ECDn l\u1EA5y 1 Pet
     kh\u1EDFi \u0111\u1EA7u c\u1EE7a ch\xE1u \u0111i \n"
+  disableAfterDialogue: 0
+  saveKey: 
 --- !u!1 &1214933656
 GameObject:
   m_ObjectHideFlags: 0

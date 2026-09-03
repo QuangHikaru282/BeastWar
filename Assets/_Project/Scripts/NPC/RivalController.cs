@@ -164,10 +164,7 @@ public class RivalController : MonoBehaviour, Kinnly.IInteractable
         battleTransferData.isTrainerBattle = true;
         battleTransferData.isGymLeaderBattle = false;
         battleTransferData.lastEncounteredBeastId = uniqueRivalId;
-        battleTransferData.returnToLastPosition = true;
-
-        if (playerObj != null)
-            battleTransferData.lastPlayerPosition = playerObj.transform.position;
+        // lastPlayerPosition và returnToLastPosition được GameSceneManager.GoToBattle() tự xử lý
 
         List<RuntimeBeastData> runtimeTeam = new List<RuntimeBeastData>();
         foreach (var beast in chosenTeam)
@@ -178,7 +175,7 @@ public class RivalController : MonoBehaviour, Kinnly.IInteractable
         battleTransferData.SetEnemyTeam(runtimeTeam);
 
         Debug.Log($"[RivalController] ✅ GoToBattle! SceneTransitionManager = {SceneTransitionManager.Instance}");
-        GameSceneManager.GoToBattle();
+        GameSceneManager.GoToBattle(battleTransferData);
     }
 
 

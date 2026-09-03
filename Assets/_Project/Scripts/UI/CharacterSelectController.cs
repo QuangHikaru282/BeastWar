@@ -84,8 +84,12 @@ public class CharacterSelectController : MonoBehaviour
     [Tooltip("Kéo file PlayerData asset vào đây")]
     [SerializeField] private PlayerData playerData;
 
+    [Header("Cấu hình Chuyển Cảnh sau khi chọn")]
     [Tooltip("Tên Scene GameCore / Lau1 để chuyển vào khi bắt đầu game")]
     [SerializeField] private string gameSceneName = "GameCore, Lau1";
+
+    [Tooltip("ID của Điểm Hồi Sinh / Điểm Xuất Hiện ban đầu trong Lau1 (khớp với Spawn Id trong script MapSpawnPoint)")]
+    [SerializeField] private string initialSpawnPointId = "GameStart";
 
     [Tooltip("Kéo WorldIntroUI vào đây nếu muốn hiển thị bảng giới thiệu thế giới sau khi bấm Xác Nhận đặt tên")]
     [SerializeField] private BeastWar.UI.WorldIntroUI worldIntroUI;
@@ -318,13 +322,13 @@ public class CharacterSelectController : MonoBehaviour
         {
             playerData.playerName = inputName;
             playerData.characterGender = gender;
-            playerData.targetSpawnPointId = "1"; // Khớp với SpawnPoint_Inside trong scene Lau1
+            playerData.targetSpawnPointId = initialSpawnPointId;
         }
 
         // Lưu dự phòng qua PlayerPrefs (để các scene khác đọc được)
         PlayerPrefs.SetString("PlayerName", inputName);
         PlayerPrefs.SetString("SelectedCharacter", gender);
-        PlayerPrefs.SetString("TargetSpawnPointId", "1");
+        PlayerPrefs.SetString("TargetSpawnPointId", initialSpawnPointId);
         PlayerPrefs.Save();
 
         Debug.Log($"[CharSelect] Đã chọn: {gender} | Tên: {inputName}");

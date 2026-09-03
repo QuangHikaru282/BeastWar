@@ -59,7 +59,7 @@ namespace Kinnly
             GetCurrentlySelectedItem();
             OnDrawOutline();
 
-            if (Input.GetMouseButton(0))
+            if (Input.GetMouseButtonDown(0))
             {
                 if (playerMovement == null || playerMovement.isUsingTools == false)
                 {
@@ -67,7 +67,7 @@ namespace Kinnly
                 }
                 else
                 {
-                    if (Input.GetMouseButtonDown(0)) Debug.Log("Lỗi: isUsingTools đang bị kẹt ở trạng thái TRUE nên không thể vung cuốc!");
+                    Debug.Log("Lỗi: isUsingTools đang bị kẹt ở trạng thái TRUE nên không thể dùng tool!");
                 }
             }
 
@@ -168,6 +168,12 @@ namespace Kinnly
                     Vector3Int cellPos = terrainManager.Grid.WorldToCell(mouseWorldPos);
                     Debug.Log($"Farming Debug: Đang click chuột tại {mouseWorldPos}, đổi thành ô Lưới (Grid): {cellPos}");
                     
+                    if (currentlySelectedItem.farmingItemDelegate is BeastBall.Farming.Hoe)
+                    {
+                        // Nhường hoàn toàn cho PlayerHoeAction để thực hiện hoạt ảnh vung cuốc 4 hướng và đợi chạm đất
+                        return;
+                    }
+
                     if (currentlySelectedItem.farmingItemDelegate.CanUse(cellPos))
                     {
                         Debug.Log("Farming Debug: Hàm CanUse trả về TRUE. Đang tiến hành thực hiện hành động Farming!");

@@ -182,18 +182,19 @@ public class PetInfoUIManager : MonoBehaviour
         {
             // Trừ tiền
             playerData.gold -= reqGold;
+            RefreshGoldUI();
             
-            // Thực hiện tiến hóa
-            if (selectedBeast.Evolve())
+            // Kích hoạt Hoạt ảnh Tiến Hóa Cutscene
+            var target = selectedBeast.baseBeast.evolveTarget;
+            EvolutionCutsceneManager.Instance.PlayEvolution(selectedBeast, target, onComplete: () =>
             {
                 Debug.Log($"[Evolve] Tiến hóa thành công thành {selectedBeast.baseBeast.beastName}!");
                 playerData.Save();
 
-                // Cập nhật lại UI tiền, list thú bên trái và thông tin thú giữa màn hình
-                RefreshGoldUI();
+                // Cập nhật lại UI list thú bên trái và thông tin thú giữa màn hình
                 LoadBeastList();
                 SelectBeast(selectedBeast); 
-            }
+            });
         }
     }
 

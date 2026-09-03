@@ -270,13 +270,25 @@ public class SceneTransitionManager : MonoBehaviour
             SceneManager.SetActiveScene(primarySceneObj);
         }
 
+        // Chờ 1 frame để các Scene phụ (Lau1) khởi tạo hoàn toàn các Component
+        yield return null;
+        yield return new WaitForEndOfFrame();
+
         // KHÔI PHỤC VỊ TRÍ NGƯỜI CHƠI SAU TRẬN ĐÁNH (Thay thế cho AutoLoadAdditiveScene)
         BattleTransferData battleData = Resources.Load<BattleTransferData>("BattleTransferData");
         if (battleData != null && battleData.returnToLastPosition)
         {
             GameObject player = GameObject.FindWithTag("Player");
+            if (player == null) player = GameObject.Find("PF Player");
+
             if (player != null)
             {
+                Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+                if (rb != null)
+                {
+                    rb.linearVelocity = Vector2.zero;
+                    rb.position = battleData.lastPlayerPosition;
+                }
                 player.transform.position = battleData.lastPlayerPosition;
                 battleData.returnToLastPosition = false;
                 Debug.Log($"[SceneTransitionManager] Đã khôi phục vị trí người chơi về: {battleData.lastPlayerPosition}");
@@ -289,12 +301,18 @@ public class SceneTransitionManager : MonoBehaviour
                 ? global::QuestManager.Instance.playerData 
                 : Resources.Load<PlayerData>("PlayerData");
 
+            string targetSpawnId = "";
             if (pData != null && !string.IsNullOrEmpty(pData.targetSpawnPointId))
+                targetSpawnId = pData.targetSpawnPointId;
+            else
+                targetSpawnId = PlayerPrefs.GetString("TargetSpawnPointId", "");
+
+            if (!string.IsNullOrEmpty(targetSpawnId))
             {
                 MapSpawnPoint[] allSpawns = Object.FindObjectsByType<MapSpawnPoint>(FindObjectsSortMode.None);
                 foreach (var sp in allSpawns)
                 {
-                    if (sp != null && sp.spawnId == pData.targetSpawnPointId)
+                    if (sp != null && sp.spawnId == targetSpawnId)
                     {
                         GameObject player = GameObject.FindGameObjectWithTag("Player");
                         if (player == null)
@@ -306,15 +324,25 @@ public class SceneTransitionManager : MonoBehaviour
 
                         if (player != null)
                         {
+                            // Đồng bộ cả Transform lẫn Rigidbody2D để Unity Physics không kéo về (0,0)
+                            Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+                            if (rb != null)
+                            {
+                                rb.linearVelocity = Vector2.zero;
+                                rb.position = sp.transform.position;
+                            }
                             player.transform.position = sp.transform.position;
-                            Debug.Log($"[SceneTransitionManager] Đã đưa Player đến SpawnPoint: {sp.spawnId} ({sp.transform.position})");
+                            Debug.Log($"[SceneTransitionManager] Đã đưa Player đến SpawnPoint: '{sp.spawnId}' tại {sp.transform.position}");
                         }
-                        pData.targetSpawnPointId = "";
+                        if (pData != null) pData.targetSpawnPointId = "";
+                        PlayerPrefs.SetString("TargetSpawnPointId", "");
+                        PlayerPrefs.Save();
                         break;
                     }
                 }
             }
         }
+
 
         // Đảm bảo mở khóa di chuyển cho người chơi sau khi tải xong Scene
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");

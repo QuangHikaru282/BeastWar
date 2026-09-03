@@ -70,6 +70,7 @@ MonoBehaviour:
   questUIManager: {fileID: 0}
   items:
   - itemID: 
+    kinnlyItem: {fileID: 0}
     itemName: Sword
     icon: {fileID: -4725872483281334863, guid: 989a77da23bbd1c4091825c4a3c3547a, type: 3}
     category: 0
@@ -80,6 +81,7 @@ MonoBehaviour:
     description: Tangsucchuachonhanvat
     startingOwned: 5
   - itemID: 
+    kinnlyItem: {fileID: 0}
     itemName: Pokemon1
     icon: {fileID: 4193216105327200859, guid: c2e0053d88821da49afd9697df104f25, type: 3}
     category: 1
@@ -90,6 +92,7 @@ MonoBehaviour:
     description: 'He Thuy '
     startingOwned: 0
   - itemID: 
+    kinnlyItem: {fileID: 0}
     itemName: Pokemon2
     icon: {fileID: 3715234044505307179, guid: c2e0053d88821da49afd9697df104f25, type: 3}
     category: 1
@@ -100,6 +103,7 @@ MonoBehaviour:
     description: Co Kha nang tien hoa
     startingOwned: 0
   - itemID: 
+    kinnlyItem: {fileID: 0}
     itemName: Pokemon3
     icon: {fileID: -6547005893679095629, guid: c2e0053d88821da49afd9697df104f25, type: 3}
     category: 2
@@ -110,6 +114,7 @@ MonoBehaviour:
     description: BOSS
     startingOwned: 0
   - itemID: 
+    kinnlyItem: {fileID: 0}
     itemName: Pokemon3
     icon: {fileID: -6547005893679095629, guid: c2e0053d88821da49afd9697df104f25, type: 3}
     category: 2
@@ -119,3 +124,49 @@ MonoBehaviour:
     durability: 100
     description: BOSS
     startingOwned: 0
+  - itemID: ca chua
+    kinnlyItem: {fileID: 11400000, guid: f0d3dff8b4c1f12428d933a0624593f2, type: 2}
+    itemName: "H\u1EA1t C\xE0 Chua"
+    icon: {fileID: -1759049860909440148, guid: 1d82ac87b3de28741bbd6d77beaeabba, type: 3}
+    category: 3
+    price: 30
+    itemTypeText: "H\u1EA1t Gi\u1ED1ng"
+    attack: 0
+    durability: 100
+    description: "H\u1EA1t gi\u1ED1ng c\xE0 chua ch\xEDn \u0111\u1ECF m\u1ECDng n\u01B0\u1EDBc."
+    startingOwned: 10
+  - itemID: "H\u1EA1t C\xE0 R\u1ED1t"
+    kinnlyItem: {fileID: 11400000, guid: ff714ebc794b26845b405806477a6be7, type: 2}
+    itemName: "H\u1EA1t C\xE0 R\u1ED1t"
+    icon: {fileID: 3928329487851121431, guid: 9f131753a7e91aa44bf7e2c23d319618, type: 3}
+    category: 3
+    price: 35
+    itemTypeText: "H\u1EA1t Gi\u1ED1ng"
+    attack: 0
+    durability: 100
+    description: "H\u1EA1t gi\u1ED1ng c\xE0 r\u1ED1t cam gi\xF2n ng\u1ECDt."
+    startingOwned: 10
+  - itemID: "H\u1EA1t Khoai T\xE2y"
+    kinnlyItem: {fileID: 11400000, guid: adf5bc1b23431a6429df40af87bf88ab, type: 2}
+    itemName: "H\u1EA1t Khoai T\xE2y"
+    icon: {fileID: 5536827405519278002, guid: 08e43f672552c884dab78693f43e1fd0, type: 3}
+    category: 3
+    price: 40
+    itemTypeText: "H\u1EA1t Gi\u1ED1ng"
+    attack: 0
+    durability: 100
+    description: "C\u1EE7 gi\u1ED1ng khoai t\xE2y b\u1ED5 d\u01B0\u1EE1ng, d\u1EC5
+      ch\u0103m s\xF3c."
+    startingOwned: 10
+  - itemID: "H\u1EA1t B\u1EAFp (Ng\xF4)"
+    kinnlyItem: {fileID: 11400000, guid: bf33dd55a939cb14096ee6fcdef814aa, type: 2}
+    itemName: "H\u1EA1t B\u1EAFp (Ng\xF4)"
+    icon: {fileID: 6655563414141888852, guid: 7b5f8a24f5f1339459f63f336c82654f, type: 3}
+    category: 3
+    price: 45
+    itemTypeText: "H\u1EA1t Gi\u1ED1ng"
+    attack: 0
+    durability: 100
+    description: "H\u1EA1t gi\u1ED1ng ng\xF4 ng\u1ECDt th\u01A1m b\xF9i n\u0103ng
+      su\u1EA5t cao."
+    startingOwned: 10

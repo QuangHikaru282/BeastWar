@@ -298,8 +298,7 @@ public class TrainerController : MonoBehaviour, Kinnly.IInteractable
 
         battleTransferData.ResetData();
         battleTransferData.originScene = BattleTransferData.OriginScene.Map;
-        battleTransferData.lastPlayerPosition = playerPos;
-        battleTransferData.returnToLastPosition = true;
+        // lastPlayerPosition và returnToLastPosition được GameSceneManager.GoToBattle() tự xử lý
         
         // Cờ đặc biệt: Trận đấu Trainer & Gym Leader
         battleTransferData.isTrainerBattle = true;
@@ -320,6 +319,6 @@ public class TrainerController : MonoBehaviour, Kinnly.IInteractable
         // Lưu ID để khi quay về biết Trainer nào bị đánh bại
         battleTransferData.lastEncounteredBeastId = uniqueTrainerId; 
 
-        GameSceneManager.GoToBattle();
+        GameSceneManager.GoToBattle(battleTransferData);
     }
 }

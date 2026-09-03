@@ -131,19 +131,11 @@ public class GrassBeastEncounter : MonoBehaviour
             battleTransferData.SetEnemyTeam(runtimeTeam);
             battleTransferData.originScene = BattleTransferData.OriginScene.Map;
             battleTransferData.isTrainerBattle = false;
-            
-            // Generate a random unique ID for this instance so if we catch it, it doesn't break
             battleTransferData.lastEncounteredBeastId = "Grass_" + System.Guid.NewGuid().ToString();
-            
-            // Luu vi tri
-            if (playerRb != null)
-            {
-                battleTransferData.lastPlayerPosition = playerRb.transform.position;
-                battleTransferData.returnToLastPosition = true;
-            }
+            // lastPlayerPosition và returnToLastPosition được GameSceneManager.GoToBattle() tự xử lý
 
-            // Chuyen scene
-            GameSceneManager.GoToBattle();
+            // Chuyển scene
+            GameSceneManager.GoToBattle(battleTransferData);
         }
         else
         {

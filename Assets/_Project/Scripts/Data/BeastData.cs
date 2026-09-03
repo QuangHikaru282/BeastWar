@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -45,15 +46,27 @@ public enum EnhanceElement
 public class BeastData : ScriptableObject
 {
     [Header("Thông tin cơ bản")]
+    [Tooltip("Số thứ tự trong Pokédex/BeastDex (VD: 1, 4, 7, 12...)")]
+    [Min(1)] public int pokedexNumber = 1;
     public string beastName = "Unknown Beast";
 
-    [Tooltip("Nguyên tố dùng trong chiến đấu.")]
+    [Tooltip("Nguyên tố chính.")]
     public BeastElement element = BeastElement.Normal;
+
+    [Tooltip("Nguyên tố phụ (để None nếu là thú đơn hệ).")]
+    public BeastElement secondaryElement = BeastElement.Normal;
+
+    [Tooltip("Đặc tính / Nội tại mặc định của loài.")]
+    public AbilityData defaultAbility;
 
     [Tooltip("Nguyên tố dùng để chọn panel Enhance.")]
     public EnhanceElement enhanceElement = EnhanceElement.None;
 
     public bool isRare = false;
+
+    [Tooltip("Mô tả tập tính, thông tin loài hiển thị trong BeastDex")]
+    [TextArea(2, 5)]
+    public string speciesDescription = "Một loài Beast bí ẩn trong thế giới Verdania.";
 
     [Header("Hình ảnh")]
     [Tooltip("Ảnh Pet nhìn về phía người chơi.")]
@@ -71,14 +84,21 @@ public class BeastData : ScriptableObject
     [Min(1)] public int maxHP = 100;
     [Min(1)] public int attack = 50;
     [Min(1)] public int defense = 30;
+    [Min(1)] public int spAttack = 50;
+    [Min(1)] public int spDefense = 50;
     [Min(1)] public int speed = 40;
 
     [Header("Thu phục")]
     [Range(0f, 1f)]
     public float captureRate = 1f;
 
-    [Header("Chiêu thức - tối đa 4")]
+    [Header("Chiêu thức ban đầu - tối đa 4")]
+    [Tooltip("Chiêu thức trang bị sẵn khi bắt được hoặc tạo thú ở level 1.")]
     public MoveData[] moves = new MoveData[0];
+
+    [Header("Bảng chiêu học theo Level")]
+    [Tooltip("Danh sách chiêu thức thú sẽ học khi đạt đúng cấp độ yêu cầu. Sắp xếp theo level tăng dần.")]
+    public List<LearnableMove> learnableMoves = new List<LearnableMove>();
 
     public int CombatPower =>
         maxHP +
@@ -86,8 +106,8 @@ public class BeastData : ScriptableObject
         defense +
         speed;
 
-    [Header("Tiến hóa")]
-    [Tooltip("Pet sẽ tiến hóa thành. Có thể để trống khi đang thiết kế UI.")]
+    [Header("Tiến hóa theo Level + Vàng (cũ)")]
+    [Tooltip("Pet sẽ tiến hóa thành khi đủ Level và Vàng. Để trống nếu chỉ dùng Đá.")]
     public BeastData evolveTarget;
 
     [Min(0)]
@@ -95,6 +115,11 @@ public class BeastData : ScriptableObject
 
     [Min(0)]
     public int evolveGoldCost = 1000;
+
+    [Header("Tiến hóa bằng Đá (chuẩn Pokémon)")]
+    [Tooltip("Mỗi entry: kéo Đá (Kinnly.Item) + BeastData dạng tiến hóa tương ứng vào. " +
+             "Một thú có thể có nhiều nhánh tiến hóa (VD: Eevee 3 đá khác nhau).")]
+    public List<EvolutionEntry> evolutionStones = new List<EvolutionEntry>();
 
     [Header("Phần thưởng khi bị tiêu diệt")]
     [Min(0)] public int rewardGold = 10;

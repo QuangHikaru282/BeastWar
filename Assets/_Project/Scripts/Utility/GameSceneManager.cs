@@ -52,10 +52,32 @@ public class GameSceneManager : MonoBehaviour
             SceneManager.LoadScene(SCENE_FORMATION);
     }
 
-    public static void GoToBattle()
+    /// <summary>
+    /// Coordinator trung tâm: Tự lưu vị trí Player, lưu scene hiện tại, rồi chuyển sang Battle.
+    /// Mọi trigger (Trainer, Rival, WildBeast...) chỉ cần setup BattleTransferData rồi gọi hàm này.
+    /// </summary>
+    /// <param name="data">BattleTransferData đã được trigger setup sẵn. Coordinator sẽ tự ghi lastPlayerPosition vào.</param>
+    public static void GoToBattle(BattleTransferData data = null)
     {
-        // Đóng băng trạng thái: Chỉ lưu GameCore và Scene đang hoạt động (Active Scene)
-        // Tránh lưu nhầm các Scene đang được tải ngầm (như ForestScene) vì khi quay về nó sẽ bị hiện chồng lên nhau.
+        // ── COORDINATOR: Tự lưu vị trí Player ──────────────────────────────
+        // Không để từng trigger tự lo → tránh bug khi playerObj = null
+        if (data != null)
+        {
+            GameObject player = GameObject.Find("PF Player");
+            if (player != null)
+            {
+                data.lastPlayerPosition = player.transform.position;
+                data.returnToLastPosition = true;
+                Debug.Log($"[GameSceneManager] ✅ Đã lưu vị trí Player trước trận: {data.lastPlayerPosition}");
+            }
+            else
+            {
+                Debug.LogWarning("[GameSceneManager] ⚠️ Không tìm thấy 'PF Player' để lưu vị trí. Kiểm tra tên GameObject trong GameCore.");
+            }
+        }
+
+        // ── Lưu danh sách scene hiện tại để quay về sau trận ────────────────
+        // Chỉ lưu GameCore và Active Scene, tránh lưu scene đang tải ngầm
         string scenes = "GameCore";
         for (int i = 0; i < SceneManager.sceneCount; i++)
         {
@@ -66,13 +88,12 @@ public class GameSceneManager : MonoBehaviour
             }
         }
 
-        // Lưu lại chính xác số lượng kho đồ & thanh công cụ trước khi vào trận đấu
+        // ── Lưu inventory trước khi vào trận ────────────────────────────────
         Kinnly.PlayerInventory currentInv = FindFirstObjectByType<Kinnly.PlayerInventory>();
         if (currentInv != null)
         {
             currentInv.SaveNow();
 
-            // Đồng bộ sang PlayerData.savedInventoryItems để BattleItemHandler đọc đúng số lượng
             if (QuestManager.Instance != null && QuestManager.Instance.playerData != null)
             {
                 QuestManager.Instance.playerData.SaveInventoryState(currentInv);

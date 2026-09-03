@@ -111,6 +111,44 @@
                         if (item != null) AddItem(item, 1);
                     }
                 }
+
+                // Cấp sẵn Cuốc và Bình Nước cho người chơi (phong cách Stardew Valley)
+                EnsureStarterFarmingTools();
+            }
+
+            private void EnsureStarterFarmingTools()
+            {
+                bool hasHoe = false;
+                bool hasWaterCan = false;
+
+                if (inventorySlot != null)
+                {
+                    foreach (var slot in inventorySlot)
+                    {
+                        if (slot != null)
+                        {
+                            var invItem = slot.GetComponentInChildren<InventoryItem>(true);
+                            if (invItem != null && invItem.Item != null)
+                            {
+                                string n = invItem.Item.name.ToLower();
+                                if (n.Contains("hoe") || n.Contains("cuốc")) hasHoe = true;
+                                if (n.Contains("water") || n.Contains("bình")) hasWaterCan = true;
+                            }
+                        }
+                    }
+                }
+
+                if (!hasHoe)
+                {
+                    var hoe = Resources.Load<Item>("Item/Kinnly/Kinnly_Hoe");
+                    if (hoe != null) AddItem(hoe, 1);
+                }
+
+                if (!hasWaterCan)
+                {
+                    var can = Resources.Load<Item>("Item/Kinnly/Kinnly_WaterCan");
+                    if (can != null) AddItem(can, 1);
+                }
             }
 
             // Update is called once per frame

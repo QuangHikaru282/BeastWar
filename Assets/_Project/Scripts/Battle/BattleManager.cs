@@ -50,7 +50,9 @@ public class BattleManager : MonoBehaviour
     private bool        captureSuccess = false; // Co bat thu thanh cong
     private bool        wildBeastFled = false;  // Co quai hoang da bo di sau 3 lan quang
     private bool        itemUsedThisTurn = false; // Nguoi choi da dung do luot nay
+    private bool        petSwitchedThisTurn = false; // Nguoi choi da doi pet luot nay
     private BeastUnit   chosenAttacker;
+
     private BeastUnit   chosenTarget;
     private RuntimeMoveData    chosenMove;
 
@@ -66,6 +68,10 @@ public class BattleManager : MonoBehaviour
 
     private void Start()
     {
+        // Xóa queue chiêu và tiến hóa cũ từ trận trước (nếu có)
+        LearnMoveQueue.Clear();
+        EvolutionQueue.Clear();
+
         // ─── CHẾ ĐỘ TRAINER BATTLE ───
         if (battleTransferData != null && battleTransferData.isTrainerBattle)
         {
@@ -382,21 +388,19 @@ public class BattleManager : MonoBehaviour
             }
         }
 
-        // Reset co dau luot
-
         playerFled = false;
         captureSuccess = false;
         wildBeastFled = false;
         itemUsedThisTurn = false;
+        petSwitchedThisTurn = false;
 
         waitingForPlayerAction = true;
-        itemUsedThisTurn = false;
         BattleUIManager.Instance?.ActionPanel?.Show(alive[0]);
         // Bat/tat nut icon hanh dong theo luot
         BattleActionIconsUI.Instance?.SetInteractable(true);
         Debug.Log("--- BUOC 5: DEN LUOT NGUOI CHOI (Dang cho ban chon chieu tren man hinh...) ---");
 
-        // Cho player click chon thu minh -> click thu dich (hoac dung do)
+        // Cho player click chon thu minh -> click thu dich (hoac dung do / doi thu)
         while (waitingForPlayerAction && !playerFled && !captureSuccess && !wildBeastFled)
             yield return null;
 
@@ -432,7 +436,15 @@ public class BattleManager : MonoBehaviour
             yield break;
         }
 
+        if (petSwitchedThisTurn)
+        {
+            // Đổi thú tiêu tốn 1 lượt -> không tấn công, nhảy thẳng sang lượt địch
+            petSwitchedThisTurn = false;
+            yield break;
+        }
+
         Debug.Log($"--- BƯỚC 6: BẠN ĐÃ CHỌN CHIÊU XONG! Đang tung đòn... ---");
+
 
             if (chosenAttacker != null && chosenTarget != null)
             {
@@ -541,39 +553,143 @@ public class BattleManager : MonoBehaviour
 
 
     /// <summary>
+    /// Thực hiện đổi thú chủ động (trong lượt của người chơi)
+    /// </summary>
+    public void RequestPlayerSwitchBeast(RuntimeBeastData newBeast)
+    {
+        StartCoroutine(SwitchPlayerBeastRoutine(newBeast));
+    }
+
+    private IEnumerator SwitchPlayerBeastRoutine(RuntimeBeastData newBeastData)
+    {
+        if (newBeastData == null || newBeastData.baseBeast == null) yield break;
+
+        var currentActiveUnit = playerTeam.FirstOrDefault(b => b != null);
+        string oldName = currentActiveUnit != null ? currentActiveUnit.Data.baseBeast.beastName : "";
+        string newName = newBeastData.baseBeast.beastName;
+
+        // 1. Ẩn ActionPanel và các icon hành động
+        if (BattleUIManager.Instance?.ActionPanel != null)
+            BattleUIManager.Instance.ActionPanel.Hide();
+        if (BattleActionIconsUI.Instance != null)
+            BattleActionIconsUI.Instance.gameObject.SetActive(false);
+
+        // 2. Câu thoại thu hồi thú cũ
+        if (!string.IsNullOrEmpty(oldName))
+        {
+            if (BattleUIManager.Instance?.ActionPanel != null)
+                BattleUIManager.Instance.ActionPanel.SetGuide($"{oldName}, quay về đi!");
+            yield return new WaitForSeconds(1.2f);
+        }
+
+        // 3. Xóa hoặc hủy object của thú cũ trên sân
+        if (currentActiveUnit != null)
+        {
+            playerTeam.Remove(currentActiveUnit);
+            Destroy(currentActiveUnit.gameObject);
+        }
+
+        // 4. Đưa thú mới lên vị trí đầu tiên trong currentFormation (chuẩn Pokémon: con đang đánh luôn ở vị trí 0)
+        int newIdx = playerData.currentFormation.IndexOf(newBeastData);
+        if (newIdx > 0)
+        {
+            var temp = playerData.currentFormation[0];
+            playerData.currentFormation[0] = newBeastData;
+            playerData.currentFormation[newIdx] = temp;
+        }
+
+        // 5. Spawn thú mới ra sân
+        var newUnit = SpawnBeastUnit(newBeastData, playerSpawnPoints[0], true);
+        playerTeam.Add(newUnit);
+
+        // 6. Câu thoại triệu hồi thú mới
+        if (BattleUIManager.Instance?.ActionPanel != null)
+            BattleUIManager.Instance.ActionPanel.SetGuide($"Ra đi, {newName}!");
+        yield return new WaitForSeconds(1.2f);
+
+        // 7. Cập nhật lại UI ActionPanel cho thú mới
+        if (BattleUIManager.Instance?.ActionPanel != null)
+        {
+            BattleUIManager.Instance.ActionPanel.Initialize(playerTeam, enemyTeam, OnPlayerActionChosen);
+            BattleUIManager.Instance.ActionPanel.SetGuide("");
+        }
+
+        // 8. Đánh dấu đã đổi pet và kết thúc lượt player -> chuyển sang lượt địch
+        petSwitchedThisTurn = true;
+        waitingForPlayerAction = false;
+    }
+
+    /// <summary>
     /// Kiểm tra xem thú của Player trên sân có bị tiêu diệt không. 
-    /// Nếu có và vẫn còn thú dự phòng trong hàng chờ, tiến hành spawn con mới thế chỗ.
+    /// Nếu có và vẫn còn thú dự phòng còn sống, tiến hành cho người chơi chọn con tiếp theo ra sân.
     /// </summary>
     private IEnumerator CheckAndSpawnNextPlayer()
     {
         var deadPlayer = playerTeam.FirstOrDefault(b => b != null && !b.IsAlive);
-        if (deadPlayer != null && pendingPlayerQueue.Count > 0)
+        if (deadPlayer != null)
         {
-            Debug.Log("[BattleManager] Thú của Player đã gục! Chuẩn bị ra con tiếp theo thế chỗ...");
-            yield return new WaitForSeconds(1.0f);
-
-            // Xóa con chết khỏi danh sách trên sân và hủy object của nó
-            playerTeam.Remove(deadPlayer);
-            Destroy(deadPlayer.gameObject);
-
-            // Lấy con thú tiếp theo ra
-            RuntimeBeastData nextPlayerData = pendingPlayerQueue.Dequeue();
-            
-            // Spawn ở cùng vị trí điểm xuất hiện đầu tiên của Player (playerSpawnPoints[0])
-            var newUnit = SpawnBeastUnit(nextPlayerData, playerSpawnPoints[0], true);
-            playerTeam.Add(newUnit);
-
-            Debug.Log($"[BattleManager] Thú {nextPlayerData.baseBeast.beastName} của Player đã xuất kích thế chỗ!");
-
-            // Cập nhật lại UI ActionPanel để người chơi có thể điều khiển con mới
-            if (BattleUIManager.Instance != null && BattleUIManager.Instance.ActionPanel != null)
+            // Kiểm tra xem trong đội còn con nào khác còn sống không
+            var otherAlive = playerData.currentFormation.Where(b => b != null && b != deadPlayer.Data && b.currentHP > 0).ToList();
+            if (otherAlive.Count > 0)
             {
-                BattleUIManager.Instance.ActionPanel.Initialize(playerTeam, enemyTeam, OnPlayerActionChosen);
-            }
+                Debug.Log("[BattleManager] Thú của Player đã gục! Mở bảng Party để chọn thú tiếp theo...");
+                yield return new WaitForSeconds(0.8f);
 
-            yield return new WaitForSeconds(0.5f);
+                // Xóa con chết khỏi sân
+                playerTeam.Remove(deadPlayer);
+                Destroy(deadPlayer.gameObject);
+
+                RuntimeBeastData chosenNext = null;
+                bool chosen = false;
+
+                if (BattlePartyUI.Instance != null)
+                {
+                    BattlePartyUI.Instance.OpenParty(
+                        onSelected: (selectedBeast) =>
+                        {
+                            chosenNext = selectedBeast;
+                            chosen = true;
+                        },
+                        isForced: true
+                    );
+
+                    yield return new WaitUntil(() => chosen);
+                }
+                else
+                {
+                    chosenNext = otherAlive[0];
+                }
+
+                if (chosenNext != null)
+                {
+                    // Đưa thú mới lên đầu
+                    int newIdx = playerData.currentFormation.IndexOf(chosenNext);
+                    if (newIdx > 0)
+                    {
+                        var temp = playerData.currentFormation[0];
+                        playerData.currentFormation[0] = chosenNext;
+                        playerData.currentFormation[newIdx] = temp;
+                    }
+
+                    var newUnit = SpawnBeastUnit(chosenNext, playerSpawnPoints[0], true);
+                    playerTeam.Add(newUnit);
+
+                    if (BattleUIManager.Instance?.ActionPanel != null)
+                    {
+                        BattleUIManager.Instance.ActionPanel.SetGuide($"Ra đi, {chosenNext.baseBeast.beastName}!");
+                    }
+                    yield return new WaitForSeconds(1.2f);
+
+                    if (BattleUIManager.Instance?.ActionPanel != null)
+                    {
+                        BattleUIManager.Instance.ActionPanel.Initialize(playerTeam, enemyTeam, OnPlayerActionChosen);
+                        BattleUIManager.Instance.ActionPanel.SetGuide("");
+                    }
+                }
+            }
         }
     }
+
 
 
     // ─── BATTLE END ──────────────────────────────────────────────────
@@ -715,6 +831,53 @@ public class BattleManager : MonoBehaviour
         }
 
         playerData.Save();
+
+        // ── BƯỚC 8.5: XỬ LÝ CHIÊU MỚI SAU TRẬN ────────────────────────────
+        // LearnMoveQueue có thể có chiêu cần học sau khi tăng cấp.
+        // Phải xử lý trước khi ReturnToMap để player không mất thông tin.
+        if (LearnMoveQueue.HasPending)
+        {
+            if (LearnMoveUI.Instance != null)
+            {
+                bool learnDone = false;
+                LearnMoveUI.Instance.ProcessQueue(() => learnDone = true);
+                yield return new WaitUntil(() => learnDone);
+            }
+            else
+            {
+                // Không có UI → tự động học chiêu vào slot trống, bỏ qua nếu đầy
+                Debug.LogWarning("[BattleManager] LearnMoveUI chưa có trong scene! Tự động xử lý queue chiêu mới.");
+                while (LearnMoveQueue.TryDequeue(out var req))
+                {
+                    if (req.beast?.moves == null) continue;
+                    var list = new System.Collections.Generic.List<RuntimeMoveData>(req.beast.moves);
+                    if (list.Count < 4)
+                    {
+                        list.Add(new RuntimeMoveData(req.newMove, 1));
+                        req.beast.moves = list.ToArray();
+                        Debug.Log($"[BattleManager] {req.beast.baseBeast.beastName} tự động học {req.newMove.moveName}");
+                    }
+                }
+            }
+
+            // Lưu lại sau khi học chiêu
+            playerData.Save();
+        }
+
+        // ── BƯỚC 8.6: XỬ LÝ TIẾN HÓA TỰ ĐỘNG SAU TRẬN ĐẤU ──────────────────
+        if (EvolutionQueue.HasPending)
+        {
+            while (EvolutionQueue.TryDequeue(out var evoReq))
+            {
+                if (evoReq.beast != null && evoReq.targetForm != null)
+                {
+                    bool evoDone = false;
+                    EvolutionCutsceneManager.Instance.PlayEvolution(evoReq.beast, evoReq.targetForm, () => evoDone = true);
+                    yield return new WaitUntil(() => evoDone);
+                }
+            }
+            playerData.Save();
+        }
 
         yield return new WaitForSeconds(1.8f);
 

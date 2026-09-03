@@ -108,10 +108,19 @@ public class ActionPanel : MonoBehaviour
         
         if (selectedAttacker != null)
         {
-            ShowSkillPanelForBeast(selectedAttacker);
-            SetGuide($"Lượt của {selectedAttacker.Data.baseBeast.beastName}! Hãy chọn kĩ năng.");
+            // 1. Xóa sạch text trong DialogueText để không đè lên các nút Attack
+            SetGuideTextOnly("");
 
-            // Tự động khôi phục khung viền chọn vào chiêu thức đầu tiên khi tới lượt mới
+            // 2. Hiện cụm 4 nút kĩ năng Attack
+            ShowSkillPanelForBeast(selectedAttacker);
+
+            // 3. Hiện cụm icon Balo / Thoát
+            if (BattleActionIconsUI.Instance != null)
+            {
+                BattleActionIconsUI.Instance.gameObject.SetActive(true);
+            }
+
+            // 4. Tự động khôi phục khung viền chọn vào chiêu thức đầu tiên khi tới lượt mới
             if (BattleKeyboardNavigationUI.Instance != null)
             {
                 BattleKeyboardNavigationUI.Instance.FocusFirstSkill();
@@ -121,8 +130,12 @@ public class ActionPanel : MonoBehaviour
 
     public void Hide()
     {
-        SetGuide("");
+        SetGuideTextOnly("");
         if (skillPanel != null) skillPanel.SetActive(false);
+        if (BattleActionIconsUI.Instance != null)
+        {
+            BattleActionIconsUI.Instance.gameObject.SetActive(false);
+        }
     }
 
     /// <summary>
@@ -210,7 +223,23 @@ public class ActionPanel : MonoBehaviour
 
     public void SetGuide(string msg)
     {
+        if (!string.IsNullOrEmpty(msg))
+        {
+            // Khi có thông báo / câu thoại -> Ẩn cụm nút Attack và Balo/Thoát để chừa trọn vẹn khung trắng cho chữ
+            if (skillPanel != null) skillPanel.SetActive(false);
+            if (BattleActionIconsUI.Instance != null)
+            {
+                BattleActionIconsUI.Instance.gameObject.SetActive(false);
+            }
+        }
+
+        SetGuideTextOnly(msg);
+    }
+
+    private void SetGuideTextOnly(string msg)
+    {
         if (guideText != null) guideText.text = msg;
         if (guideTextLegacy != null) guideTextLegacy.text = msg;
     }
 }
+

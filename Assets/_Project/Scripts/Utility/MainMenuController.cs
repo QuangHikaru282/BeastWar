@@ -42,13 +42,24 @@ public class MainMenuController : MonoBehaviour
     [Tooltip("RawImage hiển thị RenderTexture của trailer")]
     [SerializeField] private RawImage trailerRawImage;
 
+    [Header("Nhạc Nền (BGM)")]
+    [Tooltip("File nhạc nền phát tại màn hình MainMenu")]
+    [SerializeField] private AudioClip menuBGM;
+
     private bool isStartingGame;
 
     private void Start()
     {
+        // Phát nhạc nền MainMenu nếu có
+        if (menuBGM != null && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayMusic(menuBGM, loop: true, fadeDuration: 1.0f);
+        }
+
         // Gán sự kiện tự động cho các nút.
         if (playButton != null)
             playButton.onClick.AddListener(OnPlayPressed);
+
 
         if (continueButton != null)
             continueButton.onClick.AddListener(OnContinuePressed);
@@ -99,6 +110,11 @@ public class MainMenuController : MonoBehaviour
             playerData.ResetData();
         }
 
+        // Xóa toàn bộ PlayerPrefs (bao gồm flag thoại NPC như "Mom_IntroDialogue_Done")
+        // để đảm bảo New Game luôn bắt đầu hoàn toàn từ đầu.
+        PlayerPrefs.DeleteAll();
+        PlayerPrefs.Save();
+
         if (loginAndCharSelectManager != null)
         {
             loginAndCharSelectManager.StartCharSelectFlow();
@@ -110,6 +126,7 @@ public class MainMenuController : MonoBehaviour
             );
         }
     }
+
 
     private Coroutine trailerTimeoutCoroutine;
 
@@ -157,6 +174,12 @@ public class MainMenuController : MonoBehaviour
 
         isStartingGame = true;
 
+        // Dừng nhạc Main Menu khi bắt đầu vào trailer/vào game
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopMusic(fadeDuration: 0.5f);
+        }
+
         if (playButton != null)
             playButton.interactable = false;
 
@@ -172,6 +195,7 @@ public class MainMenuController : MonoBehaviour
 
         if (trailerRawImage != null)
             trailerRawImage.enabled = false;
+
 
         trailerVideoPlayer.Stop();
         trailerVideoPlayer.time = 0;
@@ -266,10 +290,17 @@ public class MainMenuController : MonoBehaviour
     {
         Debug.Log("MainMenu: Đang tải lại tiến trình cũ...");
 
+        // Dừng nhạc Main Menu khi tiếp tục game
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopMusic(fadeDuration: 0.5f);
+        }
+
         if (playerData != null)
         {
             playerData.Load();
         }
+
 
         string savedScene =
             PlayerPrefs.GetString(

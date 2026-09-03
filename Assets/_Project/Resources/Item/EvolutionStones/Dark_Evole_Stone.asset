@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fa3c59b908c17f468de2d04e00f9531, type: 3}
+  m_Name: Dark_Evole_Stone
+  m_EditorClassIdentifier: Assembly-CSharp::Kinnly.Item
+  id: 105
+  name: "Đá Tiến Hóa Bóng Tối"
+  description: "Viên thạch anh huyền bí từ cõi hư vô, dùng để kích hoạt tiến hóa cho Beast hệ Ám."
+  price: 500
+  image: {fileID: -2047308371, guid: c1d6126935e71d741b60eed31dd1dabd, type: 3}
+  isStackable: 1
+  isSpecialItem: 1
+  isConsumable: 1
+  isBuildable: 0
+  building: {fileID: 0}
+  isTools: 0
+  isAxe: 0
+  isPickaxe: 0
+  farmingItemDelegate: {fileID: 0}

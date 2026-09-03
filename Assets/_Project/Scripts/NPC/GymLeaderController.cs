@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -177,8 +177,7 @@ public class GymLeaderController : MonoBehaviour, Kinnly.IInteractable
         // 5. Setup BattleTransferData
         battleTransferData.ResetData();
         battleTransferData.originScene = BattleTransferData.OriginScene.Map;
-        battleTransferData.lastPlayerPosition = playerObj.transform.position;
-        battleTransferData.returnToLastPosition = true;
+        // lastPlayerPosition và returnToLastPosition được GameSceneManager.GoToBattle() tự xử lý
         battleTransferData.isTrainerBattle = true;
         battleTransferData.isGymLeaderBattle = true;
         battleTransferData.rewardBadgeId = badgeId;
@@ -196,7 +195,7 @@ public class GymLeaderController : MonoBehaviour, Kinnly.IInteractable
         battleTransferData.SetEnemyTeam(runtimeTeam);
 
         Debug.Log($"[GymLeaderController] {gymLeaderName}: Vào chiến đấu với {runtimeTeam.Count} pet!");
-        GameSceneManager.GoToBattle();
+        GameSceneManager.GoToBattle(battleTransferData);
     }
 
     /// <summary>

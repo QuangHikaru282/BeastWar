@@ -22,11 +22,10 @@ public class CameraMovement : MonoBehaviour
 
     private void Awake()
     {
-        // Nếu Camera đang bị lồng làm con của Player trong Prefab, tách ra để Camera có thể dừng lại ở rìa map độc lập với nhân vật
-        if (transform.parent != null)
+        // Đảm bảo luôn có AudioListener trên Main Camera để tránh cảnh báo âm thanh
+        if (GetComponent<AudioListener>() == null)
         {
-            transform.SetParent(null);
-            DontDestroyOnLoad(gameObject);
+            gameObject.AddComponent<AudioListener>();
         }
     }
 
@@ -127,6 +126,13 @@ public class CameraMovement : MonoBehaviour
             RefreshCurrentZone();
             hasLimitX = minValue.x <= maxValue.x && (minValue.x != 0 || maxValue.x != 0);
             hasLimitY = minValue.y <= maxValue.y && (minValue.y != 0 || maxValue.y != 0);
+        }
+
+        // Nếu Camera đang là con của Player và map không có giới hạn bounds:
+        if (transform.parent != null && !hasLimitX && !hasLimitY)
+        {
+            transform.localPosition = offset;
+            return;
         }
 
         float clampedX = hasLimitX ? Mathf.Clamp(targetPosition.x, minValue.x, maxValue.x) : targetPosition.x;

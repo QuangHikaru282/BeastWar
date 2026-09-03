@@ -80,6 +80,7 @@ public class ShopManager : MonoBehaviour
         }
         
         AutoFindDetailReferences();
+        EnsureFarmingItemsAvailable();
         InitializeOwnedAmounts();
         SetupButtons();
 
@@ -91,6 +92,179 @@ public class ShopManager : MonoBehaviour
         if (detailPanel != null)
         {
             detailPanel.SetActive(false);
+        }
+    }
+
+    private void EnsureFarmingItemsAvailable()
+    {
+        if (items == null) items = new List<ShopItemData>();
+
+        bool HasItem(string keyword) => items.Exists(x => x != null && (
+            (!string.IsNullOrEmpty(x.itemID) && x.itemID.ToLower().Contains(keyword)) ||
+            (!string.IsNullOrEmpty(x.itemName) && x.itemName.ToLower().Contains(keyword))
+        ));
+
+        // 1. Cuốc (Hoe)
+        if (!HasItem("cuốc") && !HasItem("hoe"))
+        {
+            var hoeItem = Resources.Load<Kinnly.Item>("Item/Kinnly/Kinnly_Hoe");
+            if (hoeItem != null)
+            {
+                items.Add(new ShopItemData
+                {
+                    itemID = "item_hoe",
+                    itemName = "Cuốc Nông Trại",
+                    kinnlyItem = hoeItem,
+                    icon = hoeItem.image,
+                    category = ShopItemCategory.Item,
+                    price = 50,
+                    itemTypeText = "Công cụ",
+                    description = "Dùng để cuốc đất gieo hạt giống. Chọn trên tay và click chuột trái.",
+                    durability = 100,
+                    startingOwned = 10
+                });
+            }
+        }
+
+        // 2. Bình tưới (WaterCan)
+        if (!HasItem("bình") && !HasItem("water"))
+        {
+            var waterItem = Resources.Load<Kinnly.Item>("Item/Kinnly/Kinnly_WaterCan");
+            if (waterItem != null)
+            {
+                items.Add(new ShopItemData
+                {
+                    itemID = "item_watercan",
+                    itemName = "Bình Tưới Nước",
+                    kinnlyItem = waterItem,
+                    icon = waterItem.image,
+                    category = ShopItemCategory.Item,
+                    price = 50,
+                    itemTypeText = "Công cụ",
+                    description = "Dùng để tưới nước cho cây trồng mau lớn.",
+                    durability = 100,
+                    startingOwned = 10
+                });
+            }
+        }
+
+        // 3. Hạt giống Cà Chua
+        if (!HasItem("cà chua") && !HasItem("tomato"))
+        {
+            var seed = Resources.Load<Kinnly.Item>("Item/Kinnly/tomato/Kinnly_TomatoSeed");
+            if (seed != null)
+            {
+                items.Add(new ShopItemData
+                {
+                    itemID = "tomato_seed",
+                    itemName = "Hạt Giống Cà Chua",
+                    kinnlyItem = seed,
+                    icon = seed.image,
+                    category = ShopItemCategory.Seed,
+                    price = 30,
+                    itemTypeText = "Hạt Giống",
+                    description = "Hạt giống cà chua chín đỏ mọng nước.",
+                    durability = 100,
+                    startingOwned = 20
+                });
+            }
+        }
+
+        // 4. Hạt giống Cà Rốt
+        if (!HasItem("cà rốt") && !HasItem("carrot"))
+        {
+            var seed = Resources.Load<Kinnly.Item>("Item/Carrot/Kinnly_CarrotSeed");
+            if (seed != null)
+            {
+                items.Add(new ShopItemData
+                {
+                    itemID = "carrot_seed",
+                    itemName = "Hạt Giống Cà Rốt",
+                    kinnlyItem = seed,
+                    icon = seed.image,
+                    category = ShopItemCategory.Seed,
+                    price = 35,
+                    itemTypeText = "Hạt Giống",
+                    description = "Hạt giống cà rốt tươi ngon giòn ngọt.",
+                    durability = 100,
+                    startingOwned = 20
+                });
+            }
+        }
+
+        // 5. Hạt giống Khoai Tây
+        if (!HasItem("khoai tây") && !HasItem("potato"))
+        {
+            var seed = Resources.Load<Kinnly.Item>("Item/Potato/Kinnly_PotatoSeed");
+            if (seed != null)
+            {
+                items.Add(new ShopItemData
+                {
+                    itemID = "potato_seed",
+                    itemName = "Hạt Giống Khoai Tây",
+                    kinnlyItem = seed,
+                    icon = seed.image,
+                    category = ShopItemCategory.Seed,
+                    price = 40,
+                    itemTypeText = "Hạt Giống",
+                    description = "Củ giống khoai tây bổ dưỡng dễ chăm sóc.",
+                    durability = 100,
+                    startingOwned = 20
+                });
+            }
+        }
+
+        // 6. Hạt giống Bắp (Ngô)
+        if (!HasItem("ngô") && !HasItem("bắp") && !HasItem("corn"))
+        {
+            var seed = Resources.Load<Kinnly.Item>("Item/Corn/Kinnly_CornSeed");
+            if (seed != null)
+            {
+                items.Add(new ShopItemData
+                {
+                    itemID = "corn_seed",
+                    itemName = "Hạt Giống Bắp (Ngô)",
+                    kinnlyItem = seed,
+                    icon = seed.image,
+                    category = ShopItemCategory.Seed,
+                    price = 45,
+                    itemTypeText = "Hạt Giống",
+                    description = "Hạt giống bắp ngọt thơm bùi, năng suất cao.",
+                    durability = 100,
+                    startingOwned = 20
+                });
+            }
+        }
+
+        // 7. Thêm 5 loại Đá Tiến Hóa (Fire, Water, Grass, Light, Dark)
+        EnsureEvolutionStone(items, "Fire_Evole_Stone", "Đá Tiến Hóa Lửa", "Viên đá chứa năng lượng hỏa diệm rực cháy, dùng để kích hoạt tiến hóa cho Beast hệ Lửa.");
+        EnsureEvolutionStone(items, "Water_Evole_Stone", "Đá Tiến Hóa Nước", "Viên đá kết tinh từ đại dương xanh thẳm, dùng để kích hoạt tiến hóa cho Beast hệ Nước.");
+        EnsureEvolutionStone(items, "Grass_Evole_Stone", "Đá Tiến Hóa Cỏ", "Viên ngọc tích tụ sinh khí rừng rậm ngàn năm, dùng để kích hoạt tiến hóa cho Beast hệ Cỏ.");
+        EnsureEvolutionStone(items, "Light_Evole_Stone", "Đá Tiến Hóa Ánh Sáng", "Viên pha lê tỏa ánh hào quang thuần khiết, dùng để kích hoạt tiến hóa cho Beast hệ Quang.");
+        EnsureEvolutionStone(items, "Dark_Evole_Stone", "Đá Tiến Hóa Bóng Tối", "Viên thạch anh huyền bí từ cõi hư vô, dùng để kích hoạt tiến hóa cho Beast hệ Ám.");
+    }
+
+    private void EnsureEvolutionStone(List<ShopItemData> list, string assetName, string displayName, string desc)
+    {
+        if (list.Exists(x => x != null && (x.itemID == assetName || (x.itemName != null && x.itemName.Equals(displayName, System.StringComparison.OrdinalIgnoreCase)))))
+            return;
+
+        var stoneItem = Resources.Load<Kinnly.Item>($"Item/EvolutionStones/{assetName}");
+        if (stoneItem != null)
+        {
+            list.Add(new ShopItemData
+            {
+                itemID = assetName,
+                itemName = displayName,
+                kinnlyItem = stoneItem,
+                icon = stoneItem.image,
+                category = ShopItemCategory.Item,
+                price = 500,
+                itemTypeText = "Đá Tiến Hóa",
+                description = desc,
+                durability = 100,
+                startingOwned = 5
+            });
         }
     }
 
@@ -367,18 +541,14 @@ public class ShopManager : MonoBehaviour
             if (currentCategory.HasValue &&
                 item.category != currentCategory.Value)
             {
-                continue;
+                // Cho phép hiển thị Hạt giống khi người chơi xem tab Vật Phẩm (Item)
+                if (!(currentCategory.Value == ShopItemCategory.Item && item.category == ShopItemCategory.Seed))
+                {
+                    continue;
+                }
             }
 
-            string nameLower = item.itemName != null ? item.itemName.ToLower() : "";
-            if (nameLower.Contains("cuốc") || nameLower.Contains("hoe") ||
-                nameLower.Contains("bình nước") || nameLower.Contains("bình tưới") || nameLower.Contains("watercan") ||
-                nameLower.Contains("cần câu") || nameLower.Contains("rod") ||
-                nameLower.Contains("rìu") || nameLower.Contains("axe"))
-            {
-                continue;
-            }
-
+            // Hiển thị đầy đủ tất cả vật phẩm và công cụ đã cấu hình trong Shop
             ShopItemUI newSlot = Instantiate(itemPrefab, content);
 
             newSlot.gameObject.SetActive(true);

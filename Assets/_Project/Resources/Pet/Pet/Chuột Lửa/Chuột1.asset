@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b72f15b89a08de468adc0ad91b2dda1, type: 3}
+  m_Name: "Chu\u1ED9t1"
+  m_EditorClassIdentifier: Assembly-CSharp::BeastData
+  pokedexNumber: 1
+  beastName: "Chu\u1ED9t nh\u1ECF"
+  element: 1
+  secondaryElement: 0
+  defaultAbility: {fileID: 0}
+  enhanceElement: 4
+  isRare: 0
+  frontSprite: {fileID: 3328121369990609140, guid: 8d59134a7bd4d864686de9ba5d7c78ca, type: 3}
+  backSprite: {fileID: -1113481700712276472, guid: 4db6851f14e69244c840ef7ae404527e, type: 3}
+  image2: {fileID: 4655308693944684383, guid: 979aacbed3f7eb5459fc2e46c356ad59, type: 3}
+  animatorController: {fileID: 0}
+  maxHP: 100
+  attack: 50
+  defense: 30
+  spAttack: 50
+  spDefense: 50
+  speed: 40
+  captureRate: 1
+  moves: []
+  learnableMoves:
+  - levelRequired: 1
+    move: {fileID: 11400000, guid: 886039c2f8442594fa07da311d33c4e0, type: 2}
+  - levelRequired: 1
+    move: {fileID: 11400000, guid: f801682ef75054c499bbb8f0f7ca71bf, type: 2}
+  - levelRequired: 1
+    move: {fileID: 11400000, guid: 3979844a31ad45044a9136c9118e75e4, type: 2}
+  - levelRequired: 1
+    move: {fileID: 11400000, guid: 322226bafacc60c49bfea3115697aa30, type: 2}
+  - levelRequired: 2
+    move: {fileID: 11400000, guid: 936bb3bd263d4f74a94410faa2dc90f3, type: 2}
+  evolveTarget: {fileID: 11400000, guid: 4fefb14be8575d844b43aea86d6f8f81, type: 2}
+  evolveLevel: 1
+  evolveGoldCost: 20
+  evolutionStones: []
+  rewardGold: 10
+  rewardExp: 50

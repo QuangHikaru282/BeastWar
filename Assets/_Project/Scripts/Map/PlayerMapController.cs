@@ -1,5 +1,6 @@
 using UnityEngine;
 using Kinnly;
+
 /// <summary>
 /// Điều khiển nhân vật di chuyển trên Map (2D Top-down).
 /// Gắn lên GameObject Player cùng Rigidbody2D và Collider2D.
@@ -21,7 +22,9 @@ public class PlayerMapController : MonoBehaviour
 
     private Rigidbody2D rb;
     private Vector2 moveInput;
-    private bool canMove = true;
+
+    [Header("Trạng thái di chuyển")]
+    [SerializeField] private bool canMove = true;
 
     public bool CanMove
     {
@@ -43,6 +46,10 @@ public class PlayerMapController : MonoBehaviour
         inventory = GetComponent<Kinnly.PlayerInventory>();
         rb.gravityScale = 0f;
         rb.freezeRotation = true;
+
+        // Đảm bảo tốc độ không bao giờ bị nhận số 0
+        if (moveSpeed <= 0.1f) moveSpeed = 5f;
+        canMove = true;
     }
 
     private void Update()
@@ -53,8 +60,10 @@ public class PlayerMapController : MonoBehaviour
             return; 
         }
 
-        // 1. Nhận input WASD/Joystick
-        moveInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
+        // 1. Nhận input WASD/Joystick/Phím mũi tên
+        float h = Input.GetAxisRaw("Horizontal");
+        float v = Input.GetAxisRaw("Vertical");
+        moveInput = new Vector2(h, v).normalized;
 
         // 2. Nhận input Click chuột (Click để Tương tác)
         if (Input.GetMouseButtonDown(0))
@@ -82,7 +91,7 @@ public class PlayerMapController : MonoBehaviour
             }
         }
 
-        // 4. Xử lý Animation
+        // 3. Xử lý Animation
         if (animator != null)
         {
             animator.SetFloat(AnimSpeed, moveInput.magnitude);
@@ -104,16 +113,17 @@ public class PlayerMapController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        rb.linearVelocity = moveInput * moveSpeed;
+        float speed = moveSpeed > 0.1f ? moveSpeed : 5f;
+        rb.linearVelocity = moveInput * speed;
     }
 
-    /// <summary>Tạm dừng điều khiển (khi hiển thị popup encounter).</summary>
+    /// <summary>Tạm dừng điều khiển (khi hiển thị popup encounter, hội thoại...).</summary>
     public void SetCanMove(bool value)
     {
         canMove = value;
         if (!value) 
         {
-            rb.linearVelocity = Vector2.zero;
+            if (rb != null) rb.linearVelocity = Vector2.zero;
             // Ép tốc độ về 0 để Animator chuyển về trạng thái Idle (đứng im)
             if (animator != null)
             {

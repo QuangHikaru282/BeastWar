@@ -27,6 +27,10 @@ public class MoveData : ScriptableObject
 
     [Header("Chỉ số")]
     [Min(0)] public int power = 40;
+    [Tooltip("Độ chính xác của chiêu thức (0 - 100%)")]
+    [Range(0, 100)] public int accuracy = 100;
+    [Tooltip("Số lần sử dụng tối đa (PP)")]
+    [Min(1)] public int maxPP = 35;
     // Công thức tính sát thương: damage = Max(1, attacker.attack * power / 50 - defender.defense)
 
     [Header("Hiệu ứng Bất lợi (Status Effect)")]

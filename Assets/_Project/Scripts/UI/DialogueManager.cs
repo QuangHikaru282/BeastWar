@@ -66,6 +66,36 @@ public class DialogueManager : MonoBehaviour
         {
             dialoguePanel.SetActive(false);
         }
+
+        // Tự động tối ưu font chữ và bố cục để không bao giờ bị tràn khung thoại
+        if (dialogueText != null)
+        {
+            dialogueText.enableAutoSizing = true;
+            dialogueText.fontSizeMin = 18f;
+            dialogueText.fontSizeMax = 28f;
+            dialogueText.lineSpacing = -8f;
+            dialogueText.margin = new Vector4(10f, 5f, 10f, 25f); // Chừa lề dưới để không chạm nút tiếp tục
+        }
+
+        if (nameText != null)
+        {
+            nameText.enableAutoSizing = true;
+            nameText.fontSizeMin = 18f;
+            nameText.fontSizeMax = 32f;
+        }
+
+        if (continueIndicator != null)
+        {
+            // Dời nút "Nhấn [F] để tiếp tục" về góc dưới bên phải khung thoại
+            RectTransform rt = continueIndicator.GetComponent<RectTransform>();
+            if (rt != null)
+            {
+                rt.anchorMin = new Vector2(1f, 0f);
+                rt.anchorMax = new Vector2(1f, 0f);
+                rt.pivot = new Vector2(1f, 0f);
+                rt.anchoredPosition = new Vector2(-40f, 18f);
+            }
+        }
     }
 
     private void Start()
@@ -244,12 +274,20 @@ public class DialogueManager : MonoBehaviour
             // Lấy Canvas chứa Dialogue để làm mốc không ẩn
             Canvas dialogueCanvas = dialoguePanel != null ? dialoguePanel.GetComponentInParent<Canvas>() : null;
 
+            // LearnMovePanel là UI đặc biệt trong Battle — KHÔNG được tắt
+            // vì nó cần chạy Coroutine ngay sau khi thoại trong trận kết thúc.
+            Canvas learnMoveCanvas = null;
+            var learnMoveUI = FindFirstObjectByType<LearnMoveUI>();
+            if (learnMoveUI != null)
+                learnMoveCanvas = learnMoveUI.GetComponentInParent<Canvas>();
+
             // Tìm tất cả các Canvas trong scene
             Canvas[] allCanvases = FindObjectsByType<Canvas>(FindObjectsSortMode.None);
             foreach (var canvas in allCanvases)
             {
                 if (canvas == null) continue;
                 if (dialogueCanvas != null && canvas == dialogueCanvas) continue;
+                if (learnMoveCanvas != null && canvas == learnMoveCanvas) continue; // Bảo vệ LearnMovePanel
                 if (canvas.gameObject == gameObject || canvas.transform.IsChildOf(transform)) continue;
 
                 if (canvas.gameObject.activeSelf)

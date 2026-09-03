@@ -309,17 +309,10 @@ public class WildBeastEncounter : MonoBehaviour
         }
 
         battleTransferData.SetEnemyTeam(runtimeTeam);
-        battleTransferData.originScene = BattleTransferData.OriginScene.Map; // Lưu lại nguồn gốc để quay về
-        battleTransferData.isTrainerBattle = false; // Đảm bảo đây không phải trận đánh Trainer
-        
-        // LƯU LẠI VỊ TRÍ NGƯỜI CHƠI TRƯỚC TRẬN ĐẤU
-        var player = GameObject.FindWithTag("Player");
-        if (player != null)
-        {
-            battleTransferData.lastPlayerPosition = player.transform.position;
-            battleTransferData.returnToLastPosition = true;
-        }
+        battleTransferData.originScene = BattleTransferData.OriginScene.Map;
+        battleTransferData.isTrainerBattle = false;
+        // lastPlayerPosition và returnToLastPosition được GameSceneManager.GoToBattle() tự xử lý
 
-        GameSceneManager.GoToBattle();
+        GameSceneManager.GoToBattle(battleTransferData);
     }
 }

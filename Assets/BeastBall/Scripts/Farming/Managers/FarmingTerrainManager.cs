@@ -146,7 +146,34 @@ namespace BeastBall.Farming
 
         // --- PUBLIC API (Called by Items) ---
 
-        public bool IsTillable(Vector3Int target) => GroundTilemap.GetTile(target) == TilleableTile;
+        public bool IsTillable(Vector3Int target)
+        {
+            // 1. Nếu đã cuốc rồi thì không cuốc lại
+            if (IsTilled(target)) return false;
+
+            // 2. Phải có GroundTilemap và ô đó phải đúng là đất nông trại (TilleableTile)
+            if (GroundTilemap != null)
+            {
+                var tile = GroundTilemap.GetTile(target);
+                if (tile == null) return false;
+
+                // Nếu đúng là đất nông trại (TilleableTile) -> Cho phép cuốc
+                if (TilleableTile != null && tile == TilleableTile) return true;
+
+                // Nếu là thảm cỏ, nước, đá, tường... -> Chặn tuyệt đối
+                string tileName = tile.name.ToLower();
+                if (tileName.Contains("grass") || tileName.Contains("cỏ") || 
+                    tileName.Contains("water") || tileName.Contains("stone") || 
+                    tileName.Contains("rock") || tileName.Contains("wall"))
+                {
+                    return false;
+                }
+            }
+
+            // Mặc định: Không cho phép cuốc ngoài phạm vi đất nông trại
+            return false;
+        }
+
         public bool IsTilled(Vector3Int target) => m_GroundData.ContainsKey(target);
         public bool IsPlantable(Vector3Int target) => IsTilled(target) && !m_CropData.ContainsKey(target);
 
@@ -154,15 +181,18 @@ namespace BeastBall.Farming
         {
             if (IsTilled(target)) return;
             
-            GroundTilemap.SetTile(target, TilledTile);
-            m_GroundData.Add(target, new GroundData());
+            if (GroundTilemap != null && TilledTile != null)
+            {
+                GroundTilemap.SetTile(target, TilledTile);
+            }
+            m_GroundData[target] = new GroundData();
 
-            if (m_TillingEffectPool.Count > 0)
+            if (m_TillingEffectPool != null && m_TillingEffectPool.Count > 0)
             {
                 var inst = m_TillingEffectPool[0];
                 m_TillingEffectPool.RemoveAt(0);
                 m_TillingEffectPool.Add(inst); // Round-robin
-                inst.gameObject.transform.position = Grid.GetCellCenterWorld(target);
+                if (Grid != null) inst.gameObject.transform.position = Grid.GetCellCenterWorld(target);
                 inst.Stop();
                 inst.Play();
             }
@@ -203,6 +233,33 @@ namespace BeastBall.Farming
                     global::QuestManager.Instance.OnCropWatered();
                 }
             }
+        }
+
+        public void ResetAllGround()
+        {
+            if (GroundTilemap != null)
+            {
+                foreach (var cell in new List<Vector3Int>(m_GroundData.Keys))
+                {
+                    // Gỡ bỏ các ô đất xới (nếu là ô cuốc sai trên cỏ thì biến mất để hiện lại cỏ)
+                    GroundTilemap.SetTile(cell, null);
+                }
+            }
+            if (WaterTilemap != null) WaterTilemap.ClearAllTiles();
+            if (CropTilemap != null) CropTilemap.ClearAllTiles();
+            m_GroundData.Clear();
+            m_CropData.Clear();
+
+            try
+            {
+                if (System.IO.File.Exists(SaveLoadSystem.TerrainSaveFilePath))
+                {
+                    System.IO.File.Delete(SaveLoadSystem.TerrainSaveFilePath);
+                }
+            }
+            catch {}
+
+            Debug.Log("[FarmingTerrainManager] Đã dọn dẹp toàn bộ ô đất xới và trả lại nền sạch đẹp!");
         }
 
         public Crop HarvestAt(Vector3Int target)

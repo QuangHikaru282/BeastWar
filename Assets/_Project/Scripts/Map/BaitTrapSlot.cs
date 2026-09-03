@@ -137,13 +137,10 @@ public class BaitTrapSlot : MonoBehaviour, Kinnly.IInteractable
 
         battleTransferData.ResetData();
         battleTransferData.originScene = BattleTransferData.OriginScene.Map;
-        battleTransferData.isTrainerBattle = false; // Quái hoang dã -> cho phép ném bóng bắt
+        battleTransferData.isTrainerBattle = false;
         battleTransferData.isGymLeaderBattle = false;
         battleTransferData.lastEncounteredBeastId = "Safari_Bait_" + trappedBeast.beastName;
-        battleTransferData.returnToLastPosition = true;
-
-        if (playerObj != null)
-            battleTransferData.lastPlayerPosition = playerObj.transform.position;
+        // lastPlayerPosition và returnToLastPosition được GameSceneManager.GoToBattle() tự xử lý
 
         List<RuntimeBeastData> enemyTeam = new List<RuntimeBeastData>
         {
@@ -155,7 +152,7 @@ public class BaitTrapSlot : MonoBehaviour, Kinnly.IInteractable
         currentState = TrapState.Empty;
         UpdateVisuals();
 
-        GameSceneManager.GoToBattle();
+        GameSceneManager.GoToBattle(battleTransferData);
     }
 
     private void UpdateVisuals()

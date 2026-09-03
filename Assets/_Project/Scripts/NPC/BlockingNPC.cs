@@ -230,12 +230,9 @@ public class BlockingNPC : MonoBehaviour, IInteractable
             battleData = ScriptableObject.CreateInstance<BattleTransferData>();
         }
 
-        Vector3 playerPos = playerInventory != null ? playerInventory.transform.position : transform.position;
-
         battleData.ResetData();
         battleData.originScene = BattleTransferData.OriginScene.Map;
-        battleData.lastPlayerPosition = playerPos;
-        battleData.returnToLastPosition = true;
+        // lastPlayerPosition và returnToLastPosition được GameSceneManager.GoToBattle() tự xử lý
 
         // Trận đấu hoang dã (không phải Trainer) để được quyền ném bóng bắt thú!
         battleData.isTrainerBattle = false;
@@ -269,7 +266,7 @@ public class BlockingNPC : MonoBehaviour, IInteractable
         battleData.SetEnemyTeam(enemyTeam);
 
         // Chuyển sang Battle Scene
-        GameSceneManager.GoToBattle();
+        GameSceneManager.GoToBattle(battleData);
     }
 
     private void OpenPath()

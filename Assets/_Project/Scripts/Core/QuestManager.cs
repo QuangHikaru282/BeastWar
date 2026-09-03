@@ -220,15 +220,7 @@ public class QuestManager : MonoBehaviour
 
     private void Update()
     {
-        // Cheat code: Click chuột phải (chuột 1) để hoàn thành nhanh quest hiện tại
-        if (Input.GetMouseButtonDown(1))
-        {
-            if (playerData != null && playerData.currentMainQuestId < questDescriptions.Length)
-            {
-                Debug.Log($"[Cheat] Đã click chuột phải! Hoàn thành nhanh nhiệm vụ {playerData.currentMainQuestId}.");
-                AdvanceQuest();
-            }
-        }
+        // (Đã tắt cheat code chuột phải để không gây xung đột thao tác người chơi)
     }
 
     /// <summary>
